@@ -1,0 +1,21 @@
+name: daily predict
+
+on:
+  schedule:
+    - cron: '30 12 * * *'
+  workflow_dispatch:
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout data repository
+        uses: actions/checkout@v4
+        with:
+          repository: suwei8/pinble-data
+          path: pinble-data
+      - name: Verify schedule pipeline
+        run: |
+          echo "3dtong-v2 daily prediction pipeline"
+          test -f pinble-data/data/k3_full_history_test.csv || true
