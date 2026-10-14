@@ -1,0 +1,10 @@
+models:
+  - xgboost
+  - lightgbm
+  - catboost
+  - dtong
+  - ensemble
+
+llm:
+  provider: cline-free
+  model: mimo-v2.6-flash
