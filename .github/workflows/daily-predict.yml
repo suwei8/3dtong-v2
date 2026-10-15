@@ -68,6 +68,8 @@ jobs:
           git fetch origin main
           for file in predictions/live/runs/*.json; do
             [ -f "$file" ] || continue
+            # Existing tracked issues remain sealed; check only newly created local files.
+            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then continue; fi
             if git cat-file -e "origin/main:$file" 2>/dev/null; then
               echo "Frozen issue already exists upstream: $file"
               git checkout -- predictions/live/LATEST.md 2>/dev/null || true
