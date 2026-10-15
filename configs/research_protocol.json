@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "name": "first-200-valid-prospective-issues-v1",
+  "registered_at": "2026-10-15",
+  "start_issue": "2026275",
+  "success_definition": "At least one of three distinct predicted digits is present anywhere in the three-digit drawn outcome",
+  "null_model": "Independent uniform digits at each of three positions",
+  "null_hit_probability": 0.657,
+  "sample_size_per_registered_model": 200,
+  "one_sided_alpha": 0.05,
+  "multiple_comparison_method": "bonferroni",
+  "reporting_policy": "No p-values or significance verdict before 200 actual valid, sealed, post-registration predictions. After 200 compute one frozen fixed-window test per arm; daily cumulative success-rate table remains descriptive only.",
+  "planned_models": [
+    "xgboost",
+    "lightgbm",
+    "catboost",
+    "ensemble",
+    "dtong-main10",
+    "frequency-30",
+    "opencode/big-pickle",
+    "opencode/cat-jam-free",
+    "opencode/longcat-2.5-preview-free",
+    "opencode/mimo-v2.6-flash-free",
+    "opencode/muse-spark-1.3-contributor-free",
+    "opencode/nemotron-3-ultra-free",
+    "opencode/nemotron-3.5-lightning-free",
+    "opencode/space-bunny-free",
+    "opencode/step-5-preview-free",
+    "opencode-consensus",
+    "ml-opencode-hybrid"
+  ],
+  "observational_control": "random-control-v1",
+  "limitations": [
+    "Absent OpenCode results must be counted as coverage loss, never as failed predictions.",
+    "All tests rely on iid uniform three-digit outcomes and genuinely pre-result sealed forecasts.",
+    "Per-model first 200 valid votes may cover different issue dates; cross-model superiority is not established by separate p-values.",
+    "Do not repeatedly inspect a partial window and assert significance or tune models in response.",
+    "A rejection of the ideal-random null is not proof of a profitable betting strategy."
+  ]
+}

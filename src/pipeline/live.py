@@ -26,6 +26,8 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
         return False
     arena=train_all(source["history"])
     models=dict(arena["predictions"])
+    from src.evaluation.control import NAME as CONTROL_NAME, control_digits
+    models[CONTROL_NAME]=control_digits(source["cutoff"],source["target"])
     opencode_status={}
     derived_status={}
     if opencode:
@@ -41,7 +43,7 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
         derived=combine_open_votes(candidates,arena["probabilities"]["ensemble"])
         models.update(derived["predictions"])
         derived_status=derived["statuses"]
-    data={"schema":4,"type":"prospective-next-issue",
+    data={"schema":5,"type":"prospective-next-issue",
           "generated_at_utc":datetime.now(timezone.utc).isoformat(),
           "target_issue":source["target"],"known_through_issue":source["cutoff"],
           "source_sha256":source["source_sha256"],
@@ -50,6 +52,8 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
           "validation_selected_model":arena["champion_validation_only"],
           "opencode_challengers":opencode_status,
           "derived_challengers":derived_status,
+          "control_algorithm":"sha256-rank-v1",
+          "research_protocol":"first-200-valid-prospective-issues-v1",
           "models":models,
           "notes":"Only actual successful anonymous CLI JSON responses enter forecasts; no model has proven an edge."}
     frozen.parent.mkdir(parents=True,exist_ok=True)
