@@ -81,7 +81,7 @@ def predict_model(summary,model,executable="opencode",timeout=45):
     """Run one authenticated-or-anonymous OpenCode free contender in isolation.
 
     Requiring a clean workspace avoids exposing private source files.
-    The OpenCode permission config denies ALL tools, including reading files.
+    The OpenCode permission policy requires confirmation for tools (with write, network and task tools denied); no approvals are supplied.
     """
     if not isinstance(summary,str) or len(summary)>15000:
         raise ValueError("summary must be a small aggregate string")
