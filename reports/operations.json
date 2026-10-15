@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "generated_at_utc": "2026-10-15T05:46:25.596466+00:00",
+  "health": "ok",
+  "problem_codes": [],
+  "private_source": "suwei8/pinble-data/data/k3_full_history.csv",
+  "private_csv_included": false,
+  "source_commit_at_utc": "2026-10-14T15:17:10+00:00",
+  "source_age_hours": 14.49,
+  "freshness_threshold_hours": 36,
+  "latest_completed_issue": "2026273",
+  "next_issue_from_latest_result": "2026274",
+  "next_issue_forecast_frozen": true,
+  "latest_frozen_issue": "2026274",
+  "completed_issues_monitored": 0,
+  "missed_completed_forecasts": [],
+  "completed_forecasts_awaiting_score": [],
+  "monitoring_started_at_issue": "2026274",
+  "note": "A missing NEXT forecast is not treated as late: the next drawing's deadline is not inferable from draw issue IDs. Only already-completed missing forecasts count as missed."
+}
