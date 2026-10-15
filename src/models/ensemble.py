@@ -1,6 +1,9 @@
-"""Model competition ensemble."""
-
-
-def rank_predictions(results):
-    """Combine model outputs without assuming a champion."""
-    return sorted(results, key=lambda x: x.get("score", 0), reverse=True)
+"""Ensemble is scored independently; not presumed to beat individual challengers."""
+import numpy as np
+def mean_proba(predictions):
+    if not predictions:
+        raise ValueError("no model probability arrays")
+    values=list(predictions.values())
+    if len({v.shape for v in values})!=1:
+        raise ValueError("prediction array shape mismatch")
+    return np.mean(values,axis=0)
