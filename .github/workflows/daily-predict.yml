@@ -26,7 +26,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           persist-credentials: true
+      - name: Refresh current main before generating predictions
+        run: git pull --ff-only origin main
       - name: Checkout private current data
         uses: actions/checkout@v4
         with:
@@ -62,6 +65,16 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          for file in predictions/live/runs/*.json; do
+            [ -f "$file" ] || continue
+            if git cat-file -e "origin/main:$file" 2>/dev/null; then
+              echo "Frozen issue already exists upstream: $file"
+              git checkout -- predictions/live/LATEST.md 2>/dev/null || true
+              rm -f "$file" 2>/dev/null || true
+              exit 0
+            fi
+          done
           git add predictions/live/LATEST.md predictions/live/runs/
           if git diff --cached --quiet; then
             echo "Target already sealed. No fabricated new forecast."
