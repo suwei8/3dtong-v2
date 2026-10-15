@@ -61,3 +61,15 @@ No hosted Actions runner currently has a Cline login, and this contestant is
 **not** represented as having predicted anything yet. Only valid CLI `run_result`
 with exactly three distinct digits may enter the arena. Source private
 data and GitHub secrets must never be exposed to the agent.
+
+## Optional Cline MiMo contestant (real CLI, not simulated)
+
+The official Cline documentation says free promotional models are available only through the Cline IDE/CLI, subject to changing quotas. The public REST API is **not** a free-model substitute. This integration therefore uses the Cline CLI and does not invent an output when no usable account authentication is available.
+
+To enable the next **new** forecast: create a Cline account API key at app.cline.bot, then add it as GitHub Actions repository secret **CLINE_API_KEY** in **suwei8/3dtong-v2**. Never paste a key into a public repo or chat. You may specify a current free model via Actions variable **CLINE_MODEL_ID**, defaulting to **cline-free/mimo-v2.6-flash** (verify that this model exists and is free for your account; promotions change). An API key's eligibility for free-model CLI promotions is not guaranteed.
+
+The daily forecast workflow will install the official CLI only when that secret exists, execute with **--json --auto-approve false**, and supply only aggregate historical frequency counts rather than private CSV rows. The CLI process receives no GitHub or private-data tokens, and runs from an empty temporary directory. The result is admitted only if Cline actually returns three distinct digits; otherwise its status is recorded as skipped. All other predictors run regardless. This is not a full OS sandbox.
+
+Previously committed forecasts are intentionally immutable. Adding Cline credentials today does not revise an earlier issue: the first possible vote is the next unsealed target issue. No Cline historical validation score is fabricated.
+
+Useful references: https://github.com/cline/cline/blob/main/docs/usage/cli-overview.mdx and https://github.com/cline/cline/blob/main/docs/getting-started/free-models.mdx.
