@@ -1,13 +1,16 @@
 """One-issue immutable predictions; optional true anonymous OpenCode model contestants."""
 import argparse
 import json
-from datetime import datetime,timezone
+from datetime import datetime,timezone,timedelta
+from zoneinfo import ZoneInfo
 from pathlib import Path
 from src.data.live import load_live_history
 from src.pipeline.train import train_all
 
 def freeze_live(path,out="predictions/live",source_max_age_hours=0,
-                source_commit_utc=None,opencode=False,opencode_models=None):
+                source_commit_utc=None,opencode=False,opencode_models=None,
+                opencode_max_seconds=None,publish_deadline_beijing=None,
+                publish_reserve_seconds=120):
     source=load_live_history(path)
     if source_max_age_hours:
         if not source_commit_utc:
@@ -33,7 +36,16 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
     if opencode:
         from src.models.llm.opencode_free import compete
         from src.models.llm.vote_ensemble import combine_open_votes
-        candidates=compete(source["history"],models=opencode_models)
+        budget=opencode_max_seconds
+        if publish_deadline_beijing is not None:
+            deadline=datetime.strptime(publish_deadline_beijing,"%H:%M")
+            current=datetime.now(ZoneInfo("Asia/Shanghai"))
+            deadline_today=current.replace(hour=deadline.hour,minute=deadline.minute,
+                                           second=0,microsecond=0)
+            available=(deadline_today-current).total_seconds()-publish_reserve_seconds
+            budget=max(0,min(available,budget)) if budget is not None else max(0,available)
+        candidates=compete(source["history"],models=opencode_models,
+                           budget_seconds=budget)
         for model,result in candidates.items():
             opencode_status[model]={"status":result["status"]}
             if result["status"]=="ok":
@@ -92,9 +104,19 @@ def main():
     p.add_argument("--source-commit-utc")
     p.add_argument("--opencode",action="store_true",help="Compete with listed anonymous OpenCode models")
     p.add_argument("--opencode-models",nargs="+",help="Optional list of free model IDs")
+    p.add_argument("--opencode-max-seconds",type=int,
+                   help="Total OpenCode contestant budget; remaining models skip")
+    p.add_argument("--publish-deadline-beijing",
+                   help="HH:MM Beijing publication deadline; applied to OpenCode model time budget")
+    p.add_argument("--publish-reserve-seconds",type=int,default=120,
+                   help="Leave this many seconds before publication for packaging and Git")
+
     args=p.parse_args()
     freeze_live(args.history,args.out,args.max_source_age_hours,
-                args.source_commit_utc,opencode=args.opencode,opencode_models=args.opencode_models)
+                args.source_commit_utc,opencode=args.opencode,opencode_models=args.opencode_models,
+                opencode_max_seconds=args.opencode_max_seconds,
+                publish_deadline_beijing=args.publish_deadline_beijing,
+                publish_reserve_seconds=args.publish_reserve_seconds)
 
 if __name__=="__main__":
     main()

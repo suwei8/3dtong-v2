@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 DEFAULT_MODELS_PATH=Path(__file__).resolve().parents[3] / "configs" / "opencode_models.json"
@@ -134,14 +135,46 @@ def predict_model(summary,model,executable="opencode",timeout=45):
         return {"model":model,"status":"ok","digits":digits}
 
 
-def compete(history,models=None,timeout=None):
+def compete(history,models=None,timeout=None,budget_seconds=None,clock=None):
+    """Run candidates under an overall wall-clock budget.
+
+    Each success is an actual OpenCode reply; all unattempted candidates are
+    marked 'skipped' so a late OpenCode model cannot hold the ML forecast hostage.
+    The monotonic clock makes the budget robust to wall-clock adjustments.
+    """
     from src.models.llm.contestant import summary_for_llm
     default,default_timeout=load_models()
-    selected=models or default
+    selected=default if models is None else models
+    if not isinstance(selected,list) or any(m not in default for m in selected):
+        raise ValueError("requested model IDs must be in approved free list")
+    if len(selected)!=len(set(selected)):
+        raise ValueError("duplicate OpenCode candidate")
     ttl=default_timeout if timeout is None else timeout
-    # Failures must not invent votes or break the classical model arena.
+    if type(ttl) is not int or ttl<5 or ttl>120:
+        raise ValueError("per-model timeout must be 5..120 seconds")
+    if budget_seconds is not None and (type(budget_seconds) not in (int,float)
+                                        or not 0<=budget_seconds<=1800):
+        raise ValueError("budget must be 0..1800 seconds")
+    watch=clock or time.monotonic
+    began=watch()
     summary=summary_for_llm(history)
     results={}
     for model in selected:
-        results[model]=predict_model(summary,model,timeout=ttl)
+        if budget_seconds is None:
+            effective=ttl
+        else:
+            remaining=budget_seconds-(watch()-began)
+            if remaining<5:
+                results[model]={"model":model,"status":"skipped",
+                                "reason":"overall OpenCode budget exhausted"}
+                continue
+            # Decimal seconds are accepted by subprocess timeout; leave
+            # a short buffer for scheduling/serialization overhead.
+            effective=min(ttl,max(5,remaining-1))
+        try:
+            result=predict_model(summary,model,timeout=effective)
+        except (OSError,subprocess.SubprocessError) as exc:
+            result={"model":model,"status":"skipped",
+                    "reason":"OpenCode invocation error: "+type(exc).__name__}
+        results[model]=result
     return results
