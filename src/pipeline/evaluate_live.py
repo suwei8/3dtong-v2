@@ -1,73 +1,170 @@
-"""Score only previously sealed, one-issue prospective forecasts.
+"""Prospective-only live scoring, with duplicate protection and uncertainty bands.
 
-Ground-truth draw values stay in the private source. Public outputs include
-only hit flags and aggregates, not the private source's KaiJiang column.
+The complete draw code never leaves the private data checkout. An attempted
+but invalid model response cannot be presented as a miss or a scored vote.
 """
 import argparse
 import json
+import math
+import re
 from collections import defaultdict
+from datetime import datetime, timezone
 from pathlib import Path
+
 from src.data.loader import load_history
 from src.evaluation.metrics import hit_any_digit
 
 
-def evaluate_live(locked,results):
-    if locked.get("type")!="prospective-next-issue":
-        raise ValueError("not a prospective prediction")
-    target=locked["target_issue"]
-    if int(locked["known_through_issue"]) >= int(target):
+def wilson_interval(hits, n, z=1.96):
+    """Approximate two-sided 95% binomial Wilson confidence interval."""
+    if not isinstance(n, int) or not isinstance(hits, int) or n < 0 or hits < 0 or hits > n:
+        raise ValueError("invalid hit counts")
+    if n == 0:
+        return None
+    p = hits / n
+    denom = 1 + z*z/n
+    center = (p + z*z/(2*n)) / denom
+    radius = z*math.sqrt((p*(1-p)+z*z/(4*n))/n) / denom
+    return max(0.0, center-radius), min(1.0, center+radius)
+
+
+def _valid_digits(digits):
+    return (isinstance(digits, list) and len(digits) == 3
+            and all(type(d) is int and 0 <= d <= 9 for d in digits)
+            and len(set(digits)) == 3)
+
+
+def evaluate_live(locked, results):
+    """Return None when target has not drawn; never pull future labels."""
+    if locked.get("type") != "prospective-next-issue":
+        raise ValueError("not a prospective next-issue forecast")
+    target = locked.get("target_issue")
+    origin = locked.get("known_through_issue")
+    if not isinstance(target, str) or not re.fullmatch(r"\d{7}", target):
+        raise ValueError("invalid target issue")
+    if not isinstance(origin, str) or not re.fullmatch(r"\d{7}", origin):
+        raise ValueError("invalid origin issue")
+    if int(origin) >= int(target):
         raise ValueError("source cutoff not before forecast target")
+    timestamp = datetime.fromisoformat(locked["generated_at_utc"].replace("Z","+00:00"))
+    if timestamp.tzinfo is None:
+        raise ValueError("forecast must have timezone-aware frozen time")
     if target not in results:
         return None
-    output={"target_issue":target,"frozen_at":locked["generated_at_utc"],
-            "source_cutoff":locked["known_through_issue"],"scores":{}}
-    for name,digits in locked["models"].items():
-        if (len(digits)!=3 or len(set(digits))!=3
-                or any(type(d) is not int or not 0<=d<=9 for d in digits)):
+
+    codes = locked.get("models")
+    if not isinstance(codes, dict) or not codes:
+        raise ValueError("no valid model forecasts")
+    scores = {}
+    for name, digits in codes.items():
+        if not isinstance(name, str) or not name or not _valid_digits(digits):
             raise ValueError("expected exactly three distinct digit integers")
-        output["scores"][name]=bool(hit_any_digit(digits,results[target]))
-    return output
+        scores[name] = bool(hit_any_digit(digits, results[target]))
+    return {"target_issue": target, "frozen_at": timestamp.astimezone(timezone.utc).isoformat(),
+            "source_cutoff": origin, "scores": scores}
 
 
-def run(full_history,forecasts,output_dir):
-    source={r["Issue"]:r["KaiJiang"] for r in load_history(full_history)}
-    target=Path(output_dir)
-    out=target/"live"
-    out.mkdir(parents=True,exist_ok=True)
-    totals=defaultdict(lambda:[0,0])
-    completed=0
-    for f in sorted(Path(forecasts).glob("*.json")):
-        locked=json.loads(f.read_text(encoding="utf-8"))
-        evaluation=evaluate_live(locked,source)
-        if evaluation is None:
+def run(full_history, forecasts, output_dir):
+    results = {item["Issue"]: item["KaiJiang"] for item in load_history(full_history)}
+    output = Path(output_dir)
+    evaluations = output / "live"
+    evaluations.mkdir(parents=True, exist_ok=True)
+
+    counters = defaultdict(lambda: {"hits": 0, "published": 0, "attempted": 0, "unavailable": 0})
+    seen = set()
+    scored_issues = 0
+    pending_issues = 0
+    frozen_files = sorted(Path(forecasts).glob("*.json"))
+    for file in frozen_files:
+        data = json.loads(file.read_text(encoding="utf-8"))
+        target = data.get("target_issue")
+        # The file name is part of the immutable issue ID; no ambiguous aliases.
+        if target != file.stem or target in seen:
+            raise ValueError(f"duplicate or mismatched target file: {file.name}")
+        seen.add(target)
+        current = evaluate_live(data, results)
+        if current is None:
+            pending_issues += 1
             continue
-        completed+=1
-        report=out/f.name
-        report.write_text(json.dumps(evaluation,ensure_ascii=False,indent=2)+"\n",
-                          encoding="utf-8")
-        for model,hit in evaluation["scores"].items():
-            totals[model][0]+=int(hit)
-            totals[model][1]+=1
-    lines=["# Prospective Model Arena","",
-           "Only one sealed live forecast per target issue is scored.",
-           "Historical masked holdout results are **excluded**.","",
-           "| Model | Hits | Total | Hit rate |","|---|---:|---:|---:|"]
-    for name,(hits,n) in sorted(totals.items(),key=lambda item:(-item[1][0]/item[1][1],item[0])):
-        lines.append(f"| {name} | {hits} | {n} | {100*hits/n:.2f}% |")
-    lines.extend(["",f"Scored target issues: {completed}.",
-                  "Chance baseline for fixed three-digit set: 65.7%.",
-                  "Small-sample results do not establish an edge."])
-    (target/"live-leaderboard.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
-    print(f"scored {completed} sealed issues")
+        scored_issues += 1
+        out = evaluations / file.name
+        serialised = json.dumps(current, ensure_ascii=False, indent=2)+"\n"
+        if not out.exists() or out.read_text(encoding="utf-8") != serialised:
+            out.write_text(serialised, encoding="utf-8")
+        # All already-published scores count exactly once per issue.
+        for model, hit in current["scores"].items():
+            entry = counters[model]
+            entry["hits"] += int(hit)
+            entry["published"] += 1
+            entry["attempted"] += 1
+        # Unavailable OpenCode contestants are tracked as coverage failures,
+        # NOT as scored misses.
+        challengers = data.get("opencode_challengers", {})
+        if not isinstance(challengers, dict):
+            raise ValueError("invalid contestant statuses")
+        for model, result in challengers.items():
+            if not isinstance(result, dict) or result.get("status") not in ("ok","skipped"):
+                raise ValueError("invalid contestant status")
+            if result["status"] == "skipped":
+                if model in current["scores"]:
+                    raise ValueError("skipped challenger must not have a vote")
+                counters[model]["attempted"] += 1
+                counters[model]["unavailable"] += 1
+            elif model not in current["scores"]:
+                raise ValueError("successful challenger requires a frozen vote")
+
+    # Never retain obsolete per-issue score files when input set changes.
+    for file in evaluations.glob("*.json"):
+        if file.stem not in seen:
+            raise ValueError(f"orphan evaluation file: {file.name}")
+
+    lines = [
+        "# Prospective Model Arena",
+        "",
+        "Only one immutable pre-result forecast per target issue is scored.",
+        "Historical masked holdout runs are excluded from every statistic below.",
+        "Skipped/unavailable OpenCode calls are NOT counted as wrong predictions.",
+        "",
+        "| Model | Hits | Valid votes | Success rate | 95% Wilson CI | Attempts | Unavailable |",
+        "|---|---:|---:|---:|---:|---:|---:|"
+    ]
+    for name, row in sorted(counters.items(),
+                            key=lambda item:(-item[1]["hits"]/max(1,item[1]["published"]),-item[1]["published"],item[0])):
+        hits, n = row["hits"], row["published"]
+        ci = wilson_interval(hits, n)
+        rate = f"{hits/n*100:.2f}%" if n else "—"
+        band = f"{ci[0]*100:.1f}%–{ci[1]*100:.1f}%" if ci else "—"
+        lines.append(f'| {name} | {hits} | {n} | {rate} | {band} | '
+                     f'{row["attempted"]} | {row["unavailable"]} |')
+    lines.extend([
+        "",
+        f"Scored target issues: **{scored_issues}**.",
+        f"Pending target issues: **{pending_issues}**.",
+        "",
+        "Fixed three-digit choice chance baseline: **65.7%** (iid uniform assumption).",
+        "Do not compare models with tiny or different denominators as if they were equally tested.",
+        "Confidence intervals quantify sample uncertainty, not predictive superiority."
+    ])
+    output.mkdir(parents=True,exist_ok=True)
+    (output/"live-leaderboard.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
+    health = {
+        "schema": 1, "scored_issues": scored_issues,
+        "pending_issues": pending_issues, "frozen_issues": len(frozen_files),
+        "models": dict(counters), "random_baseline": 0.657
+    }
+    (output/"live-metrics.json").write_text(
+        json.dumps(health,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print(f"scored {scored_issues} issues; {pending_issues} awaiting verified results")
+    return health
 
 
 def main():
-    p=argparse.ArgumentParser()
-    p.add_argument("--full-history",required=True)
-    p.add_argument("--forecasts",default="predictions/live/runs")
-    p.add_argument("--out",default="reports")
-    a=p.parse_args()
-    run(a.full_history,a.forecasts,a.out)
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--full-history",required=True)
+    parser.add_argument("--forecasts",default="predictions/live/runs")
+    parser.add_argument("--out",default="reports")
+    args=parser.parse_args()
+    run(args.full_history,args.forecasts,args.out)
 
 
 if __name__=="__main__":

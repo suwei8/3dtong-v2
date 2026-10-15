@@ -1,13 +1,5 @@
 name: daily predict
 on:
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "configs/opencode_models.json"
-      - "requirements.txt"
-      - ".github/workflows/daily-predict.yml"
   schedule:
     - cron: "50 11 * * *" # 19:50 Beijing
     - cron: "20 12 * * *" # 20:20 Beijing
