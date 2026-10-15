@@ -1,0 +1,405 @@
+{
+  "schema": 1,
+  "type": "fixed-origin historical holdout / future forecast",
+  "source": "private pinble-data/data/k3_full_history_test.csv",
+  "source_sha256": "d40320c10abc111e22f92a2f81ee540c26222cee7cfb11c4366a99ec087aca8c",
+  "last_known_issue": "2026263",
+  "last_known_draw_count": 8771,
+  "created_at_utc": "2026-10-15T03:41:48.135048+00:00",
+  "selection_policy": "champion selected using historical validation only",
+  "validation": {
+    "xgboost": {
+      "validation_hit_rate": 0.64875,
+      "validation_n": 800
+    },
+    "lightgbm": {
+      "validation_hit_rate": 0.6375,
+      "validation_n": 800
+    },
+    "catboost": {
+      "validation_hit_rate": 0.64,
+      "validation_n": 800
+    },
+    "ensemble": {
+      "validation_hit_rate": 0.6375,
+      "validation_n": 800
+    },
+    "dtong-main10": {
+      "validation_hit_rate": 0.62,
+      "validation_n": 800
+    },
+    "frequency-30": {
+      "validation_hit_rate": 0.69875,
+      "validation_n": 800
+    },
+    "random-theory": {
+      "validation_hit_rate": 0.657,
+      "validation_n": 0,
+      "note": "iid uniform mathematical baseline"
+    }
+  },
+  "champion_validation_only": "frequency-30",
+  "note": "The same fixed-origin forecast applies to all horizons. No unknown intervening draws were used.",
+  "predictions": [
+    {
+      "issue": "2026264",
+      "horizon": 1,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026265",
+      "horizon": 2,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026266",
+      "horizon": 3,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026267",
+      "horizon": 4,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026268",
+      "horizon": 5,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026269",
+      "horizon": 6,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026270",
+      "horizon": 7,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026271",
+      "horizon": 8,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026272",
+      "horizon": 9,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    },
+    {
+      "issue": "2026273",
+      "horizon": 10,
+      "models": {
+        "xgboost": [
+          4,
+          6,
+          9
+        ],
+        "lightgbm": [
+          4,
+          9,
+          1
+        ],
+        "catboost": [
+          8,
+          6,
+          1
+        ],
+        "ensemble": [
+          4,
+          6,
+          9
+        ],
+        "dtong-main10": [
+          1,
+          3,
+          4
+        ],
+        "frequency-30": [
+          9,
+          5,
+          6
+        ]
+      }
+    }
+  ]
+}
