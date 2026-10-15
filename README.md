@@ -31,7 +31,7 @@ opencode run --model opencode/mimo-v2.6-flash-free --format json 'Return {"digit
 - opencode/space-bunny-free
 - opencode/step-5-preview-free
 
-这个列表由用户提供，**不代表每个 ID 在任意时刻都能免登录使用**。GitHub CI 会实际检测，无网络、额度耗尽、模型下架、需要登录或格式错误时记录 `skipped`，不会伪造预测。每个模型只收到最近10/30/100期的聚合数字统计及遗漏间隔，不接触私有 CSV 或 GitHub Token。OpenCode 使用单独临时工作空间，其 `opencode.json` 将所有工具权限设为 `deny`，关闭对话分享；依然不能把进程隔离视为完善的系统沙盒。
+这个列表由用户提供，**不代表每个 ID 在任意时刻都能免登录使用**。GitHub CI 会实际检测，无网络、额度耗尽、模型下架、需要登录或格式错误时记录 `skipped`，不会伪造预测。每个模型只收到最近10/30/100期的聚合数字统计及遗漏间隔，不接触私有 CSV 或 GitHub Token。OpenCode 使用单独临时工作空间，其 `opencode.json` 将工具默认权限设为需确认（无人审批），将编辑、网络搜索和子任务等权限明确设为 `deny`，关闭对话分享；依然不能把进程隔离视为完善的系统沙盒。
 
 只有成功生成**合法JSON、三个不重复整数（0—9）**的 OpenCode 候选才进入当期比赛，并在真正开奖后参与同一排行榜。没有历史训练验证的 LLM 不会被虚构一个冠军分数。
 
