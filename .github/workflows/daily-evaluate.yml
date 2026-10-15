@@ -1,6 +1,11 @@
 name: daily evaluate
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "src/pipeline/evaluate_live.py"
+      - ".github/workflows/daily-evaluate.yml"
   workflow_run:
     workflows: ["daily predict"]
     types: [completed]
