@@ -47,8 +47,8 @@ def test_reject_invalid_output_and_naive_stamp():
 def test_distinct_denominators_skip_does_not_count_as_miss(tmp_path, monkeypatch):
     from src.pipeline import evaluate_live as app
     # Private loader mocked: tests never access private CSV.
-    monkeypatch.setattr(app,"load_history",lambda _: [
-        {"Issue":"2026274","KaiJiang":"908"}])
+    monkeypatch.setattr(app,"load_live_history",lambda _: {
+        "history": [{"Issue":"2026274","KaiJiang":"908"}]})
     root=tmp_path/"predictions"
     root.mkdir()
     p=forecast("2026274","2026273",
@@ -72,8 +72,8 @@ def test_distinct_denominators_skip_does_not_count_as_miss(tmp_path, monkeypatch
 
 def test_duplicate_alias_must_fail(tmp_path,monkeypatch):
     from src.pipeline import evaluate_live as app
-    monkeypatch.setattr(app,"load_history",lambda _: [
-        {"Issue":"2026274","KaiJiang":"908"}])
+    monkeypatch.setattr(app,"load_live_history",lambda _: {
+        "history": [{"Issue":"2026274","KaiJiang":"908"}]})
     folder=tmp_path/"inputs"
     folder.mkdir()
     p=forecast("2026274","2026273")
@@ -85,8 +85,8 @@ def test_duplicate_alias_must_fail(tmp_path,monkeypatch):
 
 def test_invalid_status_fails_closed(tmp_path,monkeypatch):
     from src.pipeline import evaluate_live as app
-    monkeypatch.setattr(app,"load_history",lambda _: [
-        {"Issue":"2026274","KaiJiang":"908"}])
+    monkeypatch.setattr(app,"load_live_history",lambda _: {
+        "history": [{"Issue":"2026274","KaiJiang":"908"}]})
     folder=tmp_path/"inputs"
     folder.mkdir()
     p=forecast("2026274","2026273",

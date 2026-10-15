@@ -11,7 +11,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-from src.data.loader import load_history
+from src.data.live import load_live_history
 from src.evaluation.metrics import hit_any_digit
 
 
@@ -65,7 +65,7 @@ def evaluate_live(locked, results):
 
 
 def run(full_history, forecasts, output_dir):
-    results = {item["Issue"]: item["KaiJiang"] for item in load_history(full_history)}
+    results = {item["Issue"]: item["KaiJiang"] for item in load_live_history(full_history)["history"]}
     output = Path(output_dir)
     evaluations = output / "live"
     evaluations.mkdir(parents=True, exist_ok=True)
