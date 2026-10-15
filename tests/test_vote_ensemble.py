@@ -81,7 +81,8 @@ def test_live_only_freezes_verified_votes(tmp_path,monkeypatch):
     sealed=tmp_path/"live"/"runs"/"2026275.json"
     before=sealed.read_bytes()
     record=json.loads(before)
-    assert record["schema"]==4
+    assert record["schema"]==5
+    assert len(set(record["models"]["random-control-v1"]))==3
     assert CONSENSUS in record["models"] and HYBRID in record["models"]
     assert record["derived_challengers"][CONSENSUS]["status"]=="ok"
     assert not freeze_live("not-read.csv",tmp_path/"live",opencode=True)

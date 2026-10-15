@@ -17,7 +17,8 @@ def test_control_is_stable_and_three_distinct_digits():
 def test_target_issue_determines_control_without_future_draw():
     first=control_digits("2026273","2026274")
     assert first == control_digits("2026273","2026274")
-    assert control_digits("2026274","2026275") != first or True
+    assert control_digits("2026274","2026275") == control_digits("2026274","2026275")
+    assert len({*first})==3
 
 
 @pytest.mark.parametrize("origin,target", [
