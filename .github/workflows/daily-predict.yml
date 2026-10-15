@@ -19,6 +19,9 @@ concurrency:
   group: daily-predict-main
   cancel-in-progress: false
 
+env:
+  CLINE_ENABLED: ${{ secrets.CLINE_API_KEY != '' }}
+
 jobs:
   predict:
     runs-on: ubuntu-latest
@@ -46,6 +49,9 @@ jobs:
         run: |
           python -m pip install -r requirements.txt
           python -m pytest -q tests/
+      - name: Install Cline CLI when account secret exists
+        if: env.CLINE_ENABLED == 'true'
+        run: npm install -g cline
       - name: Enforce real pre-draw cutoff in Beijing timezone
         run: |
           hhmm=$(TZ=Asia/Shanghai date +%H%M)
@@ -55,12 +61,25 @@ jobs:
             exit 1
           fi
       - name: Generate immutable LIVE forecast from latest completed draws
+        env:
+          CLINE_API_KEY: ${{ secrets.CLINE_API_KEY }}
+          CLINE_MODEL_ID: ${{ vars.CLINE_MODEL_ID || 'cline-free/mimo-v2.6-flash' }}
         run: |
           source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
+          args=()
+          if [ "$CLINE_ENABLED" = "true" ]; then args+=(--cline); fi
           python -m src.pipeline.live \
             --history private-source/data/k3_full_history.csv \
             --max-source-age-hours 36 \
-            --source-commit-utc "$source_commit"
+            --source-commit-utc "$source_commit" \
+            "${args[@]}"
+      - name: Verify cutoff again just before commit
+        run: |
+          hhmm=$(TZ=Asia/Shanghai date +%H%M)
+          if [ "$hhmm" -ge 2110 ]; then
+            echo "::error::Model run finished after Beijing 21:10, forecast not published."
+            exit 1
+          fi
       - name: Commit only public prediction, not data or credentials
         run: |
           git config user.name "github-actions[bot]"
