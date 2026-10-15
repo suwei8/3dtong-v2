@@ -1,0 +1,13 @@
+{
+  "target_issue": "2026274",
+  "frozen_at": "2026-10-15T03:56:18.230073+00:00",
+  "source_cutoff": "2026273",
+  "scores": {
+    "xgboost": true,
+    "lightgbm": true,
+    "catboost": true,
+    "ensemble": true,
+    "dtong-main10": true,
+    "frequency-30": false
+  }
+}

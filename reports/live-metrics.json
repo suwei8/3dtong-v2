@@ -1,8 +1,45 @@
 {
   "schema": 1,
-  "scored_issues": 0,
+  "scored_issues": 1,
   "pending_issues": 1,
-  "frozen_issues": 1,
-  "models": {},
+  "frozen_issues": 2,
+  "models": {
+    "xgboost": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "lightgbm": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "catboost": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "ensemble": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "dtong-main10": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "frequency-30": {
+      "hits": 0,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    }
+  },
   "random_baseline": 0.657
 }
