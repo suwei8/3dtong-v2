@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: "50 11 * * *" # 19:50 Beijing
     - cron: "20 12 * * *" # 20:20 Beijing
+    - cron: "40 12 * * *" # 20:40 Beijing failover attempt; duplicate issue is skipped
   workflow_dispatch:
 permissions:
   contents: write
@@ -56,9 +57,12 @@ jobs:
             echo "new=true" >> "$GITHUB_OUTPUT"
             echo "New prospective target: $next"
           fi
-      - name: Install OpenCode free CLI without authentication
+      - name: Try installing OpenCode; retain traditional fallback if unavailable
         if: steps.target.outputs.new == 'true'
-        run: npm install -g opencode-ai
+        run: |
+          if ! timeout 120s npm install -g opencode-ai; then
+            echo "::warning::OpenCode unavailable; classical ML and random control still publish."
+          fi
       - name: Run nine optional free-model contestants and freeze prediction
         if: steps.target.outputs.new == 'true'
         run: |
@@ -67,7 +71,10 @@ jobs:
             --history private-source/data/k3_full_history.csv \
             --max-source-age-hours 36 \
             --source-commit-utc "$source_commit" \
-            --opencode
+            --opencode \
+            --opencode-max-seconds 240 \
+            --publish-deadline-beijing 21:10 \
+            --publish-reserve-seconds 120
       - name: Verify publish deadline again after all models finish
         if: steps.target.outputs.new == 'true'
         run: |
