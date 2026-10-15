@@ -36,7 +36,9 @@ def test_clean_workspace_and_secret_scrub(monkeypatch):
         assert "OPENAI_API_KEY" not in kwargs["env"]
         assert kwargs["cwd"].joinpath("opencode.json").is_file()
         config=json.loads(kwargs["cwd"].joinpath("opencode.json").read_text())
-        assert config["permission"]=={"*":"deny"}
+        assert config["permission"]["*"]=="ask"
+        assert config["permission"]["edit"]=="deny"
+        assert config["permission"]["webfetch"]=="deny"
         return SimpleNamespace(returncode=0,stdout=event('{"digits":[3,4,9]}'))
     monkeypatch.setattr(api.subprocess,"run",fake_run)
     r=api.predict_model('{"freq":3}',"opencode/mimo-v2.6-flash-free")
