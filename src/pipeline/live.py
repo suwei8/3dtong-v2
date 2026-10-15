@@ -27,15 +27,21 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
     arena=train_all(source["history"])
     models=dict(arena["predictions"])
     opencode_status={}
+    derived_status={}
     if opencode:
         from src.models.llm.opencode_free import compete
-        for model,result in compete(source["history"],models=opencode_models).items():
+        from src.models.llm.vote_ensemble import combine_open_votes
+        candidates=compete(source["history"],models=opencode_models)
+        for model,result in candidates.items():
             opencode_status[model]={"status":result["status"]}
             if result["status"]=="ok":
                 models[model]=result["digits"]
             else:
                 opencode_status[model]["reason"]=result.get("reason","not available")
-    data={"schema":3,"type":"prospective-next-issue",
+        derived=combine_open_votes(candidates,arena["probabilities"]["ensemble"])
+        models.update(derived["predictions"])
+        derived_status=derived["statuses"]
+    data={"schema":4,"type":"prospective-next-issue",
           "generated_at_utc":datetime.now(timezone.utc).isoformat(),
           "target_issue":source["target"],"known_through_issue":source["cutoff"],
           "source_sha256":source["source_sha256"],
@@ -43,6 +49,7 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
           "validation":arena["scores"],
           "validation_selected_model":arena["champion_validation_only"],
           "opencode_challengers":opencode_status,
+          "derived_challengers":derived_status,
           "models":models,
           "notes":"Only actual successful anonymous CLI JSON responses enter forecasts; no model has proven an edge."}
     frozen.parent.mkdir(parents=True,exist_ok=True)
@@ -62,7 +69,13 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
             md.append(f'| {name} | {status["status"]} | {status.get("reason","—")} |')
     else:
         md.append("OpenCode was not enabled for this frozen issue.")
-    md.extend(["","Frozen predictions are immutable. Absent LLM votes are never fabricated."])
+    if derived_status:
+        md.extend(["","## Pre-registered derived algorithms","",
+                   "| Algorithm | Status | Verified OpenCode participants |",
+                   "|---|---|---|"])
+        for name,info in derived_status.items():
+            md.append(f'| {name} | {info["status"]} | {len(info["contributors"])} |')
+    md.extend(["","Frozen predictions are immutable. Derived votes require at least three actual OpenCode successes and have no proven edge."])
     (dest/"LATEST.md").write_text("\n".join(md)+"\n",encoding="utf-8")
     print("frozen:",frozen)
     return True
