@@ -1,12 +1,15 @@
-# Model Arena Leaderboard
+# Model Arena leaderboard
 
-| Model | Hit Rate | Status |
-| --- | --- | --- |
-| XGBoost | - | pending |
-| LightGBM | - | pending |
-| CatBoost | - | pending |
-| 3dtong | - | pending |
-| Ensemble | - | pending |
-| Cline MiMo | - | pending |
+Forecast source: private truncated history; scoring source: private full history.
+These are masked historical holdouts, not prospective live results.
 
-Scores will be generated only from blind chronological evaluation.
+| Model | Hits | Evaluated | Hit rate |
+|---|---:|---:|---:|
+| catboost | 9 | 10 | 90.00% |
+| lightgbm | 8 | 10 | 80.00% |
+| ensemble | 7 | 10 | 70.00% |
+| frequency-30 | 7 | 10 | 70.00% |
+| xgboost | 7 | 10 | 70.00% |
+| dtong-main10 | 6 | 10 | 60.00% |
+
+The independent theoretical Top3 hit probability is 65.7%.

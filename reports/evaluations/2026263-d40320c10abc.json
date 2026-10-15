@@ -1,0 +1,726 @@
+{
+  "source_cutoff": "2026263",
+  "status": "retrospective_masked_holdout",
+  "entries": [
+    {
+      "issue": "2026264",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026264",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026264",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026264",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026264",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026264",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "119",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026265",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026265",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026265",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026265",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026265",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026265",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "161",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026266",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026266",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026266",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026266",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026266",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026266",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "346",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026267",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "857",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026267",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "857",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026267",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "857",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026267",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "857",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026267",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "857",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026267",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "857",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026268",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "890",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026268",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "890",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026268",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "890",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026268",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "890",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026268",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "890",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026268",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "890",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026269",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "341",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026269",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "341",
+      "hit": true,
+      "distinct_hit_count": 2
+    },
+    {
+      "issue": "2026269",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "341",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026269",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "341",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026269",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "341",
+      "hit": true,
+      "distinct_hit_count": 3
+    },
+    {
+      "issue": "2026269",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "341",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026270",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "084",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026270",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "084",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026270",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "084",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026270",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "084",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026270",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "084",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026270",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "084",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026271",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "280",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026271",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "280",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026271",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "280",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026271",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "280",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026271",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "280",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026271",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "280",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026272",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "015",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026272",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "015",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026272",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "015",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026272",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "015",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026272",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "015",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026272",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "015",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026273",
+      "model": "xgboost",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "902",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026273",
+      "model": "lightgbm",
+      "digits": [
+        4,
+        9,
+        1
+      ],
+      "actual": "902",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026273",
+      "model": "catboost",
+      "digits": [
+        8,
+        6,
+        1
+      ],
+      "actual": "902",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026273",
+      "model": "ensemble",
+      "digits": [
+        4,
+        6,
+        9
+      ],
+      "actual": "902",
+      "hit": true,
+      "distinct_hit_count": 1
+    },
+    {
+      "issue": "2026273",
+      "model": "dtong-main10",
+      "digits": [
+        1,
+        3,
+        4
+      ],
+      "actual": "902",
+      "hit": false,
+      "distinct_hit_count": 0
+    },
+    {
+      "issue": "2026273",
+      "model": "frequency-30",
+      "digits": [
+        9,
+        5,
+        6
+      ],
+      "actual": "902",
+      "hit": true,
+      "distinct_hit_count": 1
+    }
+  ]
+}
