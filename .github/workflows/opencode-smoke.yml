@@ -1,0 +1,41 @@
+name: OpenCode anonymous free-model smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/models/llm/opencode_free.py"
+      - "src/pipeline/opencode_smoke.py"
+      - "configs/opencode_models.json"
+      - ".github/workflows/opencode-smoke.yml"
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Free OpenCode model ID
+        required: false
+        default: opencode/mimo-v2.6-flash-free
+permissions:
+  contents: read
+jobs:
+  anonymous-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install OpenCode official CLI
+        run: npm install -g opencode-ai
+      - name: Prove anonymous free-model request with synthetic stats
+        id: smoke
+        env:
+          FREE_MODEL: ${{ github.event.inputs.model || 'opencode/mimo-v2.6-flash-free' }}
+        run: |
+          python -m src.pipeline.opencode_smoke --model "$FREE_MODEL" --out reports/opencode-smoke.json --timeout 75
+      - name: Upload evidence without committing synthetic smoke files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-anonymous-smoke
+          path: reports/opencode-smoke.json
+          if-no-files-found: warn

@@ -1,27 +1,22 @@
 name: daily predict
-
 on:
   push:
     branches: [main]
     paths:
       - "src/**"
       - "tests/**"
+      - "configs/opencode_models.json"
       - "requirements.txt"
       - ".github/workflows/daily-predict.yml"
   schedule:
-    - cron: "20,45 12 * * *" # Beijing 20:20, 20:45
+    - cron: "50 11 * * *" # 19:50 Beijing
+    - cron: "20 12 * * *" # 20:20 Beijing
   workflow_dispatch:
-
 permissions:
   contents: write
-
 concurrency:
   group: daily-predict-main
   cancel-in-progress: false
-
-env:
-  CLINE_ENABLED: ${{ secrets.CLINE_API_KEY != '' }}
-
 jobs:
   predict:
     runs-on: ubuntu-latest
@@ -31,9 +26,9 @@ jobs:
         with:
           ref: main
           persist-credentials: true
-      - name: Refresh current main before generating predictions
+      - name: Refresh main before checkout
         run: git pull --ff-only origin main
-      - name: Checkout private current data
+      - name: Checkout private source
         uses: actions/checkout@v4
         with:
           repository: suwei8/pinble-data
@@ -45,62 +40,64 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-      - name: Install and test
+      - name: Test all pipeline modules
         run: |
           python -m pip install -r requirements.txt
           python -m pytest -q tests/
-      - name: Install Cline CLI when account secret exists
-        if: env.CLINE_ENABLED == 'true'
-        run: npm install -g cline
-      - name: Enforce real pre-draw cutoff in Beijing timezone
+      - name: Enforce cutoff in Beijing timezone
         run: |
           hhmm=$(TZ=Asia/Shanghai date +%H%M)
-          echo "Beijing time $hhmm"
           if [ "$hhmm" -ge 2110 ]; then
-            echo "::error::Past 21:10 Beijing time; refusing to publish."
+            echo "::error::Past Beijing 21:10; refusing to generate predictions."
             exit 1
           fi
-      - name: Generate immutable LIVE forecast from latest completed draws
-        env:
-          CLINE_API_KEY: ${{ secrets.CLINE_API_KEY }}
-          CLINE_MODEL_ID: ${{ vars.CLINE_MODEL_ID || 'cline-free/mimo-v2.6-flash' }}
+      - name: Identify next issue and avoid duplicate OpenCode costs
+        id: target
+        run: |
+          next=$(python -c "from src.data.live import load_live_history; print(load_live_history('private-source/data/k3_full_history.csv')['target'])")
+          echo "issue=$next" >> "$GITHUB_OUTPUT"
+          if [ -f "predictions/live/runs/$next.json" ]; then
+            echo "new=false" >> "$GITHUB_OUTPUT"
+            echo "Forecast already frozen: $next"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+            echo "New prospective target: $next"
+          fi
+      - name: Install OpenCode free CLI without authentication
+        if: steps.target.outputs.new == 'true'
+        run: npm install -g opencode-ai
+      - name: Run nine optional free-model contestants and freeze prediction
+        if: steps.target.outputs.new == 'true'
         run: |
           source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
-          args=()
-          if [ "$CLINE_ENABLED" = "true" ]; then args+=(--cline); fi
           python -m src.pipeline.live \
             --history private-source/data/k3_full_history.csv \
             --max-source-age-hours 36 \
             --source-commit-utc "$source_commit" \
-            "${args[@]}"
-      - name: Verify cutoff again just before commit
+            --opencode
+      - name: Verify publish deadline again after all models finish
+        if: steps.target.outputs.new == 'true'
         run: |
           hhmm=$(TZ=Asia/Shanghai date +%H%M)
           if [ "$hhmm" -ge 2110 ]; then
-            echo "::error::Model run finished after Beijing 21:10, forecast not published."
+            echo "::error::Model run finished after Beijing 21:10, refuse publish."
             exit 1
           fi
-      - name: Commit only public prediction, not data or credentials
+      - name: Publish only sealed forecast and no private data
+        if: steps.target.outputs.new == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          for file in predictions/live/runs/*.json; do
-            [ -f "$file" ] || continue
-            # Existing tracked issues remain sealed; check only newly created local files.
-            if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then continue; fi
-            if git cat-file -e "origin/main:$file" 2>/dev/null; then
-              echo "Frozen issue already exists upstream: $file"
-              git checkout -- predictions/live/LATEST.md 2>/dev/null || true
-              rm -f "$file" 2>/dev/null || true
-              exit 0
-            fi
-          done
+          if git cat-file -e "origin/main:predictions/live/runs/${{ steps.target.outputs.issue }}.json" 2>/dev/null; then
+            echo "Another workflow already froze this issue; leaving original unchanged."
+            exit 0
+          fi
           git add predictions/live/LATEST.md predictions/live/runs/
           if git diff --cached --quiet; then
-            echo "Target already sealed. No fabricated new forecast."
+            echo "Nothing to publish."
           else
-            git commit -m "forecast: freeze next issue before draw [skip ci]"
+            git commit -m "forecast: sealed issue with OpenCode contestants [skip ci]"
             git pull --rebase origin main
             git push origin HEAD:main
           fi
