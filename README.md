@@ -48,3 +48,9 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 唯一必要的 GitHub Actions Secret 为 `PINBLE_DATA_TOKEN`，允许读取私有 `suwei8/pinble-data`。OpenCode 匿名免费模型不用配置 Cline Key，也不读取用户账号认证。模型有效性以真实 Actions 运行日志为准。回溯实验和实战预测不会混算。简化规则 `dtong-main10` 不是已验证的原始16模块完整移植。
 
 参考：[OpenCode CLI](https://dev.opencode.ai/docs/cli/) · [OpenCode 模型列表](https://dev.opencode.ai/v2/docs/console/models)。
+
+## 自动运行健康监控
+
+[运行健康报告](reports/STATUS.md) · [运行状态 JSON](reports/operations.json) · [历史事前成绩](reports/live-leaderboard.md)
+
+北京时间 08:00 和 22:10 自动监测私有数据源更新、已开奖期号是否漏做事前预测、已开奖预测是否等待评分。数据超过36小时未更新，或出现确定的漏预测/漏评分时，工作流会在公开状态报告中说明问题并标为失败。只发布期号和状态，不发布私有历史开奖号码。注意：最新开奖之后下一期预测尚未生成，不等于当晚漏预测，不能凭期号推断开奖时间。
