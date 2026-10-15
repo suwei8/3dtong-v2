@@ -8,6 +8,7 @@ import json
 from datetime import datetime,timezone
 from pathlib import Path
 from src.models.llm.opencode_free import load_models,predict_model
+from src.models.llm.vote_ensemble import combine_open_votes
 
 
 def run(out="reports",timeout=None):
@@ -36,10 +37,31 @@ def run(out="reports",timeout=None):
             item["synthetic_response_digits"]=result["digits"]
         entries.append(item)
         print(f'{index}/{len(models)} {model}: {item["status"]} {item.get("reason","")}',flush=True)
-    info={"schema":1,"kind":"anonymous-cli-availability-only",
+    # Synthetic-only end-to-end integration, NOT a real target issue.
+    # The comparator ML distribution is deliberately flat because no ML
+    # training or real private history is allowed in this public smoke test.
+    actual_results={}
+    for entry in entries:
+        candidate={"model":entry["model"],"status":entry["status"]}
+        if entry["status"]=="ok":
+            candidate["digits"]=entry["synthetic_response_digits"]
+        actual_results[entry["model"]]=candidate
+    derived=combine_open_votes(actual_results,[.1]*10)
+    derived_report={}
+    for name,status in derived["statuses"].items():
+        line=dict(status)
+        if name in derived["predictions"]:
+            line["synthetic_response_digits"]=derived["predictions"][name]
+        derived_report[name]=line
+    print("derived synthetic-only models:",
+          ", ".join(f"{key}={item['status']}" for key,item in derived_report.items()),
+          flush=True)
+    info={"schema":2,"kind":"anonymous-cli-availability-only",
           "tested_at_utc":datetime.now(timezone.utc).isoformat(),
           "synthetic_data_only":True,"login_required_by_this_test":False,
-          "timeout_seconds":per_model_timeout,"models":entries}
+          "timeout_seconds":per_model_timeout,"models":entries,
+          "derived_synthetic":derived_report,
+          "derived_ml_reference":"uniform synthetic 10-digit probability vector"}
     folder=Path(out)
     folder.mkdir(parents=True,exist_ok=True)
     (folder/"opencode-availability.json").write_text(
@@ -52,6 +74,14 @@ def run(out="reports",timeout=None):
     for item in entries:
         md.append(f'| '+item["model"]+" | "+("可调用" if item["status"]=="ok" else "跳过/失败")+
                   " | "+item.get("reason","JSON校验通过")+" |")
+    md.extend(["","## 合成数据上的 OpenCode 多模型集成（不计入成绩）","",
+               "以下只测试 OpenCode → 投票算法的实际调用链。ML 参考概率为人为设置的均匀 10 维向量，不使用历史开奖和真实模型训练。",
+               "",
+               "| 组合算法 | 状态 | 合成测试数字 | 参与模型数 |",
+               "|---|---|---|---:|"])
+    for name,result in derived_report.items():
+        code="".join(map(str,result["synthetic_response_digits"])) if result["status"]=="ok" else "—"
+        md.append(f'| {name} | {result["status"]} | {code} | {len(result["contributors"])} |')
     md.extend(["","实际预测仅允许成功的合法模型输出加入当期封存结果。",
                "若免费模型配额、匿名访问权限或名字变动，下次运行可能不同。"])
     (folder/"opencode-availability.md").write_text("\n".join(md)+"\n",encoding="utf-8")
