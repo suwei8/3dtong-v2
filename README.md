@@ -1,75 +1,50 @@
-# 3dtong-v2 — live digit-model arena
+# 3dtong-v2 — 逐期事前预测与模型擂台
 
-The repository now has two **strictly separate** research tracks.
+在公开仓库保存固定的预测数据，不暴露私有历史 CSV。研究目的：3个不重复数字命中下一期开奖号任意1个数字。独立均匀随机模型的理论基准为 **65.7%**，任何模型都不能保证优于随机。
 
-## 1. Historical masked holdout (completed)
+## 预测和开奖复盘
 
-The permanent historical example was trained on the private, deliberately truncated
-`suwei8/pinble-data/data/k3_full_history_test.csv` through **2026263**, and evaluated
-against the hidden ten issue results 2026264–2026273. See
-[`predictions/LATEST.md`](predictions/LATEST.md) and [`reports/leaderboard.md`](reports/leaderboard.md).
-These 10 results are **retrospective simulations**, not evidence of genuine
-pre-draw predictive performance.
+- [真正的事前预测](predictions/live/LATEST.md) 和 [逐期不可覆盖 JSON](predictions/live/runs/)。当前封存的 2026274 不会因为增加 LLM 参赛者而被修改。
+- [实战排行榜](reports/live-leaderboard.md)：只统计事前封存之后公布的开奖号，不与历史回测混算。
+- [历史遮蔽回测](reports/leaderboard.md)：2026264—2026273 共10期，属于回溯模拟，不是事前成绩。
+- [定时预测 workflow](.github/workflows/daily-predict.yml)：每晚北京时间 19:50 与 20:20 两次尝试；21:10 之前需完成计算和发布（GitHub 调度不保证准点），私有 CSV 超过36小时没有更新时拒绝输出。
+- [开奖评分 workflow](.github/workflows/daily-evaluate.yml)：评分只发布命中与否，不提交私有原始开奖内容。
 
-## 2. Prospective live forecasts (automated)
+## OpenCode 免费模型参赛（替换 Cline）
 
-Workflow [`daily predict`](.github/workflows/daily-predict.yml) runs twice before
-21:10 Beijing (20:20 and 20:45, GitHub schedules are best effort). It reads
-private **updated** `data/k3_full_history.csv`, uses **only completed `KaiJiang`**
-rows, and targets the next issue (including a pending row if present).
+完全移除 Cline 认证、CLI 依赖与参赛配置。使用官方 `opencode-ai` npm 包，在 GitHub Actions 临时 Linux runner 调用：
 
-- Fails closed if the result feed's CSV commit is older than 36 hours.
-- Stops if current Beijing time is 21:10 or later.
-- Freezes a **single** forecast per issue in `predictions/live/runs/ISSUE.json`.
-- Never overwrites a forecast after new results become known.
-- Shows the newest forecast in [`predictions/live/LATEST.md`](predictions/live/LATEST.md).
-- Prints no private CSV contents and never commits `private-source/`.
+```bash
+npm install -g opencode-ai
+opencode run --model opencode/mimo-v2.6-flash-free --format json 'Return {"digits":[0,5,8]}'
+```
 
-Workflow [`daily evaluate`](.github/workflows/daily-evaluate.yml) runs after a
-successful prediction workflow and at 21:45 Beijing. It scores only already-frozen
-live forecasts, writing a **separate**
-[`reports/live-leaderboard.md`](reports/live-leaderboard.md) and issue-level
-hit/miss results without publishing the actual draw digits. Historical holdout
-data never contributes to this prospective leaderboard.
+[9 个候选模型配置](configs/opencode_models.json)：
 
-**Important:** GitHub cron cannot guarantee exact delivery, and model accuracy
-is not proven. A static Top3 has 65.7% theoretical hit rate under iid digits.
+- opencode/big-pickle
+- opencode/cat-jam-free
+- opencode/longcat-2.5-preview-free
+- opencode/mimo-v2.6-flash-free
+- opencode/muse-spark-1.3-contributor-free
+- opencode/nemotron-3-ultra-free
+- opencode/nemotron-3.5-lightning-free
+- opencode/space-bunny-free
+- opencode/step-5-preview-free
 
-## Run locally
+这个列表由用户提供，**不代表每个 ID 在任意时刻都能免登录使用**。GitHub CI 会实际检测，无网络、额度耗尽、模型下架、需要登录或格式错误时记录 `skipped`，不会伪造预测。每个模型只收到最近10/30/100期的聚合数字统计及遗漏间隔，不接触私有 CSV 或 GitHub Token。OpenCode 使用单独临时工作空间，其 `opencode.json` 将所有工具权限设为 `deny`，关闭对话分享；依然不能把进程隔离视为完善的系统沙盒。
+
+只有成功生成**合法JSON、三个不重复整数（0—9）**的 OpenCode 候选才进入当期比赛，并在真正开奖后参与同一排行榜。没有历史训练验证的 LLM 不会被虚构一个冠军分数。
+
+## 安装与本地验证
 
 ```bash
 python -m pip install -r requirements.txt
-python -m pytest -q
-python -m src.pipeline.live --history /path/to/private/k3_full_history.csv
+python -m pytest -q tests/
+python -m src.pipeline.live --history /path/to/private/k3_full_history.csv --opencode
 python -m src.pipeline.evaluate_live --full-history /path/to/private/k3_full_history.csv
+python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 ```
 
-Required repo Actions secret: `PINBLE_DATA_TOKEN` with read-only private
-`suwei8/pinble-data` contents access. Default GitHub `GITHUB_TOKEN` needs
-`contents:write` for forecasts and reports.
+唯一必要的 GitHub Actions Secret 为 `PINBLE_DATA_TOKEN`，允许读取私有 `suwei8/pinble-data`。OpenCode 匿名免费模型不用配置 Cline Key，也不读取用户账号认证。模型有效性以真实 Actions 运行日志为准。回溯实验和实战预测不会混算。简化规则 `dtong-main10` 不是已验证的原始16模块完整移植。
 
-## Contestants
-
-Trained XGBoost, LightGBM, CatBoost, equally-weighted ensemble, 30-issue digit
-frequency baseline and `dtong-main10` (**a simplified public rule adapter,
-not a verified reconstruction of the original 16-module application**).
-Selection uses only chronological validation history; the models see no future results.
-
-Cline MiMo free challenger: [`cline_mimo.py`](src/models/llm/cline_mimo.py)
-is an opt-in **real CLI adapter** but requires provider credentials on the host.
-No hosted Actions runner currently has a Cline login, and this contestant is
-**not** represented as having predicted anything yet. Only valid CLI `run_result`
-with exactly three distinct digits may enter the arena. Source private
-data and GitHub secrets must never be exposed to the agent.
-
-## Optional Cline MiMo contestant (real CLI, not simulated)
-
-The official Cline documentation says free promotional models are available only through the Cline IDE/CLI, subject to changing quotas. The public REST API is **not** a free-model substitute. This integration therefore uses the Cline CLI and does not invent an output when no usable account authentication is available.
-
-To enable the next **new** forecast: create a Cline account API key at app.cline.bot, then add it as GitHub Actions repository secret **CLINE_API_KEY** in **suwei8/3dtong-v2**. Never paste a key into a public repo or chat. You may specify a current free model via Actions variable **CLINE_MODEL_ID**, defaulting to **cline-free/mimo-v2.6-flash** (verify that this model exists and is free for your account; promotions change). An API key's eligibility for free-model CLI promotions is not guaranteed.
-
-The daily forecast workflow will install the official CLI only when that secret exists, execute with **--json --auto-approve false**, and supply only aggregate historical frequency counts rather than private CSV rows. The CLI process receives no GitHub or private-data tokens, and runs from an empty temporary directory. The result is admitted only if Cline actually returns three distinct digits; otherwise its status is recorded as skipped. All other predictors run regardless. This is not a full OS sandbox.
-
-Previously committed forecasts are intentionally immutable. Adding Cline credentials today does not revise an earlier issue: the first possible vote is the next unsealed target issue. No Cline historical validation score is fabricated.
-
-Useful references: https://github.com/cline/cline/blob/main/docs/usage/cli-overview.mdx and https://github.com/cline/cline/blob/main/docs/getting-started/free-models.mdx.
+参考：[OpenCode CLI](https://dev.opencode.ai/docs/cli/) · [OpenCode 模型列表](https://dev.opencode.ai/v2/docs/console/models)。

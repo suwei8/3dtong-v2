@@ -2,9 +2,12 @@ models:
   - xgboost
   - lightgbm
   - catboost
-  - dtong
+  - dtong-main10
   - ensemble
+  - frequency-30
 
 llm:
-  provider: cline-free
-  model: mimo-v2.6-flash
+  provider: opencode
+  free_models_config: configs/opencode_models.json
+  no_login: true
+  allow_skipped_models: true

@@ -1,15 +1,13 @@
-"""One-issue frozen forecast, optional validated Cline CLI challenger."""
+"""One-issue immutable predictions; optional true anonymous OpenCode model contestants."""
 import argparse
 import json
-import os
-import tempfile
 from datetime import datetime,timezone
 from pathlib import Path
 from src.data.live import load_live_history
 from src.pipeline.train import train_all
 
 def freeze_live(path,out="predictions/live",source_max_age_hours=0,
-                source_commit_utc=None,cline=False,cline_executable="cline"):
+                source_commit_utc=None,opencode=False,opencode_models=None):
     source=load_live_history(path)
     if source_max_age_hours:
         if not source_commit_utc:
@@ -28,39 +26,43 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
         return False
     arena=train_all(source["history"])
     models=dict(arena["predictions"])
-    llm_info={"status":"not-configured"}
-    if cline:
-        from src.models.llm.contestant import summary_for_llm
-        from src.models.llm.cline_mimo import ClineMimoPredictor,DEFAULT_MODEL
-        agent=ClineMimoPredictor(os.environ.get("CLINE_MODEL_ID",DEFAULT_MODEL))
-        with tempfile.TemporaryDirectory(prefix="3dtong-cline-") as workdir:
-            answer=agent.predict(summary_for_llm(source["history"]),
-                                 cwd=workdir,executable=cline_executable)
-        llm_info={k:v for k,v in answer.items() if k!="digits"}
-        if answer["status"]=="ok":
-            models[agent.name]=answer["digits"]
-    data={"schema":2,"type":"prospective-next-issue",
+    opencode_status={}
+    if opencode:
+        from src.models.llm.opencode_free import compete
+        for model,result in compete(source["history"],models=opencode_models).items():
+            opencode_status[model]={"status":result["status"]}
+            if result["status"]=="ok":
+                models[model]=result["digits"]
+            else:
+                opencode_status[model]["reason"]=result.get("reason","not available")
+    data={"schema":3,"type":"prospective-next-issue",
           "generated_at_utc":datetime.now(timezone.utc).isoformat(),
           "target_issue":source["target"],"known_through_issue":source["cutoff"],
           "source_sha256":source["source_sha256"],
           "pending_source_record":source["pending_source_record"],
           "validation":arena["scores"],
           "validation_selected_model":arena["champion_validation_only"],
-          "llm_contestant":llm_info,
+          "opencode_challengers":opencode_status,
           "models":models,
-          "notes":"Only validated real CLI output can enter forecasts."}
+          "notes":"Only actual successful anonymous CLI JSON responses enter forecasts; no model has proven an edge."}
     frozen.parent.mkdir(parents=True,exist_ok=True)
     frozen.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     md=["# 3dtong-v2 live forecast","",
         f'**Next target issue: {data["target_issue"]}**',
         f'Latest known completed issue: {data["known_through_issue"]}',
         f'Frozen: {data["generated_at_utc"]}',
-        f'Validation-selected model: {data["validation_selected_model"]}',
-        f'Cline: {data["llm_contestant"]["status"]}',"",
+        f'Validation-selected statistical model: {data["validation_selected_model"]}',"",
         "| Contestant | Three distinct digits |","|---|---|"]
-    for name,digits in data["models"].items():
+    for name,digits in models.items():
         md.append(f'| {name} | {"".join(map(str,digits))} |')
-    md.extend(["","Frozen predictions are immutable; models have no proven advantage."])
+    md.extend(["","## OpenCode challenger status",""])
+    if opencode_status:
+        md+=["| Model | Status | Reason |","|---|---|---|"]
+        for name,status in opencode_status.items():
+            md.append(f'| {name} | {status["status"]} | {status.get("reason","—")} |')
+    else:
+        md.append("OpenCode was not enabled for this frozen issue.")
+    md.extend(["","Frozen predictions are immutable. Absent LLM votes are never fabricated."])
     (dest/"LATEST.md").write_text("\n".join(md)+"\n",encoding="utf-8")
     print("frozen:",frozen)
     return True
@@ -71,10 +73,11 @@ def main():
     p.add_argument("--out",default="predictions/live")
     p.add_argument("--max-source-age-hours",type=float,default=0)
     p.add_argument("--source-commit-utc")
-    p.add_argument("--cline",action="store_true")
+    p.add_argument("--opencode",action="store_true",help="Compete with listed anonymous OpenCode models")
+    p.add_argument("--opencode-models",nargs="+",help="Optional list of free model IDs")
     args=p.parse_args()
     freeze_live(args.history,args.out,args.max_source_age_hours,
-                args.source_commit_utc,cline=args.cline)
+                args.source_commit_utc,opencode=args.opencode,opencode_models=args.opencode_models)
 
 if __name__=="__main__":
     main()
