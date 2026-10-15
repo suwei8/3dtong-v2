@@ -99,5 +99,10 @@ jobs:
           else
             git commit -m "forecast: sealed issue with OpenCode contestants [skip ci]"
             git pull --rebase origin main
+            hhmm=$(TZ=Asia/Shanghai date +%H%M)
+            if [ "$hhmm" -ge 2110 ]; then
+              echo "::error::Publication deadline passed during Git rebase; refusing late push."
+              exit 1
+            fi
             git push origin HEAD:main
           fi
