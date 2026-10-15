@@ -1,0 +1,61 @@
+name: daily operational health
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/pipeline/health.py"
+      - "tests/test_health.py"
+      - ".github/workflows/operational-health.yml"
+  schedule:
+    - cron: "10 14 * * *" # 22:10 Beijing, after scoring
+    - cron: "0 0 * * *" # 08:00 Beijing, check overnight ingestion
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: operations-status-main
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Checkout private result source (read only)
+        uses: actions/checkout@v4
+        with:
+          repository: suwei8/pinble-data
+          token: ${{ secrets.PINBLE_DATA_TOKEN }}
+          ref: main
+          path: private-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Audit source freshness, missed forecasts and scoring backlog
+        run: |
+          source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
+          python -m src.pipeline.health \
+            --history private-source/data/k3_full_history.csv \
+            --source-commit-utc "$source_commit" \
+            --predictions predictions/live/runs \
+            --evaluations reports/live \
+            --min-issue 2026274 \
+            --out reports
+      - name: Publish public status (not CSV or private draw digits)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/STATUS.md reports/operations.json
+          if git diff --cached --quiet; then
+            echo "No operational status change"
+          else
+            git commit -m "ops: publish forecast and scoring health [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+      - name: Fail visibly if completed issues missed predictions or source stale
+        run: |
+          python -c "import json,sys; d=json.load(open('reports/operations.json')); print('health:',d['health']); sys.exit(0 if d['health']=='ok' else 1)"
