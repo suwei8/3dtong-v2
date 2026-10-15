@@ -85,15 +85,19 @@ def predict_model(summary,model,executable="opencode",timeout=45):
     """
     if not isinstance(summary,str) or len(summary)>15000:
         raise ValueError("summary must be a small aggregate string")
-    if not model.startswith("opencode/"):
-        raise ValueError("only opencode free-provider IDs allowed")
+    approved,_=load_models()
+    if model not in approved:
+        raise ValueError("model is not in approved free-model list")
     if not shutil.which(executable):
         return {"model":model,"status":"skipped","reason":"OpenCode CLI unavailable"}
     with tempfile.TemporaryDirectory(prefix="3dtong-opencode-") as temp:
         work=Path(temp)
         (work/"opencode.json").write_text(
             json.dumps({"$schema":"https://opencode.ai/config.json",
-                        "share":"disabled","permission":{"*":"deny"}},sort_keys=True),
+                        "share":"disabled",
+                        "permission":{"*":"ask","edit":"deny",
+                                      "webfetch":"deny","websearch":"deny",
+                                      "task":"deny"}},sort_keys=True),
             encoding="utf-8")
         prompt=("Research contestant. Using ONLY the following aggregated historical digit counts, "
                 "select three DISTINCT integers 0..9. Do not request tools or read files. "
@@ -106,8 +110,23 @@ def predict_model(summary,model,executable="opencode",timeout=45):
         except (subprocess.TimeoutExpired,OSError) as exc:
             return {"model":model,"status":"skipped","reason":type(exc).__name__}
         if done.returncode:
-            # stderr may contain credentials or hidden network details; never persist it.
-            return {"model":model,"status":"skipped","reason":"CLI failed (offline, unavailable, or quota)"}
+            # Never expose raw stdout/stderr; they may contain sensitive diagnostics.
+            diagnostic=(done.stderr+"\n"+done.stdout).lower()
+            if "invalid credential" in diagnostic or "unauthorized" in diagnostic:
+                why="OpenCode gateway rejected anonymous credential"
+            elif "can only be used from within opencode" in diagnostic:
+                why="OpenCode free-tier agent permission gate rejected request"
+            elif "model is unavailable" in diagnostic or "model unavailable" in diagnostic:
+                why="free model currently unavailable"
+            elif "model not found" in diagnostic or "unknown model" in diagnostic:
+                why="model ID not supported by installed OpenCode"
+            elif "rate limit" in diagnostic or "quota" in diagnostic:
+                why="free model rate limit or quota"
+            elif "not connected" in diagnostic or "network" in diagnostic:
+                why="OpenCode network problem"
+            else:
+                why="CLI exit nonzero; inspect model availability"
+            return {"model":model,"status":"skipped","reason":why}
         try:
             digits=parse_json_events(done.stdout)
         except ValueError as exc:
