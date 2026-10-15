@@ -1,0 +1,11 @@
+# Never commit private data, logs, tokens, model caches or credentials
+private-source/
+pinble-data/
+.env
+*.key
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.cline/
+models-cache/
