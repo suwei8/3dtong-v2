@@ -31,6 +31,7 @@ jobs:
           ref: main
           path: private-source
           persist-credentials: false
+          fetch-depth: 0 # Required for accurate last-change timestamp of the CSV (not repository HEAD)
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
