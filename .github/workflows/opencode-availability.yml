@@ -1,0 +1,51 @@
+name: OpenCode anonymous free-model availability
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/pipeline/probe_free_models.py"
+      - "src/models/llm/opencode_free.py"
+      - "configs/opencode_models.json"
+      - ".github/workflows/opencode-availability.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: free-opencode-availability
+  cancel-in-progress: false
+jobs:
+  test-free-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install official OpenCode CLI
+        run: npm install -g opencode-ai
+      - name: Attempt all nine free models with SYNTHETIC stats
+        run: python -m src.pipeline.probe_free_models --timeout 35
+      - name: Upload machine-readable probe results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-free-model-availability
+          path: |
+            reports/opencode-availability.md
+            reports/opencode-availability.json
+          if-no-files-found: warn
+      - name: Commit public, aggregate availability only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/opencode-availability.md reports/opencode-availability.json
+          if git diff --cached --quiet; then
+            echo "No availability changes"
+          else
+            git commit -m "research: test anonymous OpenCode free model availability [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
