@@ -99,19 +99,26 @@ def run(full_history, forecasts, output_dir):
             entry["attempted"] += 1
         # Unavailable OpenCode contestants are tracked as coverage failures,
         # NOT as scored misses.
-        challengers = data.get("opencode_challengers", {})
-        if not isinstance(challengers, dict):
-            raise ValueError("invalid contestant statuses")
-        for model, result in challengers.items():
-            if not isinstance(result, dict) or result.get("status") not in ("ok","skipped"):
-                raise ValueError("invalid contestant status")
-            if result["status"] == "skipped":
-                if model in current["scores"]:
-                    raise ValueError("skipped challenger must not have a vote")
-                counters[model]["attempted"] += 1
-                counters[model]["unavailable"] += 1
-            elif model not in current["scores"]:
-                raise ValueError("successful challenger requires a frozen vote")
+        recorded_statuses = set()
+        # OpenCode raw votes and pre-registered derived votes have separate
+        # availability denominators but share identical hit/miss scoring.
+        for category in ("opencode_challengers", "derived_challengers"):
+            challengers = data.get(category, {})
+            if not isinstance(challengers, dict):
+                raise ValueError("invalid contestant statuses")
+            for model, result in challengers.items():
+                if (not isinstance(model,str) or not model or
+                        model in recorded_statuses or not isinstance(result,dict) or
+                        result.get("status") not in ("ok","skipped")):
+                    raise ValueError("invalid or duplicate contestant status")
+                recorded_statuses.add(model)
+                if result["status"] == "skipped":
+                    if model in current["scores"]:
+                        raise ValueError("skipped challenger must not have a vote")
+                    counters[model]["attempted"] += 1
+                    counters[model]["unavailable"] += 1
+                elif model not in current["scores"]:
+                    raise ValueError("successful challenger requires a frozen vote")
 
     # Never retain obsolete per-issue score files when input set changes.
     for file in evaluations.glob("*.json"):
