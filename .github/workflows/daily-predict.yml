@@ -1,21 +1,74 @@
 name: daily predict
-
 on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "requirements.txt"
+      - "tests/**"
+      - ".github/workflows/daily-predict.yml"
   schedule:
-    - cron: '30 12 * * *'
+    - cron: "0,20 12 * * *" # Beijing 20:00 and 20:20
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-predict-main
+  cancel-in-progress: false
 
 jobs:
   predict:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - name: Checkout data repository
+      - name: Checkout public code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Checkout PRIVATE masked source
         uses: actions/checkout@v4
         with:
           repository: suwei8/pinble-data
-          path: pinble-data
-      - name: Verify schedule pipeline
+          token: ${{ secrets.PINBLE_DATA_TOKEN }}
+          ref: main
+          path: private-source
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Dependencies and tests
         run: |
-          echo "3dtong-v2 daily prediction pipeline"
-          test -f pinble-data/data/k3_full_history_test.csv || true
+          python -m pip install -r requirements.txt
+          python -m pytest -q tests/
+      - name: Run independent models against masked data
+        run: |
+          python -m src.pipeline.predict \
+            --history private-source/data/k3_full_history_test.csv \
+            --horizon 10
+      - name: Enforce pre-draw cutoff on scheduled runs
+        if: github.event_name == 'schedule'
+        env:
+          TZ: Asia/Shanghai
+        run: |
+          now=$(date +%H%M)
+          echo "China local time $now"
+          if [ "$now" -ge 2100 ]; then
+            echo "::error::Scheduled runner completed too late; predictions will NOT publish."
+            exit 1
+          fi
+      - name: Publish only sealed forecasts (never private source)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add predictions/LATEST.md predictions/runs/
+          if git diff --cached --quiet; then
+            echo "Source has not changed; no new prediction to commit."
+          else
+            git commit -m "forecast: freeze predictions from masked historical cutoff [skip ci]"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
