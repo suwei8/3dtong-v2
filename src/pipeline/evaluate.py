@@ -26,7 +26,7 @@ def evaluate(prediction,actuals):
             if len(digits)!=3 or len(set(digits))!=3 or not all(isinstance(d,int) and 0<=d<=9 for d in digits):
                 raise ValueError("model did not produce three distinct digits")
             report.append({"issue":issue,"model":name,"digits":digits,
-                           "actual":result,"hit":hit_any_digit(digits,result),
+                           "hit":hit_any_digit(digits,result),
                            "distinct_hit_count":hit_count(digits,result)})
     return report
 
