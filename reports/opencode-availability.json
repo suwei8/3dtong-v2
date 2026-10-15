@@ -1,7 +1,7 @@
 {
-  "schema": 1,
+  "schema": 2,
   "kind": "anonymous-cli-availability-only",
-  "tested_at_utc": "2026-10-15T04:32:08.735844+00:00",
+  "tested_at_utc": "2026-10-15T06:18:39.087677+00:00",
   "synthetic_data_only": true,
   "login_required_by_this_test": false,
   "timeout_seconds": 35,
@@ -11,8 +11,8 @@
       "status": "ok",
       "synthetic_response_digits": [
         3,
-        4,
-        9
+        1,
+        6
       ]
     },
     {
@@ -24,18 +24,18 @@
       "model": "opencode/longcat-2.5-preview-free",
       "status": "ok",
       "synthetic_response_digits": [
-        7,
-        1,
-        6
+        4,
+        3,
+        9
       ]
     },
     {
       "model": "opencode/mimo-v2.6-flash-free",
       "status": "ok",
       "synthetic_response_digits": [
-        1,
-        5,
-        6
+        3,
+        4,
+        9
       ]
     },
     {
@@ -51,8 +51,8 @@
       "model": "opencode/nemotron-3-ultra-free",
       "status": "ok",
       "synthetic_response_digits": [
-        4,
         9,
+        4,
         3
       ]
     },
@@ -60,19 +60,15 @@
       "model": "opencode/nemotron-3.5-lightning-free",
       "status": "ok",
       "synthetic_response_digits": [
-        3,
+        6,
         1,
-        6
+        3
       ]
     },
     {
       "model": "opencode/space-bunny-free",
-      "status": "ok",
-      "synthetic_response_digits": [
-        4,
-        9,
-        3
-      ]
+      "status": "skipped",
+      "reason": "TimeoutExpired"
     },
     {
       "model": "opencode/step-5-preview-free",
@@ -83,5 +79,45 @@
         3
       ]
     }
-  ]
+  ],
+  "derived_synthetic": {
+    "opencode-consensus": {
+      "status": "ok",
+      "contributors": [
+        "opencode/big-pickle",
+        "opencode/longcat-2.5-preview-free",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/muse-spark-1.3-contributor-free",
+        "opencode/nemotron-3-ultra-free",
+        "opencode/nemotron-3.5-lightning-free",
+        "opencode/step-5-preview-free"
+      ],
+      "method": "equal votes; pre-cutoff ML breaks ties",
+      "synthetic_response_digits": [
+        3,
+        1,
+        6
+      ]
+    },
+    "ml-opencode-hybrid": {
+      "status": "ok",
+      "contributors": [
+        "opencode/big-pickle",
+        "opencode/longcat-2.5-preview-free",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/muse-spark-1.3-contributor-free",
+        "opencode/nemotron-3-ultra-free",
+        "opencode/nemotron-3.5-lightning-free",
+        "opencode/step-5-preview-free"
+      ],
+      "method": "fixed 50/50 LLM votes and ML probabilities",
+      "llm_weight": 0.5,
+      "synthetic_response_digits": [
+        3,
+        1,
+        6
+      ]
+    }
+  },
+  "derived_ml_reference": "uniform synthetic 10-digit probability vector"
 }
