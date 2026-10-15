@@ -7,6 +7,34 @@ from pathlib import Path
 from src.data.live import load_live_history
 from src.pipeline.train import train_all
 
+
+def compute_opencode_budget(max_seconds, deadline_beijing=None,
+                            publication_reserve_seconds=120, now=None):
+    """Seconds available to call remote LLMs while reserving Git publish time.
+
+    Beijing publication time never silently rolls to tomorrow. The scheduler
+    is best-effort; a late runner must skip LLMs rather than use a past cutoff.
+    """
+    if max_seconds is not None and (type(max_seconds) not in (int,float)
+                                     or not 0<=max_seconds<=1800):
+        raise ValueError("invalid OpenCode budget seconds")
+    if (type(publication_reserve_seconds) not in (int,float)
+            or not 0<=publication_reserve_seconds<=3600):
+        raise ValueError("invalid publication reserve seconds")
+    if deadline_beijing is None:
+        return max_seconds
+    deadline=datetime.strptime(deadline_beijing,"%H:%M")
+    beijing=ZoneInfo("Asia/Shanghai")
+    current=now or datetime.now(beijing)
+    if current.tzinfo is None:
+        raise ValueError("clock must be timezone-aware")
+    current=current.astimezone(beijing)
+    limit=current.replace(hour=deadline.hour,minute=deadline.minute,
+                          second=0,microsecond=0)
+    remaining=max(0,(limit-current).total_seconds()-publication_reserve_seconds)
+    return min(remaining,max_seconds) if max_seconds is not None else remaining
+
+
 def freeze_live(path,out="predictions/live",source_max_age_hours=0,
                 source_commit_utc=None,opencode=False,opencode_models=None,
                 opencode_max_seconds=None,publish_deadline_beijing=None,
@@ -36,14 +64,9 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
     if opencode:
         from src.models.llm.opencode_free import compete
         from src.models.llm.vote_ensemble import combine_open_votes
-        budget=opencode_max_seconds
-        if publish_deadline_beijing is not None:
-            deadline=datetime.strptime(publish_deadline_beijing,"%H:%M")
-            current=datetime.now(ZoneInfo("Asia/Shanghai"))
-            deadline_today=current.replace(hour=deadline.hour,minute=deadline.minute,
-                                           second=0,microsecond=0)
-            available=(deadline_today-current).total_seconds()-publish_reserve_seconds
-            budget=max(0,min(available,budget)) if budget is not None else max(0,available)
+        budget=compute_opencode_budget(opencode_max_seconds,
+                                      publish_deadline_beijing,
+                                      publish_reserve_seconds)
         candidates=compete(source["history"],models=opencode_models,
                            budget_seconds=budget)
         for model,result in candidates.items():

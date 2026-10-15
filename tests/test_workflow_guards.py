@@ -20,3 +20,14 @@ def test_schedule_only_prediction_workflow():
 def test_private_csv_not_published():
     ignore=(ROOT/".gitignore").read_text(encoding="utf-8")
     assert "private-source/" in ignore
+
+
+def test_daily_predict_has_fallback_and_time_budget():
+    content=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
+    assert 'cron: "40 12 * * *"' in content
+    assert '--opencode-max-seconds 240' in content
+    assert '--publish-deadline-beijing 21:10' in content
+    assert '--publish-reserve-seconds 120' in content
+    assert 'timeout 120s npm install -g opencode-ai' in content
+    assert 'if ! timeout' in content
+    assert 'if: steps.target.outputs.new ==' in content
