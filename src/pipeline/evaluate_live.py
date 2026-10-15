@@ -72,6 +72,7 @@ def run(full_history, forecasts, output_dir):
 
     counters = defaultdict(lambda: {"hits": 0, "published": 0, "attempted": 0, "unavailable": 0})
     seen = set()
+    scored_records = []
     scored_issues = 0
     pending_issues = 0
     frozen_files = sorted(Path(forecasts).glob("*.json"))
@@ -87,6 +88,7 @@ def run(full_history, forecasts, output_dir):
             pending_issues += 1
             continue
         scored_issues += 1
+        scored_records.append(current)
         out = evaluations / file.name
         serialised = json.dumps(current, ensure_ascii=False, indent=2)+"\n"
         if not out.exists() or out.read_text(encoding="utf-8") != serialised:
@@ -161,6 +163,8 @@ def run(full_history, forecasts, output_dir):
     }
     (output/"live-metrics.json").write_text(
         json.dumps(health,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    from src.evaluation.research import publish_research
+    publish_research(scored_records,output)
     print(f"scored {scored_issues} issues; {pending_issues} awaiting verified results")
     return health
 
