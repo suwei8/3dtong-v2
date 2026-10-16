@@ -6,14 +6,26 @@ Skipped/unavailable OpenCode calls are NOT counted as wrong predictions.
 
 | Model | Hits | Valid votes | Success rate | 95% Wilson CI | Attempts | Unavailable |
 |---|---:|---:|---:|---:|---:|---:|
-| catboost | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
-| dtong-main10 | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
-| ensemble | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
-| lightgbm | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
-| xgboost | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
-| frequency-30 | 0 | 1 | 0.00% | 0.0%–79.3% | 1 | 0 |
+| catboost | 2 | 2 | 100.00% | 34.2%–100.0% | 2 | 0 |
+| ensemble | 2 | 2 | 100.00% | 34.2%–100.0% | 2 | 0 |
+| lightgbm | 2 | 2 | 100.00% | 34.2%–100.0% | 2 | 0 |
+| xgboost | 2 | 2 | 100.00% | 34.2%–100.0% | 2 | 0 |
+| ml-opencode-hybrid | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode-consensus | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/longcat-2.5-preview-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/mimo-v2.6-flash-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/muse-spark-1.3-contributor-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/nemotron-3-ultra-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/nemotron-3.5-lightning-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| opencode/space-bunny-free | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| random-control-v1 | 1 | 1 | 100.00% | 20.7%–100.0% | 1 | 0 |
+| dtong-main10 | 1 | 2 | 50.00% | 9.5%–90.5% | 2 | 0 |
+| frequency-30 | 1 | 2 | 50.00% | 9.5%–90.5% | 2 | 0 |
+| opencode/big-pickle | 0 | 1 | 0.00% | 0.0%–79.3% | 1 | 0 |
+| opencode/cat-jam-free | 0 | 0 | — | — | 1 | 1 |
+| opencode/step-5-preview-free | 0 | 0 | — | — | 1 | 1 |
 
-Scored target issues: **1**.
+Scored target issues: **2**.
 Pending target issues: **1**.
 
 Fixed three-digit choice chance baseline: **65.7%** (iid uniform assumption).

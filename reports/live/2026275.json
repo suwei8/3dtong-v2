@@ -1,0 +1,23 @@
+{
+  "target_issue": "2026275",
+  "frozen_at": "2026-10-15T17:07:29.431142+00:00",
+  "source_cutoff": "2026274",
+  "scores": {
+    "xgboost": true,
+    "lightgbm": true,
+    "catboost": true,
+    "ensemble": true,
+    "dtong-main10": false,
+    "frequency-30": true,
+    "random-control-v1": true,
+    "opencode/big-pickle": false,
+    "opencode/longcat-2.5-preview-free": true,
+    "opencode/mimo-v2.6-flash-free": true,
+    "opencode/muse-spark-1.3-contributor-free": true,
+    "opencode/nemotron-3-ultra-free": true,
+    "opencode/nemotron-3.5-lightning-free": true,
+    "opencode/space-bunny-free": true,
+    "opencode-consensus": true,
+    "ml-opencode-hybrid": true
+  }
+}

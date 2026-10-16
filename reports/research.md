@@ -1,7 +1,7 @@
 # 3dtong-v2｜预注册统计研究
 
 固定评估方案：first-200-valid-prospective-issues-v1
-纳入注册起点之后的已评分期数：**0**
+纳入注册起点之后的已评分期数：**1**
 检验起点期号：**2026275**；每个模型首次 **200** 次真实合法事前预测构成一个固定窗口。
 理论随机命中概率：**65.7%**；
 单侧精确二项检验；多重比较 Bonferroni 校正：**17 个模型**。
@@ -10,24 +10,24 @@
 
 | 已注册模型 | 固定窗口进度 | 命中率（窗口内） | Bonferroni p |
 |---|---:|---:|---:|
-| xgboost | 0/200 | — | 待满200次 |
-| lightgbm | 0/200 | — | 待满200次 |
-| catboost | 0/200 | — | 待满200次 |
-| ensemble | 0/200 | — | 待满200次 |
-| dtong-main10 | 0/200 | — | 待满200次 |
-| frequency-30 | 0/200 | — | 待满200次 |
-| opencode/big-pickle | 0/200 | — | 待满200次 |
+| xgboost | 1/200 | 100.0% | 待满200次 |
+| lightgbm | 1/200 | 100.0% | 待满200次 |
+| catboost | 1/200 | 100.0% | 待满200次 |
+| ensemble | 1/200 | 100.0% | 待满200次 |
+| dtong-main10 | 1/200 | 0.0% | 待满200次 |
+| frequency-30 | 1/200 | 100.0% | 待满200次 |
+| opencode/big-pickle | 1/200 | 0.0% | 待满200次 |
 | opencode/cat-jam-free | 0/200 | — | 待满200次 |
-| opencode/longcat-2.5-preview-free | 0/200 | — | 待满200次 |
-| opencode/mimo-v2.6-flash-free | 0/200 | — | 待满200次 |
-| opencode/muse-spark-1.3-contributor-free | 0/200 | — | 待满200次 |
-| opencode/nemotron-3-ultra-free | 0/200 | — | 待满200次 |
-| opencode/nemotron-3.5-lightning-free | 0/200 | — | 待满200次 |
-| opencode/space-bunny-free | 0/200 | — | 待满200次 |
+| opencode/longcat-2.5-preview-free | 1/200 | 100.0% | 待满200次 |
+| opencode/mimo-v2.6-flash-free | 1/200 | 100.0% | 待满200次 |
+| opencode/muse-spark-1.3-contributor-free | 1/200 | 100.0% | 待满200次 |
+| opencode/nemotron-3-ultra-free | 1/200 | 100.0% | 待满200次 |
+| opencode/nemotron-3.5-lightning-free | 1/200 | 100.0% | 待满200次 |
+| opencode/space-bunny-free | 1/200 | 100.0% | 待满200次 |
 | opencode/step-5-preview-free | 0/200 | — | 待满200次 |
-| opencode-consensus | 0/200 | — | 待满200次 |
-| ml-opencode-hybrid | 0/200 | — | 待满200次 |
-| random-control-v1 | 0/200 | — | 待满200次 |
+| opencode-consensus | 1/200 | 100.0% | 待满200次 |
+| ml-opencode-hybrid | 1/200 | 100.0% | 待满200次 |
+| random-control-v1 | 1/200 | 100.0% | 待满200次 |
 
 **注意：** 固定评估样本可能存在模型调用失败/遗漏而分布在不同期号；
 这里的检验只针对理想独立随机模型，不构成模型之间两两优劣或收益性证明。

@@ -1,44 +1,116 @@
 {
   "schema": 1,
-  "scored_issues": 1,
+  "scored_issues": 2,
   "pending_issues": 1,
-  "frozen_issues": 2,
+  "frozen_issues": 3,
   "models": {
     "xgboost": {
-      "hits": 1,
-      "published": 1,
-      "attempted": 1,
+      "hits": 2,
+      "published": 2,
+      "attempted": 2,
       "unavailable": 0
     },
     "lightgbm": {
-      "hits": 1,
-      "published": 1,
-      "attempted": 1,
+      "hits": 2,
+      "published": 2,
+      "attempted": 2,
       "unavailable": 0
     },
     "catboost": {
-      "hits": 1,
-      "published": 1,
-      "attempted": 1,
+      "hits": 2,
+      "published": 2,
+      "attempted": 2,
       "unavailable": 0
     },
     "ensemble": {
-      "hits": 1,
-      "published": 1,
-      "attempted": 1,
+      "hits": 2,
+      "published": 2,
+      "attempted": 2,
       "unavailable": 0
     },
     "dtong-main10": {
       "hits": 1,
+      "published": 2,
+      "attempted": 2,
+      "unavailable": 0
+    },
+    "frequency-30": {
+      "hits": 1,
+      "published": 2,
+      "attempted": 2,
+      "unavailable": 0
+    },
+    "random-control-v1": {
+      "hits": 1,
       "published": 1,
       "attempted": 1,
       "unavailable": 0
     },
-    "frequency-30": {
+    "opencode/big-pickle": {
       "hits": 0,
       "published": 1,
       "attempted": 1,
       "unavailable": 0
+    },
+    "opencode/longcat-2.5-preview-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/mimo-v2.6-flash-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/muse-spark-1.3-contributor-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/nemotron-3-ultra-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/nemotron-3.5-lightning-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/space-bunny-free": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode-consensus": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "ml-opencode-hybrid": {
+      "hits": 1,
+      "published": 1,
+      "attempted": 1,
+      "unavailable": 0
+    },
+    "opencode/cat-jam-free": {
+      "hits": 0,
+      "published": 0,
+      "attempted": 1,
+      "unavailable": 1
+    },
+    "opencode/step-5-preview-free": {
+      "hits": 0,
+      "published": 0,
+      "attempted": 1,
+      "unavailable": 1
     }
   },
   "random_baseline": 0.657
