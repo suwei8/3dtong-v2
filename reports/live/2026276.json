@@ -1,0 +1,21 @@
+{
+  "target_issue": "2026276",
+  "frozen_at": "2026-10-16T16:45:31.802830+00:00",
+  "source_cutoff": "2026275",
+  "scores": {
+    "xgboost": true,
+    "lightgbm": true,
+    "catboost": true,
+    "ensemble": true,
+    "dtong-main10": true,
+    "frequency-30": true,
+    "random-control-v1": true,
+    "opencode/big-pickle": true,
+    "opencode/longcat-2.5-preview-free": true,
+    "opencode/mimo-v2.6-flash-free": true,
+    "opencode/muse-spark-1.3-contributor-free": true,
+    "opencode/space-bunny-free": true,
+    "opencode-consensus": true,
+    "ml-opencode-hybrid": true
+  }
+}
