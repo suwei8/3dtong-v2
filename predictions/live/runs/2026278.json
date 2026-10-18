@@ -1,0 +1,168 @@
+{
+  "schema": 5,
+  "type": "prospective-next-issue",
+  "generated_at_utc": "2026-10-18T16:10:26.698520+00:00",
+  "target_issue": "2026278",
+  "known_through_issue": "2026277",
+  "source_sha256": "a64f03e2e2b5b09716177f9a0192f370d766272aab54585fa4aed32732bbbcc6",
+  "pending_source_record": false,
+  "validation": {
+    "xgboost": {
+      "validation_hit_rate": 0.635,
+      "validation_n": 800
+    },
+    "lightgbm": {
+      "validation_hit_rate": 0.64625,
+      "validation_n": 800
+    },
+    "catboost": {
+      "validation_hit_rate": 0.64875,
+      "validation_n": 800
+    },
+    "ensemble": {
+      "validation_hit_rate": 0.64125,
+      "validation_n": 800
+    },
+    "dtong-main10": {
+      "validation_hit_rate": 0.62,
+      "validation_n": 800
+    },
+    "frequency-30": {
+      "validation_hit_rate": 0.6975,
+      "validation_n": 800
+    },
+    "random-theory": {
+      "validation_hit_rate": 0.657,
+      "validation_n": 0,
+      "note": "iid uniform mathematical baseline"
+    }
+  },
+  "validation_selected_model": "frequency-30",
+  "opencode_challengers": {
+    "opencode/big-pickle": {
+      "status": "ok"
+    },
+    "opencode/cat-jam-free": {
+      "status": "skipped",
+      "reason": "CLI exit nonzero; inspect model availability"
+    },
+    "opencode/longcat-2.5-preview-free": {
+      "status": "skipped",
+      "reason": "TimeoutExpired"
+    },
+    "opencode/mimo-v2.6-flash-free": {
+      "status": "ok"
+    },
+    "opencode/muse-spark-1.3-contributor-free": {
+      "status": "skipped",
+      "reason": "CLI exit nonzero; inspect model availability"
+    },
+    "opencode/nemotron-3-ultra-free": {
+      "status": "ok"
+    },
+    "opencode/nemotron-3.5-lightning-free": {
+      "status": "skipped",
+      "reason": "TimeoutExpired"
+    },
+    "opencode/space-bunny-free": {
+      "status": "ok"
+    },
+    "opencode/step-5-preview-free": {
+      "status": "skipped",
+      "reason": "CLI exit nonzero; inspect model availability"
+    }
+  },
+  "derived_challengers": {
+    "opencode-consensus": {
+      "status": "ok",
+      "contributors": [
+        "opencode/big-pickle",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/nemotron-3-ultra-free",
+        "opencode/space-bunny-free"
+      ],
+      "method": "equal votes; pre-cutoff ML breaks ties"
+    },
+    "ml-opencode-hybrid": {
+      "status": "ok",
+      "contributors": [
+        "opencode/big-pickle",
+        "opencode/mimo-v2.6-flash-free",
+        "opencode/nemotron-3-ultra-free",
+        "opencode/space-bunny-free"
+      ],
+      "method": "fixed 50/50 LLM votes and ML probabilities",
+      "llm_weight": 0.5
+    }
+  },
+  "control_algorithm": "sha256-rank-v1",
+  "research_protocol": "first-200-valid-prospective-issues-v1",
+  "models": {
+    "xgboost": [
+      6,
+      8,
+      0
+    ],
+    "lightgbm": [
+      6,
+      8,
+      1
+    ],
+    "catboost": [
+      8,
+      6,
+      9
+    ],
+    "ensemble": [
+      6,
+      8,
+      1
+    ],
+    "dtong-main10": [
+      2,
+      3,
+      4
+    ],
+    "frequency-30": [
+      8,
+      0,
+      6
+    ],
+    "random-control-v1": [
+      6,
+      0,
+      5
+    ],
+    "opencode/big-pickle": [
+      1,
+      3,
+      4
+    ],
+    "opencode/mimo-v2.6-flash-free": [
+      4,
+      3,
+      0
+    ],
+    "opencode/nemotron-3-ultra-free": [
+      4,
+      1,
+      3
+    ],
+    "opencode/space-bunny-free": [
+      5,
+      6,
+      8
+    ],
+    "opencode-consensus": [
+      4,
+      3,
+      1
+    ],
+    "ml-opencode-hybrid": [
+      4,
+      3,
+      1
+    ]
+  },
+  "notes": "Only actual successful anonymous CLI JSON responses enter forecasts; no model has proven an edge."
+}
