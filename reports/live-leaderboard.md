@@ -26,7 +26,7 @@ Skipped/unavailable OpenCode calls are NOT counted as wrong predictions.
 | opencode/step-5-preview-free | 0 | 0 | — | — | 2 | 2 |
 
 Scored target issues: **3**.
-Pending target issues: **0**.
+Pending target issues: **1**.
 
 Fixed three-digit choice chance baseline: **65.7%** (iid uniform assumption).
 Do not compare models with tiny or different denominators as if they were equally tested.
