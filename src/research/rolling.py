@@ -59,7 +59,13 @@ def _validate(history,cfg):
         raise ValueError("not enough history after reserving the entire untouched holdout")
 
 
-def walk_forward(history,config=None):
+def available_production_models():
+    """Opt-in: reuse unchanged live estimator implementations for development study."""
+    from src.pipeline.train import MODELS
+    return {kind.name:kind for kind in MODELS}
+
+
+def walk_forward(history,config=None,additional_models=None):
     """Diagnostic per-period records stay IN MEMORY; publish only aggregate()."""
     cfg=config or Config()
     _validate(history,cfg)
@@ -70,7 +76,13 @@ def walk_forward(history,config=None):
         raise ValueError("feature layout changed; register a new ablation mapping")
     if start-WARMUP<cfg.min_training_rows:
         raise ValueError("insufficient training prefix")
-    hits={name:[] for name in (*VARIANTS,*BASELINES)}
+    extra=additional_models if additional_models is not None else {}
+    if not isinstance(extra,dict) or any(
+        not isinstance(name,str) or not name or name in (*VARIANTS,*BASELINES)
+        or not callable(factory) for name,factory in extra.items()
+    ):
+        raise ValueError("additional models must have unique names and callable factories")
+    hits={name:[] for name in (*VARIANTS,*BASELINES,*extra)}
     trace=[]
     for first in range(start,len(dev),cfg.refit_interval):
         stop=min(len(dev),first+cfg.refit_interval)
@@ -82,8 +94,15 @@ def walk_forward(history,config=None):
             model.fit(X[:fit_end,cols],Y[:fit_end])
             scores=model.predict(X[window,:][:,cols])
             fitted[name]=[top3(row) for row in scores]
+        for name,factory in extra.items():
+            # Exact production model class and parameters, but exploratory-only fit.
+            estimator=factory().fit(X[:fit_end,:],Y[:fit_end])
+            rankings=estimator.predict_proba(X[window,:])
+            if rankings.shape!=(stop-first,10):
+                raise ValueError("additional model must return one ten-digit score vector per issue")
+            fitted[name]=[top3(row) for row in rankings]
         for offset,i in enumerate(range(first,stop)):
-            picks={name:fitted[name][offset] for name in VARIANTS}
+            picks={name:fitted[name][offset] for name in (*VARIANTS,*extra)}
             picks["frequency-30"]=top3(X[i-WARMUP,10:20])
             picks["sha256-random-control"]=control_digits(dev[i-1]["Issue"],dev[i]["Issue"])
             label=Y[i-WARMUP]
@@ -96,7 +115,7 @@ def walk_forward(history,config=None):
                 "votes":picks,
                 "hits":vote_hits,
             })
-    return {"config":cfg,"hits":hits,"trace":trace}
+    return {"config":cfg,"hits":hits,"trace":trace,"additional_models":list(extra)}
 
 
 def _wilson(hits,n):
@@ -126,7 +145,8 @@ def aggregate(experiment):
         }
     return {
         "schema":1,"kind":"exploratory-development-only",
-        "model":"multi-output ridge ranking (not calibrated probabilities)",
+        "model":"multi-output Ridge ablation plus optional unmodified production estimators",
+        "additional_exploratory_models":experiment["additional_models"],
         "random_iid_theory":0.657,
         "config":{
             "holdout_size":cfg.holdout_size,
@@ -158,7 +178,7 @@ def publish(experiment,output_directory):
         "# 历史滚动回测与特征消融研究（探索性）","",
         "与每日事前预测及200期预注册研究**完全独立**；最后200期隔离数据不参与本次训练、分析或评分。",
         f"开发区测试：{cfg.development_rounds}期；每{cfg.refit_interval}期按历史重新训练；保留区：{cfg.holdout_size}期。",
-        "本次使用 Ridge 多输出排名研究模型，不等同于正式 XGBoost、LightGBM、CatBoost。",
+        "消融使用 Ridge 多输出排名研究模型；如有额外模型，则使用其现有实现进行相同期号的滚动评估（仍非事前实战）。",
         "",
         "| 实验方案 | 命中 | 命中率 | 95% Wilson区间 | 相对全量特征的同期开奖净胜期数 |",
         "|---|---:|---:|---|---:|",
@@ -183,9 +203,12 @@ def main():
     p.add_argument("--refit-every",type=int,default=20)
     p.add_argument("--min-train",type=int,default=500)
     p.add_argument("--alpha",type=float,default=25.)
+    p.add_argument("--include-current-models",action="store_true",
+                   help="Also refit existing XGBoost/LightGBM/CatBoost on identical development issues (slow)")
     args=p.parse_args()
     cfg=Config(args.holdout,args.rounds,args.refit_every,args.min_train,args.alpha)
-    report=publish(walk_forward(load_history(args.data),cfg),args.out)
+    factories=available_production_models() if args.include_current_models else None
+    report=publish(walk_forward(load_history(args.data),cfg,additional_models=factories),args.out)
     print(f"Development-only rolling experiment: {report['config']['development_rounds']} rounds. Holdout excluded.")
 
 

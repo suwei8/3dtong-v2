@@ -78,3 +78,32 @@ def test_invalid_configuration_refused():
                 replace(config(),min_training_rows=20)):
         with pytest.raises(ValueError):
             walk_forward(synthetic(),bad)
+
+
+
+def test_optional_existing_models_see_only_preblock_training_data(monkeypatch):
+    import numpy as np
+    training_sizes=[]
+    class DummyExistingModel:
+        def fit(self,X,Y):
+            training_sizes.append((len(X),len(Y)))
+            self.bias=Y.mean(axis=0)
+            return self
+        def predict_proba(self,X):
+            return np.tile(self.bias,(len(X),1))
+    result=walk_forward(synthetic(),config(),additional_models={"existing-ml":DummyExistingModel})
+    assert len(result["hits"]["existing-ml"])==20
+    # After 100 warmup draws, the first development target is index220.
+    # Thus first fit has 120 training labels; final refit has 135.
+    assert training_sizes==[(120,120),(125,125),(130,130),(135,135)]
+    assert all(len(row["votes"]["existing-ml"])==3 for row in result["trace"])
+    changed=synthetic()
+    for row in changed[-20:]:
+        row["KaiJiang"]="999"
+    assert result["trace"]==walk_forward(
+        changed,config(),additional_models={"existing-ml":DummyExistingModel})["trace"]
+
+
+def test_invalid_extra_model_names_are_rejected():
+    with pytest.raises(ValueError,match="additional models"):
+        walk_forward(synthetic(),config(),additional_models={"full":lambda:None})
