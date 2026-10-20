@@ -205,6 +205,13 @@ def publish(experiment,output_directory):
         # Do not invent matched outcomes or mislabel the report as XGBoost.
         for stale in ("rolling-paired.json","rolling-paired.md"):
             (folder/stale).unlink(missing_ok=True)
+    # Post-hoc time stability uses only in-memory development hit flags.
+    from src.research.stability import analyze_stability, render_markdown as render_stability
+    stability=analyze_stability(experiment)
+    (folder/"rolling-stability.json").write_text(
+        json.dumps(stability,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    (folder/"rolling-stability.md").write_text(
+        render_stability(stability),encoding="utf-8")
     return summary
 
 

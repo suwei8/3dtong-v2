@@ -12,7 +12,7 @@ def test_research_job_uses_private_checkout_and_only_aggregate_outputs():
     assert "--holdout 200" in workflow
     assert "--include-current-models" in workflow
     assert 'len(body["variants"])==11' in workflow
-    assert "git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json reports/experimental/rolling-paired.md reports/experimental/rolling-paired.json" in workflow
+    assert "git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json reports/experimental/rolling-paired.md reports/experimental/rolling-paired.json reports/experimental/rolling-stability.md reports/experimental/rolling-stability.json" in workflow
     assert "git add -A" not in workflow
     assert "git add ." not in workflow
     assert "git add private-source" not in workflow
@@ -35,3 +35,15 @@ def test_research_snapshot_and_paired_scoring_are_immutable_by_default():
     assert "tests/test_paired_research.py" in workflow
     assert "rolling-paired.md" in workflow and "rolling-paired.json" in workflow
     assert 'paired["holdout_evaluated"] is False' in workflow
+
+
+
+def test_research_stability_is_aggregate_only_and_not_production():
+    workflow=(ROOT/".github/workflows/rolling-research.yml").read_text(encoding="utf-8")
+    assert '"src/research/stability.py"' in workflow
+    assert "tests/test_rolling_stability.py" in workflow
+    assert "rolling-stability.md" in workflow
+    assert "rolling-stability.json" in workflow
+    assert 'stability["segment_count"]==6' in workflow
+    assert 'stability["adoption_approved"] is False' in workflow
+    assert "git add -A" not in workflow

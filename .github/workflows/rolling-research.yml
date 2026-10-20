@@ -7,6 +7,7 @@ on:
       - ".github/workflows/rolling-research.yml"
       - "src/research/paired.py"
       - "src/research/rolling.py"
+      - "src/research/stability.py"
   workflow_dispatch:
 
 permissions:
@@ -44,7 +45,7 @@ jobs:
       - name: Install reproducible model dependencies
         run: python -m pip install -r requirements.txt
       - name: Verify no-leakage research tests using synthetic data only
-        run: python -m pytest -q tests/test_rolling_research.py tests/test_rolling_cli.py tests/test_paired_research.py
+        run: python -m pytest -q tests/test_rolling_research.py tests/test_rolling_cli.py tests/test_paired_research.py tests/test_rolling_stability.py
       - name: Run historical development experiments without looking at last 200 draws
         run: |
           python -m src.research.rolling \
@@ -61,7 +62,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("reports/experimental")
-          expected={"rolling-ablation.json","rolling-ablation.md","rolling-paired.json","rolling-paired.md"}
+          expected={"rolling-ablation.json","rolling-ablation.md","rolling-paired.json","rolling-paired.md","rolling-stability.json","rolling-stability.md"}
           files={p.name for p in root.iterdir() if p.is_file()}
           assert files==expected, f"unexpected output files: {files}"
           body=json.loads((root/"rolling-ablation.json").read_text(encoding="utf-8"))
@@ -85,6 +86,21 @@ jobs:
               assert sum(record[x] for x in ("both_hit","both_miss","candidate_only_hit","baseline_only_hit"))==120
               assert record["confirmatory"] is False
           assert not any(key in paired for key in ("history","trace","draws","labels","votes","predictions"))
+          stability=json.loads((root/"rolling-stability.json").read_text(encoding="utf-8"))
+          assert stability["kind"]=="post-hoc-exploratory-time-stability"
+          assert stability["development_rounds"]==120
+          assert stability["segment_count"]==6 and stability["segment_size"]==20
+          assert stability["holdout_evaluated"] is False
+          assert stability["production_modified"] is False
+          assert stability["adoption_approved"] is False
+          assert stability["raw_issues_draws_votes_published"] is False
+          assert set(stability["comparisons"])==set(paired["comparisons"])
+          for key,comparison in stability["comparisons"].items():
+              original=paired["comparisons"][key]
+              assert comparison["total_net_hits"]==original["candidate_hits"]-original["baseline_hits"]
+              assert sum(s["candidate_only"] for s in comparison["segments"])==original["candidate_only_hit"]
+              assert sum(s["reference_only"] for s in comparison["segments"])==original["baseline_only_hit"]
+          assert not any(k in stability for k in ("history","trace","draws","labels","votes","predictions","issues"))
           assert not any(k in body for k in ("history","trace","draws","predictions","labels","rows","votes"))
           print("Validated 11 arms and 3 paired comparisons over same 120 rounds; 200 reserved.")
           PY
@@ -92,7 +108,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json reports/experimental/rolling-paired.md reports/experimental/rolling-paired.json
+          git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json reports/experimental/rolling-paired.md reports/experimental/rolling-paired.json reports/experimental/rolling-stability.md reports/experimental/rolling-stability.json
           if git diff --cached --quiet; then
             echo "Research aggregate already current."
           else

@@ -98,3 +98,6 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 
 
 - [独立历史滚动实验任务](.github/workflows/rolling-research.yml)：使用私有历史数据运行，不改动生产模型，仅发布[中文汇总报告](reports/experimental/rolling-ablation.md)。
+
+
+- [模型跨时间稳定性研究](reports/experimental/rolling-stability.md)：同一份冻结历史120期，分6段统计命中与配对差距，保留最后200期，不用分段表现自动更新正式模型。
