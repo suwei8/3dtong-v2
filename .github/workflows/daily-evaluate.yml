@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "src/pipeline/evaluate_live.py"
+      - "src/pipeline/render_history.py"
       - ".github/workflows/daily-evaluate.yml"
   workflow_run:
     workflows: ["daily predict"]

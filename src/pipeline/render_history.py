@@ -70,7 +70,16 @@ def _detail(forecast, score):
                 or len(set(digits)) != 3):
             raise ValueError(f"invalid frozen digits for {issue}/{name}")
         rows.append(f"| {_safe(name)} | **{''.join(map(str, digits))}** | {_status(forecast, score, name)} |")
+    # Show failed/omitted contestants in the main table too, even though they
+    # have no fabricated digit vote and are never scored as a miss.
     statuses = forecast.get("opencode_challengers", {})
+    for name, item in statuses.items():
+        if name not in models and item.get("status") == "skipped":
+            rows.append(f"| {_safe(name)} | — | 未调用（模型不可用） |")
+    derived = forecast.get("derived_challengers", {})
+    for name, item in derived.items():
+        if name not in models and item.get("status") == "skipped":
+            rows.append(f"| {_safe(name)} | — | 未生成（有效模型不足） |")
     if statuses:
         rows.extend(["", "## OpenCode 模型调用情况", "",
                      "| 模型 | 状态 | 说明 |", "|---|---|---|"])
