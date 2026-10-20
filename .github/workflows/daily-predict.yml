@@ -1,6 +1,10 @@
 name: daily predict
 on:
   schedule:
+    - cron: "30 16 * * *" # 00:30 Beijing next morning; overnight source should be ready
+    - cron: "20 22 * * *" # 06:20 Beijing
+    - cron: "20 4 * * *"  # 12:20 Beijing
+    - cron: "20 9 * * *"  # 17:20 Beijing
     - cron: "50 11 * * *" # 19:50 Beijing
     - cron: "20 12 * * *" # 20:20 Beijing
     - cron: "40 12 * * *" # 20:40 Beijing failover attempt; duplicate issue is skipped
@@ -30,33 +34,25 @@ jobs:
           ref: main
           persist-credentials: false
           fetch-depth: 0 # Required for accurate last-change timestamp of the CSV (not repository HEAD)
+      - name: Fast pure-Python source freshness / target / Beijing deadline preflight
+        id: target
+        run: |
+          source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
+          python -m src.pipeline.preflight \
+            --history private-source/data/k3_full_history.csv \
+            --forecasts predictions/live/runs \
+            --source-commit-utc "$source_commit" \
+            --max-source-age-hours 24 \
+            --deadline-beijing 21:10 \
+            --github-output "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
+        if: steps.target.outputs.new == 'true'
         with:
           python-version: "3.11"
           cache: pip
-      - name: Test all pipeline modules
-        run: |
-          python -m pip install -r requirements.txt
-          python -m pytest -q tests/
-      - name: Enforce cutoff in Beijing timezone
-        run: |
-          hhmm=$(TZ=Asia/Shanghai date +%H%M)
-          if [ "$hhmm" -ge 2110 ]; then
-            echo "::error::Past Beijing 21:10; refusing to generate predictions."
-            exit 1
-          fi
-      - name: Identify next issue and avoid duplicate OpenCode costs
-        id: target
-        run: |
-          next=$(python -c "from src.data.live import load_live_history; print(load_live_history('private-source/data/k3_full_history.csv')['target'])")
-          echo "issue=$next" >> "$GITHUB_OUTPUT"
-          if [ -f "predictions/live/runs/$next.json" ]; then
-            echo "new=false" >> "$GITHUB_OUTPUT"
-            echo "Forecast already frozen: $next"
-          else
-            echo "new=true" >> "$GITHUB_OUTPUT"
-            echo "New prospective target: $next"
-          fi
+      - name: Install production runtime only (CI runs full tests on push)
+        if: steps.target.outputs.new == 'true'
+        run: python -m pip install -r requirements.txt
       - name: Try installing OpenCode; retain traditional fallback if unavailable
         if: steps.target.outputs.new == 'true'
         run: |
@@ -69,13 +65,14 @@ jobs:
           source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
           python -m src.pipeline.live \
             --history private-source/data/k3_full_history.csv \
-            --max-source-age-hours 36 \
+            --max-source-age-hours 24 \
             --source-commit-utc "$source_commit" \
             --opencode \
             --opencode-max-seconds 240 \
             --publish-deadline-beijing 21:10 \
             --publish-reserve-seconds 120
       - name: Render readable historical prediction archive
+        if: steps.target.outputs.new == 'true'
         run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
       - name: Verify publish deadline again after all models finish
         if: steps.target.outputs.new == 'true'
