@@ -1,25 +1,26 @@
 # 3dtong-v2 live forecast
 
-**Next target issue: 2026279**
-Latest known completed issue: 2026278
-Frozen: 2026-10-19T17:50:01.982191+00:00
+**Next target issue: 2026280**
+Latest known completed issue: 2026279
+Frozen: 2026-10-20T17:13:31.296819+00:00
 Validation-selected statistical model: frequency-30
 
 | Contestant | Three distinct digits |
 |---|---|
-| xgboost | 608 |
-| lightgbm | 689 |
-| catboost | 964 |
-| ensemble | 698 |
+| xgboost | 680 |
+| lightgbm | 618 |
+| catboost | 618 |
+| ensemble | 618 |
 | dtong-main10 | 012 |
-| frequency-30 | 806 |
-| random-control-v1 | 394 |
-| opencode/big-pickle | 147 |
+| frequency-30 | 089 |
+| random-control-v1 | 160 |
+| opencode/big-pickle | 089 |
 | opencode/longcat-2.5-preview-free | 892 |
-| opencode/mimo-v2.6-flash-free | 428 |
-| opencode/nemotron-3-ultra-free | 689 |
-| opencode-consensus | 894 |
-| ml-opencode-hybrid | 894 |
+| opencode/mimo-v2.6-flash-free | 089 |
+| opencode/nemotron-3-ultra-free | 234 |
+| opencode/nemotron-3.5-lightning-free | 895 |
+| opencode-consensus | 890 |
+| ml-opencode-hybrid | 890 |
 
 ## OpenCode challenger status
 
@@ -31,7 +32,7 @@ Validation-selected statistical model: frequency-30
 | opencode/mimo-v2.6-flash-free | ok | — |
 | opencode/muse-spark-1.3-contributor-free | skipped | CLI exit nonzero; inspect model availability |
 | opencode/nemotron-3-ultra-free | ok | — |
-| opencode/nemotron-3.5-lightning-free | skipped | TimeoutExpired |
+| opencode/nemotron-3.5-lightning-free | ok | — |
 | opencode/space-bunny-free | skipped | CLI exit nonzero; inspect model availability |
 | opencode/step-5-preview-free | skipped | CLI exit nonzero; inspect model availability |
 
@@ -39,10 +40,9 @@ Validation-selected statistical model: frequency-30
 
 | Algorithm | Status | Verified OpenCode participants |
 |---|---|---|
-| opencode-consensus | ok | 4 |
-| ml-opencode-hybrid | ok | 4 |
-
-Frozen predictions are immutable. Derived votes require at least three actual OpenCode successes and have no proven edge.
-
+| opencode-consensus | ok | 5 |
+| ml-opencode-hybrid | ok | 5 |
 
 [查看全部往期预测与命中结果](HISTORY.md)
+
+Frozen predictions are immutable. Derived votes require at least three actual OpenCode successes and have no proven edge.
