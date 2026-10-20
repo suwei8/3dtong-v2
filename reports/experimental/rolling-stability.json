@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "kind": "post-hoc-exploratory-time-stability",
+  "source": "same pinned development snapshot as rolling-paired report",
+  "development_rounds": 120,
+  "segment_size": 20,
+  "segment_count": 6,
+  "segment_definition": "chronological non-overlapping refit blocks",
+  "blocks": [
+    {
+      "block_index": 1,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 14,
+        "frequency-30": 15,
+        "lightgbm": 15,
+        "catboost": 13,
+        "sha256-random-control": 11,
+        "without_frequency": 15,
+        "full": 14
+      }
+    },
+    {
+      "block_index": 2,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 16,
+        "frequency-30": 15,
+        "lightgbm": 14,
+        "catboost": 15,
+        "sha256-random-control": 12,
+        "without_frequency": 10,
+        "full": 13
+      }
+    },
+    {
+      "block_index": 3,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 13,
+        "frequency-30": 12,
+        "lightgbm": 10,
+        "catboost": 11,
+        "sha256-random-control": 13,
+        "without_frequency": 11,
+        "full": 8
+      }
+    },
+    {
+      "block_index": 4,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 13,
+        "frequency-30": 14,
+        "lightgbm": 14,
+        "catboost": 14,
+        "sha256-random-control": 11,
+        "without_frequency": 12,
+        "full": 13
+      }
+    },
+    {
+      "block_index": 5,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 14,
+        "frequency-30": 15,
+        "lightgbm": 13,
+        "catboost": 12,
+        "sha256-random-control": 13,
+        "without_frequency": 16,
+        "full": 16
+      }
+    },
+    {
+      "block_index": 6,
+      "sample_count": 20,
+      "model_hits": {
+        "xgboost": 15,
+        "frequency-30": 12,
+        "lightgbm": 13,
+        "catboost": 14,
+        "sha256-random-control": 14,
+        "without_frequency": 18,
+        "full": 13
+      }
+    }
+  ],
+  "comparisons": {
+    "xgboost_vs_frequency-30": {
+      "candidate": "xgboost",
+      "baseline": "frequency-30",
+      "segments": [
+        {
+          "block_index": 1,
+          "candidate_hits": 14,
+          "reference_hits": 15,
+          "candidate_only": 4,
+          "reference_only": 5,
+          "both_hit": 10,
+          "both_miss": 1,
+          "net_hit_difference": -1,
+          "hit_rate_gap_pp": -5.0
+        },
+        {
+          "block_index": 2,
+          "candidate_hits": 16,
+          "reference_hits": 15,
+          "candidate_only": 4,
+          "reference_only": 3,
+          "both_hit": 12,
+          "both_miss": 1,
+          "net_hit_difference": 1,
+          "hit_rate_gap_pp": 5.0
+        },
+        {
+          "block_index": 3,
+          "candidate_hits": 13,
+          "reference_hits": 12,
+          "candidate_only": 3,
+          "reference_only": 2,
+          "both_hit": 10,
+          "both_miss": 5,
+          "net_hit_difference": 1,
+          "hit_rate_gap_pp": 5.0
+        },
+        {
+          "block_index": 4,
+          "candidate_hits": 13,
+          "reference_hits": 14,
+          "candidate_only": 5,
+          "reference_only": 6,
+          "both_hit": 8,
+          "both_miss": 1,
+          "net_hit_difference": -1,
+          "hit_rate_gap_pp": -5.0
+        },
+        {
+          "block_index": 5,
+          "candidate_hits": 14,
+          "reference_hits": 15,
+          "candidate_only": 4,
+          "reference_only": 5,
+          "both_hit": 10,
+          "both_miss": 1,
+          "net_hit_difference": -1,
+          "hit_rate_gap_pp": -5.0
+        },
+        {
+          "block_index": 6,
+          "candidate_hits": 15,
+          "reference_hits": 12,
+          "candidate_only": 6,
+          "reference_only": 3,
+          "both_hit": 9,
+          "both_miss": 2,
+          "net_hit_difference": 3,
+          "hit_rate_gap_pp": 15.0
+        }
+      ],
+      "better_segments": 3,
+      "worse_segments": 3,
+      "tied_segments": 0,
+      "total_net_hits": 2,
+      "smallest_segment_gap_pp": -5.0,
+      "largest_segment_gap_pp": 15.0,
+      "dominates_each_segment": false
+    },
+    "xgboost_vs_sha256-random-control": {
+      "candidate": "xgboost",
+      "baseline": "sha256-random-control",
+      "segments": [
+        {
+          "block_index": 1,
+          "candidate_hits": 14,
+          "reference_hits": 11,
+          "candidate_only": 6,
+          "reference_only": 3,
+          "both_hit": 8,
+          "both_miss": 3,
+          "net_hit_difference": 3,
+          "hit_rate_gap_pp": 15.0
+        },
+        {
+          "block_index": 2,
+          "candidate_hits": 16,
+          "reference_hits": 12,
+          "candidate_only": 7,
+          "reference_only": 3,
+          "both_hit": 9,
+          "both_miss": 1,
+          "net_hit_difference": 4,
+          "hit_rate_gap_pp": 20.0
+        },
+        {
+          "block_index": 3,
+          "candidate_hits": 13,
+          "reference_hits": 13,
+          "candidate_only": 3,
+          "reference_only": 3,
+          "both_hit": 10,
+          "both_miss": 4,
+          "net_hit_difference": 0,
+          "hit_rate_gap_pp": 0.0
+        },
+        {
+          "block_index": 4,
+          "candidate_hits": 13,
+          "reference_hits": 11,
+          "candidate_only": 6,
+          "reference_only": 4,
+          "both_hit": 7,
+          "both_miss": 3,
+          "net_hit_difference": 2,
+          "hit_rate_gap_pp": 10.0
+        },
+        {
+          "block_index": 5,
+          "candidate_hits": 14,
+          "reference_hits": 13,
+          "candidate_only": 3,
+          "reference_only": 2,
+          "both_hit": 11,
+          "both_miss": 4,
+          "net_hit_difference": 1,
+          "hit_rate_gap_pp": 5.0
+        },
+        {
+          "block_index": 6,
+          "candidate_hits": 15,
+          "reference_hits": 14,
+          "candidate_only": 6,
+          "reference_only": 5,
+          "both_hit": 9,
+          "both_miss": 0,
+          "net_hit_difference": 1,
+          "hit_rate_gap_pp": 5.0
+        }
+      ],
+      "better_segments": 5,
+      "worse_segments": 0,
+      "tied_segments": 1,
+      "total_net_hits": 11,
+      "smallest_segment_gap_pp": 0.0,
+      "largest_segment_gap_pp": 20.0,
+      "dominates_each_segment": false
+    },
+    "without_frequency_vs_full": {
+      "candidate": "without_frequency",
+      "baseline": "full",
+      "segments": [
+        {
+          "block_index": 1,
+          "candidate_hits": 15,
+          "reference_hits": 14,
+          "candidate_only": 5,
+          "reference_only": 4,
+          "both_hit": 10,
+          "both_miss": 1,
+          "net_hit_difference": 1,
+          "hit_rate_gap_pp": 5.0
+        },
+        {
+          "block_index": 2,
+          "candidate_hits": 10,
+          "reference_hits": 13,
+          "candidate_only": 2,
+          "reference_only": 5,
+          "both_hit": 8,
+          "both_miss": 5,
+          "net_hit_difference": -3,
+          "hit_rate_gap_pp": -15.0
+        },
+        {
+          "block_index": 3,
+          "candidate_hits": 11,
+          "reference_hits": 8,
+          "candidate_only": 5,
+          "reference_only": 2,
+          "both_hit": 6,
+          "both_miss": 7,
+          "net_hit_difference": 3,
+          "hit_rate_gap_pp": 15.0
+        },
+        {
+          "block_index": 4,
+          "candidate_hits": 12,
+          "reference_hits": 13,
+          "candidate_only": 3,
+          "reference_only": 4,
+          "both_hit": 9,
+          "both_miss": 4,
+          "net_hit_difference": -1,
+          "hit_rate_gap_pp": -5.0
+        },
+        {
+          "block_index": 5,
+          "candidate_hits": 16,
+          "reference_hits": 16,
+          "candidate_only": 3,
+          "reference_only": 3,
+          "both_hit": 13,
+          "both_miss": 1,
+          "net_hit_difference": 0,
+          "hit_rate_gap_pp": 0.0
+        },
+        {
+          "block_index": 6,
+          "candidate_hits": 18,
+          "reference_hits": 13,
+          "candidate_only": 6,
+          "reference_only": 1,
+          "both_hit": 12,
+          "both_miss": 1,
+          "net_hit_difference": 5,
+          "hit_rate_gap_pp": 25.0
+        }
+      ],
+      "better_segments": 3,
+      "worse_segments": 2,
+      "tied_segments": 1,
+      "total_net_hits": 5,
+      "smallest_segment_gap_pp": -15.0,
+      "largest_segment_gap_pp": 25.0,
+      "dominates_each_segment": false
+    }
+  },
+  "holdout_evaluated": false,
+  "raw_issues_draws_votes_published": false,
+  "production_modified": false,
+  "adoption_approved": false,
+  "warning": "Selected after examining development leaderboard. Aggregate segment stability is descriptive and cannot establish predictive advantage; small samples and correlated outcomes."
+}
