@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "kind": "post-selection-exploratory-paired-comparison",
+  "historical_source": "previously chosen fixed private history snapshot",
+  "comparisons": {
+    "xgboost_vs_frequency-30": {
+      "candidate": "xgboost",
+      "baseline": "frequency-30",
+      "samples": 120,
+      "both_hit": 59,
+      "candidate_only_hit": 26,
+      "baseline_only_hit": 24,
+      "both_miss": 11,
+      "candidate_hits": 85,
+      "baseline_hits": 83,
+      "candidate_minus_baseline_percentage_points": 1.6667,
+      "discordant_pairs": 50,
+      "mcnemar_two_sided_p_exploratory": 0.88772483,
+      "paired_circular_block_bootstrap_95_gap_pp": [
+        -7.5,
+        10.8333
+      ],
+      "bootstrap_settings": {
+        "block_length": 10,
+        "replications": 4000,
+        "seed": 20261021
+      },
+      "confirmatory": false
+    },
+    "xgboost_vs_sha256-random-control": {
+      "candidate": "xgboost",
+      "baseline": "sha256-random-control",
+      "samples": 120,
+      "both_hit": 54,
+      "candidate_only_hit": 31,
+      "baseline_only_hit": 20,
+      "both_miss": 15,
+      "candidate_hits": 85,
+      "baseline_hits": 74,
+      "candidate_minus_baseline_percentage_points": 9.1667,
+      "discordant_pairs": 51,
+      "mcnemar_two_sided_p_exploratory": 0.1607796,
+      "paired_circular_block_bootstrap_95_gap_pp": [
+        1.6667,
+        16.6667
+      ],
+      "bootstrap_settings": {
+        "block_length": 10,
+        "replications": 4000,
+        "seed": 20261021
+      },
+      "confirmatory": false
+    },
+    "without_frequency_vs_full": {
+      "candidate": "without_frequency",
+      "baseline": "full",
+      "samples": 120,
+      "both_hit": 58,
+      "candidate_only_hit": 24,
+      "baseline_only_hit": 19,
+      "both_miss": 19,
+      "candidate_hits": 82,
+      "baseline_hits": 77,
+      "candidate_minus_baseline_percentage_points": 4.1667,
+      "discordant_pairs": 43,
+      "mcnemar_two_sided_p_exploratory": 0.54238401,
+      "paired_circular_block_bootstrap_95_gap_pp": [
+        -4.1667,
+        12.5
+      ],
+      "bootstrap_settings": {
+        "block_length": 10,
+        "replications": 4000,
+        "seed": 20261021
+      },
+      "confirmatory": false
+    }
+  },
+  "holdout_evaluated": false,
+  "production_modified": false,
+  "candidate_policy": "No holdout unlock or live model promotion based on the exploratory pairwise p-values alone.",
+  "warning": "Compared candidates were selected after looking at developmental leaderboard; unadjusted McNemar p-values and block-bootstrap intervals are descriptive only. Small samples and multiple comparisons limit conclusions."
+}
