@@ -107,3 +107,11 @@ def test_optional_existing_models_see_only_preblock_training_data(monkeypatch):
 def test_invalid_extra_model_names_are_rejected():
     with pytest.raises(ValueError,match="additional models"):
         walk_forward(synthetic(),config(),additional_models={"full":lambda:None})
+
+
+
+def test_lightweight_study_does_not_fabricate_xgboost_pairs(tmp_path):
+    summary=publish(walk_forward(synthetic(),config()),tmp_path)
+    assert summary["additional_exploratory_models"]==[]
+    assert not (tmp_path/"rolling-paired.json").exists()
+    assert not (tmp_path/"rolling-paired.md").exists()

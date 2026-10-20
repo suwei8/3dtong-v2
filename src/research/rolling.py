@@ -193,12 +193,18 @@ def publish(experiment,output_directory):
     (folder/"rolling-ablation.md").write_text("\n".join(lines),encoding="utf-8")
     # Paired tests are descriptive because the pair was chosen AFTER inspecting
     # the development summary. Never use these results to unlock the holdout.
-    from src.research.paired import analyze_study, render_markdown
-    paired=analyze_study(experiment)
-    (folder/"rolling-paired.json").write_text(
-        json.dumps(paired,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    (folder/"rolling-paired.md").write_text(
-        render_markdown(paired),encoding="utf-8")
+    if "xgboost" in experiment["hits"]:
+        from src.research.paired import analyze_study, render_markdown
+        paired=analyze_study(experiment)
+        (folder/"rolling-paired.json").write_text(
+            json.dumps(paired,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        (folder/"rolling-paired.md").write_text(
+            render_markdown(paired),encoding="utf-8")
+    else:
+        # An optional model not participating is not a negative vote.
+        # Do not invent matched outcomes or mislabel the report as XGBoost.
+        for stale in ("rolling-paired.json","rolling-paired.md"):
+            (folder/stale).unlink(missing_ok=True)
     return summary
 
 
