@@ -43,3 +43,12 @@ python -m src.research.rolling \
 ## 可选：滚动评估当前三个生产机器学习模型
 
 在上述命令后添加 `--include-current-models`，研究模块将用完全相同的开发期号、拟合边界和特征，额外训练并评估现有 XGBoost、LightGBM、CatBoost 实现，得到与 Ridge 及两个基准可直接配对比较的结果。这会明显增加运行时间；默认关闭，不会改变生产预测文件、正式排行榜或已封存数据。
+
+
+## GitHub Actions 实际历史研究
+
+新增 [独立滚动研究任务](../.github/workflows/rolling-research.yml)，仅在工作流配置变更或手动触发时执行，不会每天重复拟合，也不影响定时预测。
+
+任务通过仓库已有的 PINBLE_DATA_TOKEN 只读签出私有 suwei8/pinble-data，在 runner 上完成120期开发滚动实验，并启用现有三个机器学习模型对照；最后200期仍不参与训练、评分或报告。
+
+仅提交两个聚合文件：[中文实验报告](../reports/experimental/rolling-ablation.md) 和 [机器可读统计](../reports/experimental/rolling-ablation.json)。报告在首次实际运行成功后才生成。不得将合成数据CI测试解释为真实历史命中率。滚动回测结果不属于200期事前统计检验。

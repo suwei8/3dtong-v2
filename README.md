@@ -95,3 +95,6 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 ## 独立的历史滚动实验
 
 [滚动回测、特征消融及严格隔离区说明](docs/ROLLING_RESEARCH.md)：使用6种特征组合、2种基线、逐期时间顺序评估和默认200期保留区。该研究模块**不会修改当前每日预测系统**。
+
+
+- [独立历史滚动实验任务](.github/workflows/rolling-research.yml)：使用私有历史数据运行，不改动生产模型，仅发布[中文汇总报告](reports/experimental/rolling-ablation.md)。
