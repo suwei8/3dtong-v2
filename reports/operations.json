@@ -1,20 +1,20 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-10-20T04:19:58.373622+00:00",
+  "generated_at_utc": "2026-10-20T18:26:53.219856+00:00",
   "health": "attention_required",
   "problem_codes": [
     "COMPLETED_ISSUES_WITHOUT_FROZEN_FORECAST"
   ],
   "private_source": "suwei8/pinble-data/data/k3_full_history.csv",
   "private_csv_included": false,
-  "source_commit_at_utc": "2026-10-19T16:37:04+00:00",
-  "source_age_hours": 11.72,
+  "source_commit_at_utc": "2026-10-20T14:28:12+00:00",
+  "source_age_hours": 3.98,
   "freshness_threshold_hours": 36,
-  "latest_completed_issue": "2026278",
-  "next_issue_from_latest_result": "2026279",
+  "latest_completed_issue": "2026279",
+  "next_issue_from_latest_result": "2026280",
   "next_issue_forecast_frozen": true,
-  "latest_frozen_issue": "2026279",
-  "completed_issues_monitored": 5,
+  "latest_frozen_issue": "2026280",
+  "completed_issues_monitored": 6,
   "missed_completed_forecasts": [
     "2026277"
   ],
