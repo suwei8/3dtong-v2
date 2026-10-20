@@ -1,10 +1,10 @@
-# Prospective Model Arena
+# 实战预测模型排行榜（仅统计事前预测）
 
-Only one immutable pre-result forecast per target issue is scored.
-Historical masked holdout runs are excluded from every statistic below.
-Skipped/unavailable OpenCode calls are NOT counted as wrong predictions.
+每个目标期号只统计一份开奖前封存、不可覆盖的预测。
+历史遮蔽回测不计入以下任何实战统计。
+OpenCode 模型调用失败或跳过不算预测未命中。
 
-| Model | Hits | Valid votes | Success rate | 95% Wilson CI | Attempts | Unavailable |
+| 模型标识 | 命中次数 | 有效预测次数 | 命中率 | 95% Wilson 置信区间 | 调用次数 | 不可用次数 |
 |---|---:|---:|---:|---:|---:|---:|
 | catboost | 4 | 4 | 100.00% | 51.0%–100.0% | 4 | 0 |
 | ensemble | 4 | 4 | 100.00% | 51.0%–100.0% | 4 | 0 |
@@ -25,9 +25,9 @@ Skipped/unavailable OpenCode calls are NOT counted as wrong predictions.
 | opencode/cat-jam-free | 0 | 0 | — | — | 3 | 3 |
 | opencode/step-5-preview-free | 0 | 0 | — | — | 3 | 3 |
 
-Scored target issues: **4**.
-Pending target issues: **1**.
+已评分期数：**4**。
+待开奖或待评分期数：**1**。
 
-Fixed three-digit choice chance baseline: **65.7%** (iid uniform assumption).
-Do not compare models with tiny or different denominators as if they were equally tested.
-Confidence intervals quantify sample uncertainty, not predictive superiority.
+随机选择 3 个不同数字、至少命中开奖号中 1 个数字的理论基准：**65.7%**（假设开奖数字独立且均匀分布）。
+不同模型的有效预测次数可能不同，尤其在样本很少时，不应直接把命中率排名视为模型优劣结论。
+置信区间反映小样本带来的不确定性，不能单独证明模型有预测优势。

@@ -64,6 +64,11 @@ def test_distinct_denominators_skip_does_not_count_as_miss(tmp_path, monkeypatch
     assert h["models"]["opencode/space-bunny-free"]["published"] == 1
     output=json.loads((tmp_path/"reports/live/2026274.json").read_text())
     assert "KaiJiang" not in json.dumps(output)
+    leaderboard=(tmp_path/"reports/live-leaderboard.md").read_text(encoding="utf-8")
+    assert "# 实战预测模型排行榜" in leaderboard
+    assert "| 模型标识 | 命中次数 | 有效预测次数 | 命中率 |" in leaderboard
+    assert "已评分期数：" in leaderboard
+    assert "随机选择 3 个不同数字" in leaderboard
     assert "908" not in json.dumps(output)
     # Rerunning the same issue must not inflate counts.
     rerun=run("private.csv",root,tmp_path/"reports")
