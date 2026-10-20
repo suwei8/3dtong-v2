@@ -165,6 +165,9 @@ def run(full_history, forecasts, output_dir):
         json.dumps(health,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     from src.evaluation.research import publish_research
     publish_research(scored_records,output)
+    from src.evaluation.prospective_compare import audit, publish as publish_pairs
+    completed_issues=[issue for issue in results]
+    publish_pairs(audit(completed_issues,seen,scored_records),output)
     print(f"scored {scored_issues} issues; {pending_issues} awaiting verified results")
     return health
 

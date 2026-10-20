@@ -51,3 +51,14 @@ def test_readable_history_is_rendered_by_prediction_and_evaluation_workflows():
     assert renderer in predict and renderer in evaluate
     assert "predictions/live/HISTORY.md" in predict and "predictions/live/history/" in predict
     assert "predictions/live/HISTORY.md" in evaluate and "predictions/live/history/" in evaluate
+
+
+
+def test_daily_evaluation_publishes_aggregate_pair_and_coverage_report():
+    wf=(ROOT/".github"/"workflows"/"daily-evaluate.yml").read_text(encoding="utf-8")
+    scorer=(ROOT/"src"/"pipeline"/"evaluate_live.py").read_text(encoding="utf-8")
+    assert "reports/live-paired.md reports/live-paired.json" in wf
+    assert '"src/evaluation/prospective_compare.py"' in wf
+    assert '"configs/live_pair_protocol.json"' in wf
+    assert "publish_pairs(audit(" in scorer
+    assert "git add -A" not in wf

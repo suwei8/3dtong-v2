@@ -101,3 +101,8 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 
 
 - [模型跨时间稳定性研究](reports/experimental/rolling-stability.md)：同一份冻结历史120期，分6段统计命中与配对差距，保留最后200期，不用分段表现自动更新正式模型。
+
+
+## 真实事前预测覆盖率与同期开奖配对研究
+
+[实时覆盖率与模型配对中文报告](reports/live-paired.md) · [固定的未来配对协议](configs/live_pair_protocol.json)。从2026274期起报告已开奖期数、按时封存期数、漏期及评分覆盖率；从尚未封存的2026281期起，固定四种同期模型比较，每对仅在双方都产生有效事前预测且开奖结果已知时计入分母，最多先记录200期。调用失败不算未命中；不进行中途显著性检验，不影响原有17模型预注册研究和生产预测。
