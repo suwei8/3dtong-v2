@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "name": "prospective-joint-model-coverage-v1",
+  "registered_utc": "2026-10-20",
+  "start_issue": "2026281",
+  "paired_target": 200,
+  "interpretation": "exploratory descriptive matched comparisons after inspecting earlier development results; no inferential p-values; not part of 17-arm registered superiority protocol",
+  "comparisons": [
+    {
+      "candidate": "xgboost",
+      "baseline": "frequency-30"
+    },
+    {
+      "candidate": "ensemble",
+      "baseline": "frequency-30"
+    },
+    {
+      "candidate": "opencode-consensus",
+      "baseline": "frequency-30"
+    },
+    {
+      "candidate": "ml-opencode-hybrid",
+      "baseline": "frequency-30"
+    }
+  ]
+}
