@@ -52,3 +52,14 @@ python -m src.research.rolling \
 任务通过仓库已有的 PINBLE_DATA_TOKEN 只读签出私有 suwei8/pinble-data，在 runner 上完成120期开发滚动实验，并启用现有三个机器学习模型对照；最后200期仍不参与训练、评分或报告。
 
 仅提交两个聚合文件：[中文实验报告](../reports/experimental/rolling-ablation.md) 和 [机器可读统计](../reports/experimental/rolling-ablation.json)。报告在首次实际运行成功后才生成。不得将合成数据CI测试解释为真实历史命中率。滚动回测结果不属于200期事前统计检验。
+
+## 本次同期开奖配对研究（固定历史快照）
+
+使用2026-10-20已运行时的**同一份**私有数据快照 `836f3c6016eafd5b9c0b6d1f8cb845ec34431383`，避免上游文件更新导致120期开发集位置变化。新增：
+
+- [XGBoost 对30期频率的中文配对检验](../reports/experimental/rolling-paired.md)
+- [仅包含四格计数、P值及区间的JSON](../reports/experimental/rolling-paired.json)
+
+每期开奖只比较一对有效/无效二元命中，用 **精确McNemar双侧检验**计算分歧期号的P值，用固定种子的10期循环区块 Bootstrap（4000次）估计命中率差的不确定区间。
+
+**统计限制：** 由于已根据先前开发集排行榜选定 XGBoost，检验仍属于探索性事后比较；没有使用最后200期隔离区，也不能自动准许把参数/模型调整用于生产。

@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/rolling-research.yml"
+      - "src/research/paired.py"
+      - "src/research/rolling.py"
   workflow_dispatch:
 
 permissions:
@@ -27,10 +29,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: suwei8/pinble-data
-          ref: main
+          # Fixed development snapshot of the previous 120-issue report.
+          ref: 836f3c6016eafd5b9c0b6d1f8cb845ec34431383
           token: ${{ secrets.PINBLE_DATA_TOKEN }}
           path: private-source
           persist-credentials: false
+      - name: Verify fixed private source commit before research
+        run: |
+          test "$(git -C private-source rev-parse HEAD)" = "836f3c6016eafd5b9c0b6d1f8cb845ec34431383"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -38,7 +44,7 @@ jobs:
       - name: Install reproducible model dependencies
         run: python -m pip install -r requirements.txt
       - name: Verify no-leakage research tests using synthetic data only
-        run: python -m pytest -q tests/test_rolling_research.py tests/test_rolling_cli.py
+        run: python -m pytest -q tests/test_rolling_research.py tests/test_rolling_cli.py tests/test_paired_research.py
       - name: Run historical development experiments without looking at last 200 draws
         run: |
           python -m src.research.rolling \
@@ -55,7 +61,7 @@ jobs:
           import json
           from pathlib import Path
           root=Path("reports/experimental")
-          expected={"rolling-ablation.json","rolling-ablation.md"}
+          expected={"rolling-ablation.json","rolling-ablation.md","rolling-paired.json","rolling-paired.md"}
           files={p.name for p in root.iterdir() if p.is_file()}
           assert files==expected, f"unexpected output files: {files}"
           body=json.loads((root/"rolling-ablation.json").read_text(encoding="utf-8"))
@@ -69,14 +75,24 @@ jobs:
           assert body["safety"]["holdout_used_in_training_or_scoring"] is False
           assert body["safety"]["raw_draws_or_period_votes_in_report"] is False
           assert body["safety"]["production_models_modified"] is False
+          paired=json.loads((root/"rolling-paired.json").read_text(encoding="utf-8"))
+          assert paired["kind"]=="post-selection-exploratory-paired-comparison"
+          assert paired["holdout_evaluated"] is False
+          assert paired["production_modified"] is False
+          assert len(paired["comparisons"])==3
+          for record in paired["comparisons"].values():
+              assert record["samples"]==120
+              assert sum(record[x] for x in ("both_hit","both_miss","candidate_only_hit","baseline_only_hit"))==120
+              assert record["confirmatory"] is False
+          assert not any(key in paired for key in ("history","trace","draws","labels","votes","predictions"))
           assert not any(k in body for k in ("history","trace","draws","predictions","labels","rows","votes"))
-          print("Validated 11 aggregate arms over 120 development rounds; 200 reserved.")
+          print("Validated 11 arms and 3 paired comparisons over same 120 rounds; 200 reserved.")
           PY
       - name: Commit only sanitized research aggregates
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json
+          git add -- reports/experimental/rolling-ablation.md reports/experimental/rolling-ablation.json reports/experimental/rolling-paired.md reports/experimental/rolling-paired.json
           if git diff --cached --quiet; then
             echo "Research aggregate already current."
           else

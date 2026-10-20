@@ -191,6 +191,14 @@ def publish(experiment,output_directory):
             "该结果属探索性多重比较，不能据此宣称提高命中率，亦不能自动上线。",
             "公开文件不包含逐期开奖、逐期候选数字或私有源数据。",""]
     (folder/"rolling-ablation.md").write_text("\n".join(lines),encoding="utf-8")
+    # Paired tests are descriptive because the pair was chosen AFTER inspecting
+    # the development summary. Never use these results to unlock the holdout.
+    from src.research.paired import analyze_study, render_markdown
+    paired=analyze_study(experiment)
+    (folder/"rolling-paired.json").write_text(
+        json.dumps(paired,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    (folder/"rolling-paired.md").write_text(
+        render_markdown(paired),encoding="utf-8")
     return summary
 
 
