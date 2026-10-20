@@ -95,3 +95,27 @@ def test_explicit_beijing_deadline_and_clock_validation(tmp_path):
     with pytest.raises(ValueError,match="source age"):
         assess(history,tmp_path,at(6,20).isoformat(),now=at(6,20),
                source_max_age_hours=50)
+
+
+
+def test_github_output_cli_safely_skips_already_frozen_forecast(tmp_path,monkeypatch):
+    import sys
+    from src.pipeline.preflight import main
+    history=write_history(tmp_path)
+    folder=tmp_path/"forecasts"
+    folder.mkdir()
+    (folder/"2026280.json").write_text(
+        json.dumps({"type":"prospective-next-issue",
+                    "target_issue":"2026280"}),encoding="utf-8")
+    output=tmp_path/"github_output.txt"
+    monkeypatch.setattr(sys,"argv",[
+        "preflight","--history",str(history),"--forecasts",str(folder),
+        "--source-commit-utc","2026-10-20T14:28:12Z",
+        "--github-output",str(output)
+    ])
+    main()
+    values=output.read_text(encoding="utf-8")
+    assert "issue=2026280\n" in values
+    assert "new=false\n" in values
+    assert "reason=already_frozen\n" in values
+    assert "KaiJiang" not in values
