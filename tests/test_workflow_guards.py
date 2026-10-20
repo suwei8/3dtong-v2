@@ -42,3 +42,12 @@ def test_last_minute_git_push_is_prevented():
     assert 'hhmm=$(TZ=Asia/Shanghai date +%H%M)' in guarded
     assert 'if [ "$hhmm" -ge 2110 ]' in guarded
     assert 'exit 1' in guarded
+
+
+def test_readable_history_is_rendered_by_prediction_and_evaluation_workflows():
+    predict=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
+    evaluate=(ROOT/".github"/"workflows"/"daily-evaluate.yml").read_text(encoding="utf-8")
+    renderer="python -m src.pipeline.render_history"
+    assert renderer in predict and renderer in evaluate
+    assert "predictions/live/HISTORY.md" in predict and "predictions/live/history/" in predict
+    assert "predictions/live/HISTORY.md" in evaluate and "predictions/live/history/" in evaluate

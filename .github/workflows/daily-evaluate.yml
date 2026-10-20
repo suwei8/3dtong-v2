@@ -48,11 +48,13 @@ jobs:
             --full-history private-source/data/k3_full_history.csv \
             --forecasts predictions/live/runs \
             --out reports
+      - name: Render readable historical prediction archive
+        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
       - name: Commit aggregate scores only
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/live-leaderboard.md reports/live-metrics.json reports/research.json reports/research.md reports/live/
+          git add reports/live-leaderboard.md reports/live-metrics.json reports/research.json reports/research.md reports/live/ predictions/live/HISTORY.md predictions/live/history/
           if git diff --cached --quiet; then
             echo "No new completed live draws."
           else

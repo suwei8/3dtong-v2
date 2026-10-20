@@ -114,7 +114,7 @@ def freeze_live(path,out="predictions/live",source_max_age_hours=0,
                    "|---|---|---|"])
         for name,info in derived_status.items():
             md.append(f'| {name} | {info["status"]} | {len(info["contributors"])} |')
-    md.extend(["","Frozen predictions are immutable. Derived votes require at least three actual OpenCode successes and have no proven edge."])
+    md.extend(["","[查看全部往期预测与命中结果](HISTORY.md)","","Frozen predictions are immutable. Derived votes require at least three actual OpenCode successes and have no proven edge."])
     (dest/"LATEST.md").write_text("\n".join(md)+"\n",encoding="utf-8")
     print("frozen:",frozen)
     return True

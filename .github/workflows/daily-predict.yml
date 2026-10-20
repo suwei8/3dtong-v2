@@ -75,6 +75,8 @@ jobs:
             --opencode-max-seconds 240 \
             --publish-deadline-beijing 21:10 \
             --publish-reserve-seconds 120
+      - name: Render readable historical prediction archive
+        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
       - name: Verify publish deadline again after all models finish
         if: steps.target.outputs.new == 'true'
         run: |
@@ -93,7 +95,7 @@ jobs:
             echo "Another workflow already froze this issue; leaving original unchanged."
             exit 0
           fi
-          git add predictions/live/LATEST.md predictions/live/runs/
+          git add predictions/live/LATEST.md predictions/live/HISTORY.md predictions/live/history/ predictions/live/runs/
           if git diff --cached --quiet; then
             echo "Nothing to publish."
           else

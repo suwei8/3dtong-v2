@@ -4,7 +4,7 @@
 
 ## 预测和开奖复盘
 
-- [真正的事前预测](predictions/live/LATEST.md) 和 [逐期不可覆盖 JSON](predictions/live/runs/)。当前封存的 2026274 不会因为增加 LLM 参赛者而被修改。
+- [最新事前预测](predictions/live/LATEST.md) · [往期预测可读档案](predictions/live/HISTORY.md)（按期号查看所有模型号码和命中结果）· [逐期不可覆盖原始记录](predictions/live/runs/)。
 - [实战排行榜](reports/live-leaderboard.md)：只统计事前封存之后公布的开奖号，不与历史回测混算。
 - [历史遮蔽回测](reports/leaderboard.md)：2026264—2026273 共10期，属于回溯模拟，不是事前成绩。
 - [定时预测 workflow](.github/workflows/daily-predict.yml)：每晚北京时间 19:50、20:20、20:40 三次尝试（后者为故障备用）；21:10 之前需完成计算和发布（GitHub 调度不保证准点），私有 CSV 超过36小时没有更新时拒绝输出。
