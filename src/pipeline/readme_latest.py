@@ -85,7 +85,7 @@ def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
         START,
         f"## 最新一期事前预测｜第 {issue} 期",
         "",
-        f"**验证集选定模型：{chosen} → \`{_digits(models[chosen])}\`**",
+        f"**验证集选定模型：{chosen} → {chr(96)}{_digits(models[chosen])}{chr(96)}**",
         "",
         f'- **预测时已知至：** 第 {seal["known_through_issue"]} 期',
         f'- **原始封存时间（北京时间）：** {_timestamp(seal["generated_at_utc"])}',

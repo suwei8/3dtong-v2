@@ -55,7 +55,7 @@ def test_subsequent_new_seal_replaces_old_issue_without_duplication(tmp_path):
     view = readme.read_text()
     assert view.count(START) == view.count(END) == 1
     assert "第 2026281 期" in view
-    assert "第 2026280 期" not in view
+    assert "最新一期事前预测｜第 2026280 期" not in view
     assert "Existing body" in view
     assert "**680**" in view
 
