@@ -63,6 +63,17 @@ jobs:
             --max-source-age-hours 24 \
             --deadline-beijing 21:10 \
             --github-output "$GITHUB_OUTPUT"
+      - name: Explain source-trigger outcome in GitHub run summary
+        if: always() && steps.target.outcome == 'success'
+        env:
+          TARGET_ISSUE: ${{ steps.target.outputs.issue }}
+          PREFLIGHT_REASON: ${{ steps.target.outputs.reason }}
+          PREFLIGHT_NEW: ${{ steps.target.outputs.new }}
+        run: |
+          echo "### Event-driven preflight" >> "$GITHUB_STEP_SUMMARY"
+          echo "Target: \`$TARGET_ISSUE\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Decision: \`$PREFLIGHT_REASON\` (new=$PREFLIGHT_NEW)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Only a Git-published seal is a valid prospective forecast." >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/setup-python@v5
         if: steps.target.outputs.new == 'true'
         with:

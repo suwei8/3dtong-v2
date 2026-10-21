@@ -162,3 +162,10 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 开奖后 [daily evaluate](.github/workflows/daily-evaluate.yml) 会先校验两个目录各自的单次封存 Git 历史，只在目标一致、原始封存时间一致且每个候选都合法时，将独立 OpenCode 投票**合并进评分，不修改原始预测**。中文往期页面会同时显示传统封存时间和额外OpenCode封存时间。
 
 历史已有带 OpenCode 的事前封存记录原样保留；未来只有传统模型封存的期号才进入独立OpenCode流程。数据变更的事件触发功能仍需执行器仓库配置 PAT 才能实际生效。
+
+
+### 跨仓库事件与封存延迟诊断
+
+触发链路：`suwei8/pinble-actions` 的每日增量采集在 `data/k3_full_history.csv` 真正变动并推送成功后，经 `repository_dispatch` 调用本仓 [daily predict](.github/workflows/daily-predict.yml)。**2026-10-21北京时间22:37 已验证事件送达**，但已过21:10安全截止，正确跳过当前预测。次日00:30兜底定时再次检查下一期。
+
+[运营状态报告](reports/STATUS.md)现额外展示：最近私有数据提交时间（只展示时间，不展示数据）、下一目标期传统模型与独立OpenCode封存生成时间、从最近数据源提交到传统模型预测生成的分钟数、生成到公开Git首次提交的秒数。**Git提交时间不等于远端实际push时间**；源数据在预测后再次更新时延迟显示“无法确认”，不把负数当成功。每个预测workflow的运行页面还会记录预检查决策 `already_frozen`、`past_beijing_cutoff`、`stale_or_future_source`、`eligible_pre_result`。由于GitHub调度并不保证准点，追求未来连续30期无漏报仍需实际观察。

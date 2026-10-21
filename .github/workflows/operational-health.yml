@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+          fetch-depth: 0 # Required to determine first immutable forecast Git commit
       - name: Checkout private result source (read only)
         uses: actions/checkout@v4
         with:
@@ -44,6 +45,7 @@ jobs:
             --predictions predictions/live/runs \
             --evaluations reports/live \
             --min-issue 2026274 \
+            --public-git-repo . \
             --out reports
       - name: Publish public status (not CSV or private draw digits)
         run: |
