@@ -13,7 +13,8 @@ def setup(monkeypatch,tmp_path,*,legacy=False):
     monkeypatch.setattr(opencode_live,"load_live_history",lambda _:source)
     folder=tmp_path/"live"
     (folder/"runs").mkdir(parents=True)
-    now=datetime.now(timezone.utc)
+    # Fixed 20:00 Beijing clock: tests must not depend on CI wall time.
+    now=datetime(2026,10,21,12,0,tzinfo=timezone.utc)
     parent={"type":"prospective-next-issue","target_issue":"2026281",
             "known_through_issue":"2026280",
             "generated_at_utc":(now-timedelta(minutes=3)).isoformat(),
@@ -26,6 +27,13 @@ def setup(monkeypatch,tmp_path,*,legacy=False):
 
 def test_optional_needs_classical_parent_and_is_separate(monkeypatch,tmp_path):
     folder,now=setup(monkeypatch,tmp_path)
+    # Production cutoff stays 21:10. Freeze the test clock instead of
+    # loosening that security boundary for nighttime GitHub CI runs.
+    class FixedClock(datetime):
+        @classmethod
+        def now(cls,tz=None):
+            return now.astimezone(tz) if tz is not None else now.replace(tzinfo=None)
+    monkeypatch.setattr(opencode_live,"datetime",FixedClock)
     monkeypatch.setattr(opencode_live,"compute_opencode_budget",lambda *a,**kw:240)
     from src.models.llm import opencode_free
     monkeypatch.setattr(opencode_free,"compete",lambda *args,**kwargs:{
