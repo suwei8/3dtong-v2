@@ -6,27 +6,27 @@ OpenCode 模型调用失败或跳过不算预测未命中。
 
 | 模型标识 | 命中次数 | 有效预测次数 | 命中率 | 95% Wilson 置信区间 | 调用次数 | 不可用次数 |
 |---|---:|---:|---:|---:|---:|---:|
-| catboost | 5 | 5 | 100.00% | 56.6%–100.0% | 5 | 0 |
-| ensemble | 5 | 5 | 100.00% | 56.6%–100.0% | 5 | 0 |
-| lightgbm | 5 | 5 | 100.00% | 56.6%–100.0% | 5 | 0 |
-| random-control-v1 | 4 | 4 | 100.00% | 51.0%–100.0% | 4 | 0 |
-| opencode/longcat-2.5-preview-free | 3 | 3 | 100.00% | 43.8%–100.0% | 4 | 1 |
-| opencode/space-bunny-free | 3 | 3 | 100.00% | 43.8%–100.0% | 4 | 1 |
-| opencode/muse-spark-1.3-contributor-free | 2 | 2 | 100.00% | 34.2%–100.0% | 4 | 2 |
-| opencode/nemotron-3.5-lightning-free | 1 | 1 | 100.00% | 20.7%–100.0% | 4 | 3 |
-| xgboost | 4 | 5 | 80.00% | 37.6%–96.4% | 5 | 0 |
-| ml-opencode-hybrid | 3 | 4 | 75.00% | 30.1%–95.4% | 4 | 0 |
-| opencode-consensus | 3 | 4 | 75.00% | 30.1%–95.4% | 4 | 0 |
-| opencode/nemotron-3-ultra-free | 2 | 3 | 66.67% | 20.8%–93.9% | 4 | 1 |
-| dtong-main10 | 3 | 5 | 60.00% | 23.1%–88.2% | 5 | 0 |
-| frequency-30 | 3 | 5 | 60.00% | 23.1%–88.2% | 5 | 0 |
-| opencode/big-pickle | 2 | 4 | 50.00% | 15.0%–85.0% | 4 | 0 |
-| opencode/mimo-v2.6-flash-free | 2 | 4 | 50.00% | 15.0%–85.0% | 4 | 0 |
-| opencode/cat-jam-free | 0 | 0 | — | — | 4 | 4 |
-| opencode/step-5-preview-free | 0 | 0 | — | — | 4 | 4 |
+| opencode/space-bunny-free | 3 | 3 | 100.00% | 43.8%–100.0% | 5 | 2 |
+| opencode/muse-spark-1.3-contributor-free | 2 | 2 | 100.00% | 34.2%–100.0% | 5 | 3 |
+| opencode/nemotron-3.5-lightning-free | 2 | 2 | 100.00% | 34.2%–100.0% | 5 | 3 |
+| catboost | 5 | 6 | 83.33% | 43.6%–97.0% | 6 | 0 |
+| ensemble | 5 | 6 | 83.33% | 43.6%–97.0% | 6 | 0 |
+| lightgbm | 5 | 6 | 83.33% | 43.6%–97.0% | 6 | 0 |
+| random-control-v1 | 4 | 5 | 80.00% | 37.6%–96.4% | 5 | 0 |
+| opencode/longcat-2.5-preview-free | 3 | 4 | 75.00% | 30.1%–95.4% | 5 | 1 |
+| opencode/nemotron-3-ultra-free | 3 | 4 | 75.00% | 30.1%–95.4% | 5 | 1 |
+| xgboost | 4 | 6 | 66.67% | 30.0%–90.3% | 6 | 0 |
+| ml-opencode-hybrid | 3 | 5 | 60.00% | 23.1%–88.2% | 5 | 0 |
+| opencode-consensus | 3 | 5 | 60.00% | 23.1%–88.2% | 5 | 0 |
+| dtong-main10 | 3 | 6 | 50.00% | 18.8%–81.2% | 6 | 0 |
+| frequency-30 | 3 | 6 | 50.00% | 18.8%–81.2% | 6 | 0 |
+| opencode/big-pickle | 2 | 5 | 40.00% | 11.8%–76.9% | 5 | 0 |
+| opencode/mimo-v2.6-flash-free | 2 | 5 | 40.00% | 11.8%–76.9% | 5 | 0 |
+| opencode/cat-jam-free | 0 | 0 | — | — | 5 | 5 |
+| opencode/step-5-preview-free | 0 | 0 | — | — | 5 | 5 |
 
-已评分期数：**5**。
-待开奖或待评分期数：**1**。
+已评分期数：**6**。
+待开奖或待评分期数：**0**。
 
 随机选择 3 个不同数字、至少命中开奖号中 1 个数字的理论基准：**65.7%**（假设开奖数字独立且均匀分布）。
 不同模型的有效预测次数可能不同，尤其在样本很少时，不应直接把命中率排名视为模型优劣结论。

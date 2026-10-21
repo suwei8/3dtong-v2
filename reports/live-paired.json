@@ -2,15 +2,15 @@
   "schema": 1,
   "kind": "prospective-joint-coverage-descriptive",
   "coverage_start_issue": "2026274",
-  "completed_source_issues": 6,
-  "sealed_completed_issues": 5,
-  "scored_completed_issues": 5,
+  "completed_source_issues": 7,
+  "sealed_completed_issues": 6,
+  "scored_completed_issues": 6,
   "missed_completed_issues": [
     "2026277"
   ],
   "sealed_but_unscored_issues": [],
-  "forecast_coverage_pct": 83.33,
-  "scoring_coverage_pct": 83.33,
+  "forecast_coverage_pct": 85.71,
+  "scoring_coverage_pct": 85.71,
   "planned_pair_start_issue": "2026281",
   "paired_target": 200,
   "pairs": {
