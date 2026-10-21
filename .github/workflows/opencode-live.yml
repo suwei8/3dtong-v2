@@ -64,6 +64,12 @@ jobs:
             --history private-source/data/k3_full_history.csv \
             --source-commit-utc "$source_commit" \
             --max-seconds 240
+      - name: Refresh README after independent optional votes
+        if: steps.target.outputs.new == 'true'
+        run: |
+          if [ -f "predictions/live/opencode-runs/${{ steps.target.outputs.issue }}.json" ]; then
+            python -m src.pipeline.readme_latest
+          fi
       - name: Publish only optional immutable issue file
         if: steps.target.outputs.new == 'true'
         env:
@@ -86,7 +92,7 @@ jobs:
             echo "Another workflow sealed optional issue first."
             exit 0
           fi
-          git add -- "$file"
+          git add -- "$file" README.md
           git commit -m "opencode: independently seal optional votes [skip ci]"
           git pull --rebase origin main
           if [ "$(TZ=Asia/Shanghai date +%H%M)" -ge 2110 ]; then

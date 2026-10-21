@@ -123,3 +123,16 @@ def test_optional_contestants_are_sealed_and_scored_in_separate_workflow():
     assert "git add predictions/live/runs" not in future
     assert "git add private-source" not in future
     assert "21:10" not in future or "2110" in future
+
+
+
+def test_readme_latest_is_generated_after_forecast_and_optional_seals():
+    daily=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
+    optional=(ROOT/".github"/"workflows"/"opencode-live.yml").read_text(encoding="utf-8")
+    assert "python -m src.pipeline.readme_latest" in daily
+    assert "python -m src.pipeline.readme_latest" in optional
+    assert daily.index("Freeze classical ML") < daily.index("Refresh README latest forecast")
+    assert "git add predictions/live/LATEST.md" in daily
+    assert "predictions/live/runs/ README.md" in daily
+    assert 'git add -- "$file" README.md' in optional
+    assert "git add private-source" not in daily + optional

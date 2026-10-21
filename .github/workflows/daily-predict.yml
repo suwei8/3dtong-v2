@@ -82,6 +82,9 @@ jobs:
       - name: Render readable historical prediction archive
         if: steps.target.outputs.new == 'true'
         run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
+      - name: Refresh README latest forecast from sealed public votes
+        if: steps.target.outputs.new == 'true'
+        run: python -m src.pipeline.readme_latest
       - name: Verify publish deadline again after all models finish
         if: steps.target.outputs.new == 'true'
         run: |
@@ -100,7 +103,7 @@ jobs:
             echo "Another workflow already froze this issue; leaving original unchanged."
             exit 0
           fi
-          git add predictions/live/LATEST.md predictions/live/HISTORY.md predictions/live/history/ predictions/live/runs/
+          git add predictions/live/LATEST.md predictions/live/HISTORY.md predictions/live/history/ predictions/live/runs/ README.md
           if git diff --cached --quiet; then
             echo "Nothing to publish."
           else
