@@ -114,3 +114,12 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 - 21:10后即使触发延迟任务，也不会把已知结果事后算作当期预测；如果目标期号已封存，则以正常跳过结束，不把重复任务误判为失败。
 - 凌晨00:30提供**上一期开奖已更新后的次日期号**尽早预测机会，06:20、12:20、17:20及晚间三个时间点继续兜底。所有新预测仍受21:10最终发布检查约束。
 - 可看[预测覆盖率中文报表](reports/live-paired.md)持续验证实际提升；已有`2026277`漏期不会补造。**新调度还需后续生产自动运行验证，CI通过不代表未来零漏期。**
+
+
+## 采集数据事件触发（优先传统 ML）
+
+公开执行器 `suwei8/pinble-actions` 的 `collect.yml` 在私有 `pinble-data/data/k3_full_history.csv` **真的变化且成功推送后**，使用 repository_dispatch 事件类型 `pinble_history_updated` 立即触发本仓 daily-predict。传输的只有新提交 SHA，接收端验证它属于私有源 Git 历史、确实改过指定 CSV，然后再调用既有防重复/新鲜度/21:10截止预检查。
+
+新路径只运行 **XGBoost、LightGBM、CatBoost、ensemble、dtong-main10、frequency-30 与随机对照**，优先将这些预测封存。OpenCode 由后续独立任务运行，不能把慢模型超时变成 ML 漏报。**已发布的历史事前预测绝不修改。**
+
+在公开执行器仓库 Actions Secrets 配置 `PREDICT_DISPATCH_TOKEN`：仅授本仓 `suwei8/3dtong-v2` Contents: Read and write 权限。此前已经配置的 DATA_REPO_TOKEN / PINBLE_DATA_TOKEN 保持原状。未设置新令牌时跨仓库实时链路不会生效，7次定时兜底继续运行。源码、工作流及报告均不需要、也不会写入令牌内容。

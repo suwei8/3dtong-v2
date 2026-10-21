@@ -25,11 +25,12 @@ def test_private_csv_not_published():
 def test_daily_predict_has_fallback_and_time_budget():
     content=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
     assert 'cron: "40 12 * * *"' in content
-    assert '--opencode-max-seconds 240' in content
-    assert '--publish-deadline-beijing 21:10' in content
-    assert '--publish-reserve-seconds 120' in content
-    assert 'timeout 120s npm install -g opencode-ai' in content
-    assert 'if ! timeout' in content
+    assert "repository_dispatch:" in content
+    assert "types: [pinble_history_updated]" in content
+    assert "git -C private-source merge-base --is-ancestor" in content
+    assert "git -C private-source diff-tree" in content
+    assert "--opencode" not in content
+    assert "npm install -g opencode-ai" not in content
     assert 'if: steps.target.outputs.new ==' in content
 
 
@@ -86,3 +87,25 @@ def test_prediction_fast_preflight_precedes_package_installation_and_has_day_ret
     assert "python -m pytest -q tests/" not in flow
     assert 'git add predictions/live/LATEST.md' in flow
     assert 'git add private-source' not in flow
+
+
+
+def test_repository_dispatch_verifies_provenance_before_source_preflight():
+    content=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
+    assert "repository_dispatch:" in content
+    assert "types: [pinble_history_updated]" in content
+    assert "github.event.client_payload.source_commit" in content
+    assert content.index("Verify trusted source-commit trigger") < content.index(
+        "python -m src.pipeline.preflight")
+    assert 'grep -Fxq ' in content
+    assert 'merge-base --is-ancestor "$SOURCE_COMMIT" HEAD' in content
+    assert "git add private-source" not in content
+    assert "  push:" not in content
+
+
+def test_fast_classical_first_path_does_not_wait_for_opencode_models():
+    content=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
+    assert "Freeze classical ML and random-control forecast first" in content
+    assert 'npm install -g opencode-ai' not in content
+    assert '            --opencode' not in content
+    assert "python -m src.pipeline.render_history" in content

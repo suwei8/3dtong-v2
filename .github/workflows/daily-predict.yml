@@ -8,6 +8,8 @@ on:
     - cron: "50 11 * * *" # 19:50 Beijing
     - cron: "20 12 * * *" # 20:20 Beijing
     - cron: "40 12 * * *" # 20:40 Beijing failover attempt; duplicate issue is skipped
+  repository_dispatch:
+    types: [pinble_history_updated]
   workflow_dispatch:
 permissions:
   contents: write
@@ -34,6 +36,22 @@ jobs:
           ref: main
           persist-credentials: false
           fetch-depth: 0 # Required for accurate last-change timestamp of the CSV (not repository HEAD)
+      - name: Verify trusted source-commit trigger (no private draw payload)
+        if: github.event_name == 'repository_dispatch'
+        env:
+          SOURCE_COMMIT: ${{ github.event.client_payload.source_commit }}
+        run: |
+          if ! [[ "$SOURCE_COMMIT" =~ ^[a-f0-9]{40}$ ]]; then
+            echo "::error::Invalid source-commit SHA in cross-repository dispatch"
+            exit 1
+          fi
+          git -C private-source cat-file -e "$SOURCE_COMMIT^{commit}"
+          git -C private-source merge-base --is-ancestor "$SOURCE_COMMIT" HEAD
+          if ! git -C private-source diff-tree --no-commit-id --name-only -r "$SOURCE_COMMIT" \
+            | grep -Fxq 'data/k3_full_history.csv'; then
+            echo "::error::Source event did not update historical CSV"
+            exit 1
+          fi
       - name: Fast pure-Python source freshness / target / Beijing deadline preflight
         id: target
         run: |
@@ -53,24 +71,14 @@ jobs:
       - name: Install production runtime only (CI runs full tests on push)
         if: steps.target.outputs.new == 'true'
         run: python -m pip install -r requirements.txt
-      - name: Try installing OpenCode; retain traditional fallback if unavailable
-        if: steps.target.outputs.new == 'true'
-        run: |
-          if ! timeout 120s npm install -g opencode-ai; then
-            echo "::warning::OpenCode unavailable; classical ML and random control still publish."
-          fi
-      - name: Run nine optional free-model contestants and freeze prediction
+      - name: Freeze classical ML and random-control forecast first
         if: steps.target.outputs.new == 'true'
         run: |
           source_commit=$(git -C private-source log -1 --format=%cI -- data/k3_full_history.csv)
           python -m src.pipeline.live \
             --history private-source/data/k3_full_history.csv \
             --max-source-age-hours 24 \
-            --source-commit-utc "$source_commit" \
-            --opencode \
-            --opencode-max-seconds 240 \
-            --publish-deadline-beijing 21:10 \
-            --publish-reserve-seconds 120
+            --source-commit-utc "$source_commit"
       - name: Render readable historical prediction archive
         if: steps.target.outputs.new == 'true'
         run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
@@ -96,7 +104,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to publish."
           else
-            git commit -m "forecast: sealed issue with OpenCode contestants [skip ci]"
+            git commit -m "forecast: seal classical ML before optional OpenCode [skip ci]"
             git pull --rebase origin main
             hhmm=$(TZ=Asia/Shanghai date +%H%M)
             if [ "$hhmm" -ge 2110 ]; then
