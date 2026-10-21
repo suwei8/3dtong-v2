@@ -7,6 +7,7 @@
 
 - **预测时已知至：** 第 2026280 期
 - **原始封存时间（北京时间）：** 2026-10-22 00:08:32
+- **OpenCode 独立封存时间（北京时间）：** 2026-10-22 00:11:59
 
 | 模型 | 三个候选数字 |
 |---|---:|
@@ -17,6 +18,13 @@
 | dtong-main10 | **013** |
 | frequency-30（验证集选定） | **081** |
 | random-control-v1 | **102** |
+| opencode/big-pickle | **028** |
+| opencode/cat-jam-free | **028** |
+| opencode/longcat-2.5-preview-free | **208** |
+| opencode/mimo-v2.6-flash-free | **208** |
+| opencode/nemotron-3.5-lightning-free | **892** |
+| opencode-consensus | **820** |
+| ml-opencode-hybrid | **820** |
 
 [本期预测详情](predictions/live/history/2026281.md) · [最新预测页面](predictions/live/LATEST.md) · [往期全部记录](predictions/live/HISTORY.md) · [实战排行榜](reports/live-leaderboard.md)
 
