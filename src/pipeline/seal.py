@@ -18,7 +18,8 @@ def _git(root,*args):
     return done.stdout.strip()
 
 
-def verify_seals(repo_root=".", relative_directory="predictions/live/runs"):
+def verify_seals(repo_root=".", relative_directory="predictions/live/runs",
+                 expected_type="prospective-next-issue"):
     root=Path(repo_root).resolve()
     if _git(root,"rev-parse","--is-shallow-repository")!="false":
         raise ValueError("full Git history required; checkout with fetch-depth: 0")
@@ -35,7 +36,7 @@ def verify_seals(repo_root=".", relative_directory="predictions/live/runs"):
             raise ValueError("forecast must have exactly one creation-only commit: "+relative)
         commit,timestamp=lines[0].split("\t",1)
         frozen=json.loads(file.read_text(encoding="utf-8"))
-        if frozen.get("target_issue")!=file.stem or frozen.get("type")!="prospective-next-issue":
+        if frozen.get("target_issue")!=file.stem or frozen.get("type")!=expected_type:
             raise ValueError("forecast target mismatch: "+relative)
         time=datetime.fromisoformat(frozen["generated_at_utc"].replace("Z","+00:00"))
         if time.tzinfo is None:
@@ -59,8 +60,9 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--repo",default=".")
     parser.add_argument("--forecasts",default="predictions/live/runs")
+    parser.add_argument("--type",default="prospective-next-issue")
     args=parser.parse_args()
-    verify_seals(args.repo,args.forecasts)
+    verify_seals(args.repo,args.forecasts,args.type)
 
 
 if __name__=="__main__":

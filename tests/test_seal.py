@@ -63,3 +63,32 @@ def test_timestamp_must_match_original_git_commit(tmp_path):
     git(tmp_path,"commit","-m","try changing date")
     with pytest.raises(ValueError):
         verify_seals(tmp_path)
+
+
+
+def test_independent_optional_seal_is_creation_only(tmp_path):
+    original=create_fixture(tmp_path)
+    folder=tmp_path/"predictions"/"live"/"opencode-runs"
+    folder.mkdir()
+    parent=json.loads(original.read_text())
+    candidate={
+        "type":"optional-opencode-contestants-v1",
+        "target_issue":"2026274",
+        "known_through_issue":"2026273",
+        "generated_at_utc":datetime.now(timezone.utc).isoformat(),
+        "classical_frozen_at_utc":parent["generated_at_utc"],
+        "models":{"opencode/a":[3,4,5]},
+    }
+    file=folder/"2026274.json"
+    file.write_text(json.dumps(candidate))
+    git(tmp_path,"add","predictions/live/opencode-runs")
+    git(tmp_path,"commit","-m","seal independently")
+    assert len(verify_seals(tmp_path,"predictions/live/opencode-runs",
+                            "optional-opencode-contestants-v1"))==1
+    candidate["models"]={"opencode/a":[6,7,8]}
+    file.write_text(json.dumps(candidate))
+    git(tmp_path,"add","predictions/live/opencode-runs")
+    git(tmp_path,"commit","-m","tamper")
+    with pytest.raises(ValueError,match="exactly one"):
+        verify_seals(tmp_path,"predictions/live/opencode-runs",
+                     "optional-opencode-contestants-v1")

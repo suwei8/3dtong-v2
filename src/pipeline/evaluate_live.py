@@ -64,7 +64,7 @@ def evaluate_live(locked, results):
             "source_cutoff": origin, "scores": scores}
 
 
-def run(full_history, forecasts, output_dir):
+def run(full_history, forecasts, output_dir, optional_forecasts=None):
     results = {item["Issue"]: item["KaiJiang"] for item in load_live_history(full_history)["history"]}
     output = Path(output_dir)
     evaluations = output / "live"
@@ -76,6 +76,17 @@ def run(full_history, forecasts, output_dir):
     scored_issues = 0
     pending_issues = 0
     frozen_files = sorted(Path(forecasts).glob("*.json"))
+    optional_dir = (Path(optional_forecasts) if optional_forecasts is not None
+                    else Path(forecasts).parent/"opencode-runs")
+    optional = {}
+    for file in optional_dir.glob("*.json"):
+        if not re.fullmatch(r"\d{7}",file.stem) or file.stem in optional:
+            raise ValueError("invalid optional contestant filename")
+        record=json.loads(file.read_text(encoding="utf-8"))
+        if (record.get("target_issue")!=file.stem or
+            record.get("type")!="optional-opencode-contestants-v1"):
+            raise ValueError("invalid optional contestant record")
+        optional[file.stem]=record
     for file in frozen_files:
         data = json.loads(file.read_text(encoding="utf-8"))
         target = data.get("target_issue")
@@ -87,6 +98,26 @@ def run(full_history, forecasts, output_dir):
         if current is None:
             pending_issues += 1
             continue
+        # Merge independent, separately Git-sealed optional votes only into the
+        # derived SCORE, never the immutable original classical forecast.
+        extra = optional.get(target)
+        if extra is not None:
+            if (extra.get("known_through_issue") != data.get("known_through_issue")
+                    or extra.get("classical_frozen_at_utc") != data.get("generated_at_utc")):
+                raise ValueError("optional record does not match sealed classical cutoff")
+            original_time=datetime.fromisoformat(data["generated_at_utc"].replace("Z","+00:00"))
+            extra_time=datetime.fromisoformat(extra["generated_at_utc"].replace("Z","+00:00"))
+            if (original_time.tzinfo is None or extra_time.tzinfo is None
+                    or extra_time < original_time):
+                raise ValueError("optional votes cannot precede classical seal")
+            votes=extra.get("models")
+            if not isinstance(votes,dict):
+                raise ValueError("optional model votes must be a mapping")
+            for name,digits in votes.items():
+                if (not isinstance(name,str) or name in current["scores"]
+                        or not _valid_digits(digits)):
+                    raise ValueError("invalid or duplicate optional model vote")
+                current["scores"][name]=bool(hit_any_digit(digits,results[target]))
         scored_issues += 1
         scored_records.append(current)
         out = evaluations / file.name
@@ -104,23 +135,27 @@ def run(full_history, forecasts, output_dir):
         recorded_statuses = set()
         # OpenCode raw votes and pre-registered derived votes have separate
         # availability denominators but share identical hit/miss scoring.
-        for category in ("opencode_challengers", "derived_challengers"):
-            challengers = data.get(category, {})
-            if not isinstance(challengers, dict):
-                raise ValueError("invalid contestant statuses")
-            for model, result in challengers.items():
-                if (not isinstance(model,str) or not model or
-                        model in recorded_statuses or not isinstance(result,dict) or
-                        result.get("status") not in ("ok","skipped")):
-                    raise ValueError("invalid or duplicate contestant status")
-                recorded_statuses.add(model)
-                if result["status"] == "skipped":
-                    if model in current["scores"]:
-                        raise ValueError("skipped challenger must not have a vote")
-                    counters[model]["attempted"] += 1
-                    counters[model]["unavailable"] += 1
-                elif model not in current["scores"]:
-                    raise ValueError("successful challenger requires a frozen vote")
+        for status_source in (data, extra) if extra is not None else (data,):
+            for category in ("opencode_challengers", "derived_challengers"):
+                challengers = status_source.get(category, {})
+                if not isinstance(challengers, dict):
+                    raise ValueError("invalid contestant statuses")
+                for model, result in challengers.items():
+                    if (not isinstance(model,str) or not model or
+                            model in recorded_statuses or not isinstance(result,dict) or
+                            result.get("status") not in ("ok","skipped")):
+                        raise ValueError("invalid or duplicate contestant status")
+                    recorded_statuses.add(model)
+                    if result["status"] == "skipped":
+                        if model in current["scores"]:
+                            raise ValueError("skipped challenger must not have a vote")
+                        counters[model]["attempted"] += 1
+                        counters[model]["unavailable"] += 1
+                    elif model not in current["scores"]:
+                        raise ValueError("successful challenger requires a frozen vote")
+
+    if set(optional)-seen:
+        raise ValueError("optional contestant file has no original classical seal")
 
     # Never retain obsolete per-issue score files when input set changes.
     for file in evaluations.glob("*.json"):
@@ -176,9 +211,10 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--full-history",required=True)
     parser.add_argument("--forecasts",default="predictions/live/runs")
+    parser.add_argument("--optional-forecasts",default="predictions/live/opencode-runs")
     parser.add_argument("--out",default="reports")
     args=parser.parse_args()
-    run(args.full_history,args.forecasts,args.out)
+    run(args.full_history,args.forecasts,args.out,args.optional_forecasts)
 
 
 if __name__=="__main__":

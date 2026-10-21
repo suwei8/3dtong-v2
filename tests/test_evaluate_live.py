@@ -108,3 +108,58 @@ def test_invalid_status_fails_closed(tmp_path,monkeypatch):
     (folder/"2026274.json").write_text(json.dumps(p))
     with pytest.raises(ValueError, match="requires"):
         run("source.csv",folder,tmp_path/"reports")
+
+
+
+def test_optional_separate_predictions_join_scores_without_editing_classical(tmp_path,monkeypatch):
+    from src.pipeline import evaluate_live as app
+    monkeypatch.setattr(app,"load_live_history",lambda _: {
+        "history":[{"Issue":"2026281","KaiJiang":"015"}]})
+    folder=tmp_path/"live"/"runs";folder.mkdir(parents=True)
+    extra_folder=tmp_path/"live"/"opencode-runs";extra_folder.mkdir()
+    stamp="2026-10-21T10:00:00+00:00"
+    original=forecast("2026281","2026280",votes={"xgboost":[3,4,5]})
+    original["generated_at_utc"]=stamp
+    file=folder/"2026281.json";file.write_text(json.dumps(original))
+    addition={
+        "type":"optional-opencode-contestants-v1","target_issue":"2026281",
+        "known_through_issue":"2026280","generated_at_utc":"2026-10-21T10:10:00+00:00",
+        "classical_frozen_at_utc":stamp,
+        "models":{"opencode/a":[0,6,9]},
+        "opencode_challengers":{"opencode/a":{"status":"ok"},
+                               "opencode/b":{"status":"skipped","reason":"quota"}},
+        "derived_challengers":{},
+    }
+    (extra_folder/"2026281.json").write_text(json.dumps(addition))
+    before=file.read_bytes()
+    stats=run("private.csv",folder,tmp_path/"reports",extra_folder)
+    scored=json.loads((tmp_path/"reports"/"live"/"2026281.json").read_text())
+    assert scored["scores"]=={"xgboost":True,"opencode/a":True}
+    assert stats["models"]["opencode/a"]["published"]==1
+    assert stats["models"]["opencode/b"]["unavailable"]==1
+    assert file.read_bytes()==before
+    assert run("private.csv",folder,tmp_path/"reports",extra_folder)==stats
+
+
+def test_optional_double_vote_and_bad_parent_must_fail(tmp_path,monkeypatch):
+    from src.pipeline import evaluate_live as app
+    monkeypatch.setattr(app,"load_live_history",lambda _: {
+        "history":[{"Issue":"2026281","KaiJiang":"015"}]})
+    folder=tmp_path/"runs";folder.mkdir()
+    source=forecast("2026281","2026280",votes={"xgboost":[0,1,2]})
+    source["generated_at_utc"]="2026-10-21T10:00:00+00:00"
+    (folder/"2026281.json").write_text(json.dumps(source))
+    extra=tmp_path/"optional";extra.mkdir()
+    duplicate={"type":"optional-opencode-contestants-v1","target_issue":"2026281",
+               "known_through_issue":"2026280",
+               "classical_frozen_at_utc":source["generated_at_utc"],
+               "generated_at_utc":"2026-10-21T10:10:00+00:00",
+               "models":{"xgboost":[2,3,4]}}
+    (extra/"2026281.json").write_text(json.dumps(duplicate))
+    with pytest.raises(ValueError,match="duplicate"):
+        run("private.csv",folder,tmp_path/"reports",extra)
+    duplicate["models"]={"opencode/a":[2,3,4]}
+    duplicate["classical_frozen_at_utc"]="fake"
+    (extra/"2026281.json").write_text(json.dumps(duplicate))
+    with pytest.raises(ValueError,match="cutoff"):
+        run("private.csv",folder,tmp_path/"reports",extra)
