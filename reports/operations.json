@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-10-21T15:04:18.811413+00:00",
+  "generated_at_utc": "2026-10-21T18:35:04.008243+00:00",
   "health": "attention_required",
   "problem_codes": [
     "COMPLETED_ISSUES_WITHOUT_FROZEN_FORECAST"
@@ -8,19 +8,19 @@
   "private_source": "suwei8/pinble-data/data/k3_full_history.csv",
   "private_csv_included": false,
   "source_commit_at_utc": "2026-10-21T14:37:10+00:00",
-  "source_age_hours": 0.45,
+  "source_age_hours": 3.97,
   "freshness_threshold_hours": 36,
   "latest_completed_issue": "2026280",
   "next_issue_from_latest_result": "2026281",
-  "next_issue_forecast_frozen": false,
-  "latest_frozen_issue": "2026280",
-  "latest_forecast_created_at_utc": "2026-10-20T17:13:31.296819+00:00",
-  "next_forecast_created_at_utc": null,
-  "next_forecast_first_git_commit_at_utc": null,
-  "next_forecast_generation_delay_from_current_source_minutes": null,
-  "next_forecast_creation_to_git_commit_seconds": null,
-  "next_optional_forecast_frozen": false,
-  "next_optional_created_at_utc": null,
+  "next_issue_forecast_frozen": true,
+  "latest_frozen_issue": "2026281",
+  "latest_forecast_created_at_utc": "2026-10-21T16:08:32.413932+00:00",
+  "next_forecast_created_at_utc": "2026-10-21T16:08:32.413932+00:00",
+  "next_forecast_first_git_commit_at_utc": "2026-10-21T16:08:34+00:00",
+  "next_forecast_generation_delay_from_current_source_minutes": 91.4,
+  "next_forecast_creation_to_git_commit_seconds": 1.6,
+  "next_optional_forecast_frozen": true,
+  "next_optional_created_at_utc": "2026-10-21T16:11:59.885634+00:00",
   "completed_issues_monitored": 7,
   "missed_completed_forecasts": [
     "2026277"
