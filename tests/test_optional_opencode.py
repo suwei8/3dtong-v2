@@ -70,3 +70,52 @@ def test_no_optional_voting_after_beijing_cutoff(monkeypatch,tmp_path):
     folder,now=setup(monkeypatch,tmp_path)
     late=datetime(2026,10,21,21,11,tzinfo=ZoneInfo("Asia/Shanghai"))
     assert opencode_live.optional_preflight("private",folder,now=late)["reason"]=="past_beijing_cutoff"
+
+
+
+def test_optional_cli_preflight_imports_without_site_packages():
+    """Runs with -S (no site-packages): detection must work before pip install."""
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    project=Path(__file__).resolve().parents[1]
+    result=subprocess.run(
+        [sys.executable,"-S","-m","src.pipeline.opencode_live","--help"],
+        cwd=project,
+        env={**os.environ,"PYTHONPATH":str(project)},
+        text=True,capture_output=True,timeout=12,check=False,
+    )
+    assert result.returncode==0, result.stderr
+    assert "--preflight" in result.stdout
+
+
+def test_optional_preflight_in_hermetic_python_skips_without_pip(tmp_path):
+    import csv
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    data=tmp_path/"historical.csv"
+    with data.open("w",newline="",encoding="utf-8") as file:
+        writer=csv.writer(file)
+        writer.writerow(["Issue","KaiJiang"])
+        for year,limit in [(2022,365),(2023,365),(2024,366),(2025,365),(2026,280)]:
+            for seq in range(1,limit+1):
+                writer.writerow([f"{year}{seq:03d}",f"{seq%1000:03d}"])
+    root=tmp_path/"live"
+    root.mkdir()
+    output=tmp_path/"github_output"
+    project=Path(__file__).resolve().parents[1]
+    result=subprocess.run(
+        [sys.executable,"-S","-m","src.pipeline.opencode_live",
+         "--history",str(data),"--root",str(root),
+         "--source-commit-utc","2026-10-21T06:00:00Z",
+         "--github-output",str(output),"--preflight"],
+        cwd=project,env={**os.environ,"PYTHONPATH":str(project)},
+        text=True,capture_output=True,timeout=12,check=False,
+    )
+    assert result.returncode==0, result.stderr
+    assert "reason=classical_forecast_not_ready" in output.read_text(encoding="utf-8")

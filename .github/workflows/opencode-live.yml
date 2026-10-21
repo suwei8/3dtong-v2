@@ -34,6 +34,8 @@ jobs:
           fetch-depth: 0
       - name: Verify immutable classical forecast Git history
         run: python -m src.pipeline.seal --forecasts predictions/live/runs
+      - name: Preflight import smoke test with no site-packages
+        run: python -S -m src.pipeline.opencode_live --help
       - name: Check target, parent seal and deadline before installing OpenCode
         id: target
         run: |

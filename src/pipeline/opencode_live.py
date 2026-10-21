@@ -10,7 +10,12 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from src.data.live import load_live_history
-from src.pipeline.live import compute_opencode_budget,train_all
+
+
+def compute_opencode_budget(*args, **kwargs):
+    """Import heavy forecasting stack ONLY after the optional preflight."""
+    from src.pipeline.live import compute_opencode_budget as calculate
+    return calculate(*args, **kwargs)
 
 BJ=ZoneInfo("Asia/Shanghai")
 
@@ -72,6 +77,8 @@ def freeze_optional(history,root="predictions/live",source_commit_utc=None,
             statuses[name]["reason"]=answer.get("reason","unavailable")
     # Compute tie-break probabilities only from the same cutoff as parent.
     if sum(x["status"]=="ok" for x in contestants.values())>=3:
+        # Heavy ML is needed only for a successful LLM tie-break.
+        from src.pipeline.train import train_all
         arena=train_all(source["history"])
         tie=arena["probabilities"]["ensemble"]
     else:
