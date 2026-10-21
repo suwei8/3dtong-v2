@@ -50,3 +50,40 @@ def test_empty_archive_is_valid(tmp_path):
     out=tmp_path/"nested"/"HISTORY.md"
     result=render_history(tmp_path/"no-runs",tmp_path/"no-scores",out,tmp_path/"details")
     assert result["issues"] == [] and "期号目录" in out.read_text()
+
+
+
+def test_independent_optional_vote_is_visible_in_markdown_without_editing_parent(tmp_path):
+    import json
+    from src.pipeline.render_history import render_history
+    base=tmp_path/"runs";base.mkdir()
+    extras=tmp_path/"opencode-runs";extras.mkdir()
+    scores=tmp_path/"scores";scores.mkdir()
+    classical={
+        "target_issue":"2026281","known_through_issue":"2026280",
+        "generated_at_utc":"2026-10-21T10:00:00+00:00",
+        "validation_selected_model":"xgboost",
+        "models":{"xgboost":[0,1,2]},
+    }
+    (base/"2026281.json").write_text(json.dumps(classical))
+    addon={
+        "target_issue":"2026281","type":"optional-opencode-contestants-v1",
+        "known_through_issue":"2026280",
+        "classical_frozen_at_utc":"2026-10-21T10:00:00+00:00",
+        "generated_at_utc":"2026-10-21T10:20:00+00:00",
+        "models":{"opencode/example":[3,4,5]},
+        "opencode_challengers":{"opencode/example":{"status":"ok"}},
+    }
+    (extras/"2026281.json").write_text(json.dumps(addon))
+    (scores/"2026281.json").write_text(json.dumps({
+        "target_issue":"2026281",
+        "scores":{"xgboost":True,"opencode/example":False}
+    }))
+    original=(base/"2026281.json").read_bytes()
+    render_history(base,scores,tmp_path/"HISTORY.md",tmp_path/"history",extras)
+    doc=(tmp_path/"history"/"2026281.md").read_text()
+    index=(tmp_path/"HISTORY.md").read_text()
+    assert "**012**" in doc and "**345**" in doc
+    assert "OpenCode 独立封存时间" in doc
+    assert "2026281" in index and "2 | 已评分" in index
+    assert original==(base/"2026281.json").read_bytes()

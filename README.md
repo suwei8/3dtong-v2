@@ -123,3 +123,12 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 新路径只运行 **XGBoost、LightGBM、CatBoost、ensemble、dtong-main10、frequency-30 与随机对照**，优先将这些预测封存。OpenCode 由后续独立任务运行，不能把慢模型超时变成 ML 漏报。**已发布的历史事前预测绝不修改。**
 
 在公开执行器仓库 Actions Secrets 配置 `PREDICT_DISPATCH_TOKEN`：仅授本仓 `suwei8/3dtong-v2` Contents: Read and write 权限。此前已经配置的 DATA_REPO_TOKEN / PINBLE_DATA_TOKEN 保持原状。未设置新令牌时跨仓库实时链路不会生效，7次定时兜底继续运行。源码、工作流及报告均不需要、也不会写入令牌内容。
+
+
+### OpenCode 独立封存和评分
+
+首次事前预测只冻结传统 ML + 随机对照。之后 [optional OpenCode forecasts](.github/workflows/opencode-live.yml) 以独立作业、独立 Git 创建提交保存到 `predictions/live/opencode-runs/<期号>.json`，不会追溯修改传统 ML 的 `predictions/live/runs/`。如遇21:10截止或失败，则跳过或记录不可用，不反过来阻塞传统模型。
+
+开奖后 [daily evaluate](.github/workflows/daily-evaluate.yml) 会先校验两个目录各自的单次封存 Git 历史，只在目标一致、原始封存时间一致且每个候选都合法时，将独立 OpenCode 投票**合并进评分，不修改原始预测**。中文往期页面会同时显示传统封存时间和额外OpenCode封存时间。
+
+历史已有带 OpenCode 的事前封存记录原样保留；未来只有传统模型封存的期号才进入独立OpenCode流程。数据变更的事件触发功能仍需执行器仓库配置 PAT 才能实际生效。

@@ -109,3 +109,17 @@ def test_fast_classical_first_path_does_not_wait_for_opencode_models():
     assert 'npm install -g opencode-ai' not in content
     assert '            --opencode' not in content
     assert "python -m src.pipeline.render_history" in content
+
+
+
+def test_optional_contestants_are_sealed_and_scored_in_separate_workflow():
+    future=(ROOT/".github"/"workflows"/"opencode-live.yml").read_text(encoding="utf-8")
+    evaluator=(ROOT/".github"/"workflows"/"daily-evaluate.yml").read_text(encoding="utf-8")
+    assert 'workflows: ["daily predict"]' in future
+    assert '"optional OpenCode forecasts"' in evaluator
+    assert "--type optional-opencode-contestants-v1" in evaluator
+    assert "--optional-forecasts predictions/live/opencode-runs" in evaluator
+    assert "git add -- \"$file\"" in future
+    assert "git add predictions/live/runs" not in future
+    assert "git add private-source" not in future
+    assert "21:10" not in future or "2110" in future

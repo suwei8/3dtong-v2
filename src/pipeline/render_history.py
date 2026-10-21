@@ -60,7 +60,9 @@ def _detail(forecast, score):
         f"- **封存时间（北京时间）：** {_frozen_time(forecast['generated_at_utc'])}",
         f"- **验证集选出的传统模型：** {_safe(forecast.get('validation_selected_model', '未记录'))}",
         f"- **本期状态：** {'已评分' if score is not None else '待开奖/待评分'}",
-        f"- **有效预测模型数：** {len(models)}", "",
+        f"- **有效预测模型数：** {len(models)}",
+        *([f"- **OpenCode 独立封存时间（北京时间）：** {_frozen_time(forecast['_optional_generated_at'])}"] if forecast.get("_optional_generated_at") else []),
+        "",
         "每个模型给出三个不同数字；“命中”表示所选三个数字中至少一个出现在开奖号中。此页面不展示实际开奖号码。", "",
         "| 模型 | 预测的三个数字 | 结果 |", "|---|---:|---|",
     ]
@@ -100,9 +102,14 @@ def _detail(forecast, score):
     return "\n".join(rows)
 
 
-def render_history(forecasts_dir, scores_dir, out, details_dir):
+def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dir=None):
     forecasts = _read_records(forecasts_dir, "forecast")
     scores = _read_records(scores_dir, "score")
+    optional = _read_records(
+        optional_dir if optional_dir is not None else Path(forecasts_dir).parent/"opencode-runs",
+        "optional")
+    if set(optional) - set(forecasts):
+        raise ValueError("orphan optional archive without classical parent")
     detail_path = Path(details_dir)
     detail_path.mkdir(parents=True, exist_ok=True)
     out_path = Path(out)
@@ -111,7 +118,20 @@ def render_history(forecasts_dir, scores_dir, out, details_dir):
     detail_files = set()
     for issue in issues:
         file = detail_path / f"{issue}.md"
-        file.write_text(_detail(forecasts[issue], scores.get(issue)), encoding="utf-8")
+        view=dict(forecasts[issue])
+        supplement=optional.get(issue)
+        if supplement:
+            if (supplement.get("type")!="optional-opencode-contestants-v1"
+                    or supplement.get("known_through_issue")!=view["known_through_issue"]
+                    or supplement.get("classical_frozen_at_utc")!=view["generated_at_utc"]):
+                raise ValueError("optional archive parent mismatch")
+            if set(view.get("models",{})) & set(supplement.get("models",{})):
+                raise ValueError("optional archive duplicates parent model")
+            view["models"]={**view.get("models",{}),**supplement.get("models",{})}
+            for key in ("opencode_challengers","derived_challengers"):
+                view[key]={**view.get(key,{}),**supplement.get(key,{})}
+            view["_optional_generated_at"]=supplement["generated_at_utc"]
+        file.write_text(_detail(view, scores.get(issue)), encoding="utf-8")
         detail_files.add(file.name)
     for file in detail_path.glob("*.md"):
         if re.fullmatch(r"\d{7}\.md", file.name) and file.name not in detail_files:
@@ -135,12 +155,13 @@ def render_history(forecasts_dir, scores_dir, out, details_dir):
         champion = forecast.get("validation_selected_model")
         digits = forecast.get("models", {}).get(champion, [])
         champ_digits = "".join(map(str, digits)) if digits else "—"
+        total=len(forecast.get("models", {}))+len(optional.get(issue,{}).get("models",{}))
         state = "已评分" if issue in scores else "待开奖/待评分"
         rows.append(
             f'| {issue} | {forecast.get("known_through_issue", "—")} | '
             f'{_frozen_time(forecast["generated_at_utc"])} | '
             f'{_safe(champion or "—")}：**{champ_digits}** | '
-            f'{len(forecast.get("models", {}))} | {state} | '
+            f'{total} | {state} | '
             f'[查看本期](history/{issue}.md) |'
         )
         previous = issue
@@ -161,8 +182,9 @@ def main():
     parser.add_argument("--scores", default="reports/live")
     parser.add_argument("--out", default="predictions/live/HISTORY.md")
     parser.add_argument("--details-dir", default="predictions/live/history")
+    parser.add_argument("--optional-dir",default="predictions/live/opencode-runs")
     args = parser.parse_args()
-    result = render_history(args.forecasts, args.scores, args.out, args.details_dir)
+    result = render_history(args.forecasts, args.scores, args.out, args.details_dir,args.optional_dir)
     print(f"rendered {len(result['issues'])} forecasts, {result['scored']} scored; index={result['out']}")
 
 

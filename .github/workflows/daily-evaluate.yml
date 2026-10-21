@@ -8,9 +8,11 @@ on:
       - "src/evaluation/prospective_compare.py"
       - "configs/live_pair_protocol.json"
       - "src/pipeline/render_history.py"
+      - "src/pipeline/opencode_live.py"
+      - "src/pipeline/seal.py"
       - ".github/workflows/daily-evaluate.yml"
   workflow_run:
-    workflows: ["daily predict"]
+    workflows: ["daily predict", "optional OpenCode forecasts"]
     types: [completed]
   schedule:
     - cron: "45 13 * * *" # Beijing 21:45
@@ -45,14 +47,22 @@ jobs:
           python-version: "3.11"
       - name: Verify Git seal and original publication history
         run: python -m src.pipeline.seal --forecasts predictions/live/runs
+      - name: Verify optional contestant seals when present
+        run: |
+          if [ -d predictions/live/opencode-runs ]; then
+            python -m src.pipeline.seal \
+              --forecasts predictions/live/opencode-runs \
+              --type optional-opencode-contestants-v1
+          fi
       - name: Score ONLY sealed prospective issues
         run: |
           python -m src.pipeline.evaluate_live \
             --full-history private-source/data/k3_full_history.csv \
             --forecasts predictions/live/runs \
+            --optional-forecasts predictions/live/opencode-runs \
             --out reports
       - name: Render readable historical prediction archive
-        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history
+        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history --optional-dir predictions/live/opencode-runs
       - name: Commit aggregate scores only
         run: |
           git config user.name "github-actions[bot]"
