@@ -1,19 +1,19 @@
 # 3dtong-v2 live forecast
 
-**Next target issue: 2026282**
-Latest known completed issue: 2026281
-Frozen: 2026-10-22T16:04:05.255769+00:00
+**Next target issue: 2026283**
+Latest known completed issue: 2026282
+Frozen: 2026-10-23T17:10:58.844188+00:00
 Validation-selected statistical model: frequency-30
 
 | Contestant | Three distinct digits |
 |---|---|
-| xgboost | 861 |
-| lightgbm | 680 |
-| catboost | 867 |
+| xgboost | 681 |
+| lightgbm | 681 |
+| catboost | 863 |
 | ensemble | 681 |
-| dtong-main10 | 134 |
+| dtong-main10 | 025 |
 | frequency-30 | 801 |
-| random-control-v1 | 156 |
+| random-control-v1 | 452 |
 
 ## OpenCode challenger status
 
