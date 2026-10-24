@@ -117,15 +117,20 @@ def audit(completed_issues, sealed_issues, scored_records, protocol=None,
     }
 
 
-def publish(report,out_dir="reports"):
+def publish(report,out_dir="reports", *, file_stem="live-paired",
+            title="实战事前预测：覆盖率与同期开奖配对比较"):
+    if not isinstance(file_stem,str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]*",file_stem):
+        raise ValueError("invalid report file stem")
+    if not isinstance(title,str) or not title.strip():
+        raise ValueError("invalid report title")
     folder=Path(out_dir)
     folder.mkdir(parents=True,exist_ok=True)
-    (folder/"live-paired.json").write_text(
+    (folder/f"{file_stem}.json").write_text(
         json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     def frac(n,d):
         return f"{n}/{d}" if d else "—"
     lines=[
-        "# 实战事前预测：覆盖率与同期开奖配对比较","",
+        f"# {title}","",
         "只计入**已经开奖**的期号；尚未开奖的下一期预测不算漏报。",
         "缺失事前封存文件算一次系统覆盖失败，不允许事后补成预测。",
         "真实开奖号码和预测的三个数字不会出现在此报告中。","",
@@ -156,5 +161,5 @@ def publish(report,out_dir="reports"):
             "**重要：** 配对是在此前探索研究之后选定的，即使达到200次，也不能仅凭这张表视为确认性证据。",
             "本报告不会计算中途 p 值，不替代原有17模型的200期预注册研究，也不会自动调整生产模型。",
             ""]
-    (folder/"live-paired.md").write_text("\n".join(lines),encoding="utf-8")
+    (folder/f"{file_stem}.md").write_text("\n".join(lines),encoding="utf-8")
     return report

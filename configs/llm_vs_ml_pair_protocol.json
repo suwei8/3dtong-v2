@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "name": "llm-vs-lightgbm-matched-prospective-v1",
+  "registered_utc": "2026-10-24",
+  "start_issue": "2026284",
+  "paired_target": 200,
+  "interpretation": "Prospective, same-issue, descriptive-only matched comparisons registered after 2026283 was scored. First 200 joint valid frozen forecasts per pair; no interim significance claims; not part of the existing 17-arm superiority protocol or the 2026281 pair plan.",
+  "comparisons": [
+    {
+      "candidate": "opencode/big-pickle",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/cat-jam-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/longcat-2.5-preview-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/mimo-v2.6-flash-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/muse-spark-1.3-contributor-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/nemotron-3-ultra-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/nemotron-3.5-lightning-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/deepseek-v4.1-flash-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode/step-5-preview-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "opencode-consensus",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "ml-opencode-hybrid",
+      "baseline": "lightgbm"
+    }
+  ]
+}

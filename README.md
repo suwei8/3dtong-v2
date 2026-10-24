@@ -184,3 +184,13 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 GitHub Actions 真实 Linux 匿名CLI实测：`opencode-ai@1.19.4` 老包无法恢复旧模型；升级为官方 `@opencode/cli@2.1.4` 后，`opencode/minimax-m3.1-flash-free` 仍返回404。公开免费模型目录显示其在2026-10-23被下线（[免费目录变更记录](https://freetokens.fyi/channels/opencode-zen)），不应继续把它标为可用。已从**未来新预测**的活跃候选配置中移除旧Space Bunny和已失效的MiniMax免费端点；历史封存和原有17模型预注册协议不变。
 
 `opencode/deepseek-v4.1-flash-free` 作为新一组**观察性参赛候选**加入，必须以[当前CI匿名合成请求](reports/opencode-availability.md)结果确定是否可用；不混入旧版固定200期正式统计。
+
+
+## 大模型与 LightGBM 同期开奖事前对照（从2026284期）
+
+[独立预注册配对方案](configs/llm_vs_ml_pair_protocol.json) · [中文对照报告](reports/llm-vs-ml-paired.md)
+
+- 保留原[2026281期配对协议](configs/live_pair_protocol.json)及17模型研究协议，不追溯增补任何已开奖的试验结果。
+- 选取活跃OpenCode候选、OpenCode投票和ML混合集成，与LightGBM在**同期开奖、双方都有合法事前封存预测**的期号上比较；分别累积最早200个共同有效期次。
+- 记录双方都命中、仅大模型命中、仅LightGBM命中、双方都未命中；任何模型超时、退役或未生成合法预测均不计入该模型对的分母。
+- 这是基于已观察过往期表现后设计的前瞻性探索，未满200期不得声称显著性；达到200期也不能直接从描述性差值推出预测优势。每次开奖后由独立评分工作流自动更新，不使用未来数据或私有开奖号码生成比较报表。
