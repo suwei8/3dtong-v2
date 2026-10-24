@@ -25,7 +25,8 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install OpenCode official CLI
-        run: npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
+        run: |
+          npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
           opencode --version
           if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
             echo "::error::Expected OpenCode CLI v2; refusing to test v1 model catalogue"

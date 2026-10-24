@@ -53,13 +53,16 @@ jobs:
         if: steps.target.outputs.new == 'true'
         run: |
           python -m pip install -r requirements.txt
-          if ! timeout 120s npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
-          opencode --version
-                    if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
-                      echo "::error::Expected OpenCode CLI v2; refusing to test v1 model catalogue"
-                      exit 1
-                    fi; then
-            echo "::warning::OpenCode CLI unavailable: optional votes will record skipped status."
+          if ! timeout 120s npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4; then
+            echo "::warning::OpenCode v2 CLI unavailable; optional votes will record skipped status."
+          elif command -v opencode >/dev/null 2>&1; then
+            opencode --version
+            if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
+              echo "::error::Expected OpenCode CLI v2; refusing legacy model catalogue"
+              exit 1
+            fi
+          else
+            echo "::warning::OpenCode binary missing after install."
           fi
       - name: Independently freeze optional OpenCode contestants
         if: steps.target.outputs.new == 'true'
