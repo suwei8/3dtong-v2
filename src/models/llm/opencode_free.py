@@ -78,6 +78,45 @@ def _clean_env(work):
     return env
 
 
+def classify_cli_failure(stdout, stderr):
+    """Only a fixed safe category is returned: never raw gateway messages/tokens."""
+    parts=[stdout or "",stderr or ""]
+    for line in (stdout or "").splitlines():
+        try:
+            event=json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        if isinstance(event,dict) and event.get("type")=="error":
+            # Gateway errors may be nested JSON, with a zero process exit code.
+            parts.append(json.dumps(event.get("error",{}),ensure_ascii=True))
+    msg="\n".join(parts).lower()
+    if ("can only be used from within opencode" in msg or
+            "free tier can only" in msg):
+        return "OpenCode free-tier gateway tool/permission rejection"
+    if ("freeusagelimiterror" in msg or "usage limit" in msg or
+            "rate limit" in msg or "too many requests" in msg or
+            "429" in msg or "quota" in msg):
+        return "OpenCode free-model rate limit (429) or quota"
+    if "abusive traffic" in msg or "ip address" in msg and "blocked" in msg:
+        return "OpenCode gateway IP anti-abuse block"
+    if ("deprecated" in msg or "retired" in msg or "discontinued" in msg):
+        return "OpenCode model ID retired or deprecated"
+    if ("model not found" in msg or "unknown model" in msg or
+            "model is unavailable" in msg or "model unavailable" in msg or
+            "providermodelnotfounderror" in msg or "404" in msg):
+        return "OpenCode model ID missing or unavailable (404)"
+    if "401" in msg or "unauthorized" in msg or "invalid credential" in msg:
+        return "OpenCode gateway authorization rejection (401)"
+    if "403" in msg or "forbidden" in msg:
+        return "OpenCode gateway forbidden (403); verify free-tier policy"
+    if ("network" in msg or "not connected" in msg or
+            "econnreset" in msg or "etimedout" in msg or "fetch failed" in msg):
+        return "OpenCode network/connection failure"
+    if "provider" in msg and "error" in msg:
+        return "OpenCode provider error (unspecified)"
+    return "OpenCode CLI nonzero / provider response (unclassified)"
+
+
 def predict_model(summary,model,executable="opencode",timeout=45):
     """Run one authenticated-or-anonymous OpenCode free contender in isolation.
 
@@ -111,32 +150,16 @@ def predict_model(summary,model,executable="opencode",timeout=45):
         except (subprocess.TimeoutExpired,OSError) as exc:
             return {"model":model,"status":"skipped","reason":type(exc).__name__}
         if done.returncode:
-            # Never expose raw stdout/stderr; they may contain sensitive diagnostics.
-            diagnostic=(done.stderr+"\n"+done.stdout).lower()
-            if "invalid credential" in diagnostic or "unauthorized" in diagnostic:
-                why="OpenCode gateway rejected anonymous credential"
-            elif "can only be used from within opencode" in diagnostic:
-                why="OpenCode free-tier agent permission gate rejected request"
-            elif ("model has been deprecated" in diagnostic or
-                  "model is deprecated" in diagnostic or
-                  "model retired" in diagnostic or
-                  "no longer supported" in diagnostic):
-                why="retired/deprecated model ID; check current OpenCode models"
-            elif "model is unavailable" in diagnostic or "model unavailable" in diagnostic:
-                why="free model currently unavailable"
-            elif "model not found" in diagnostic or "unknown model" in diagnostic:
-                why="model ID not supported by installed OpenCode"
-            elif "rate limit" in diagnostic or "quota" in diagnostic:
-                why="free model rate limit or quota"
-            elif "not connected" in diagnostic or "network" in diagnostic:
-                why="OpenCode network problem"
-            else:
-                why="CLI exit nonzero; inspect model availability"
-            return {"model":model,"status":"skipped","reason":why}
+            return {"model":model,"status":"skipped",
+                    "reason":classify_cli_failure(done.stdout,done.stderr)}
         try:
             digits=parse_json_events(done.stdout)
         except ValueError as exc:
-            return {"model":model,"status":"skipped","reason":str(exc)}
+            if str(exc)=="OpenCode reported error":
+                why=classify_cli_failure(done.stdout,done.stderr)
+            else:
+                why=str(exc)
+            return {"model":model,"status":"skipped","reason":why}
         return {"model":model,"status":"ok","digits":digits}
 
 

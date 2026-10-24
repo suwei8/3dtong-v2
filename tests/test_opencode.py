@@ -66,3 +66,41 @@ def test_retired_space_bunny_is_replaced_only_in_new_contestants():
 def test_retired_space_bunny_cannot_be_invoked_as_current_model():
     with pytest.raises(ValueError,match="approved"):
         api.predict_model('{"freq":3}',"opencode/space-bunny-free")
+
+
+
+@pytest.mark.parametrize(("message","reason"),[
+    ("OpenCode's free tier can only be used from within OpenCode",
+     "free-tier gateway tool/permission"),
+    ("FreeUsageLimitError status=429","rate limit (429)"),
+    ("ProviderModelNotFoundError","model ID missing"),
+    ("Model has been deprecated","retired or deprecated"),
+    ("Error HTTP 403 Forbidden","gateway forbidden"),
+    ("Unknown provider diagnostic","unclassified"),
+])
+def test_model_error_categorizer_never_prints_raw_provider_message(message,reason):
+    answer=api.classify_cli_failure("",message+" SECURITY_SENSITIVE_STRING")
+    assert reason in answer
+    assert "SECURITY_SENSITIVE_STRING" not in answer
+
+
+def test_nonzero_cli_result_classifies_safe_gateway_error(monkeypatch):
+    monkeypatch.setattr(api.shutil,"which",lambda _: "/usr/bin/opencode")
+    def fake_run(*args,**kwargs):
+        return SimpleNamespace(returncode=1,stdout="",
+                               stderr="OpenCode's free tier can only be used from within OpenCode")
+    monkeypatch.setattr(api.subprocess,"run",fake_run)
+    result=api.predict_model('{"freq":3}',"opencode/minimax-m3.1-flash-free")
+    assert result["status"]=="skipped"
+    assert "free-tier gateway" in result["reason"]
+
+
+def test_zero_exit_with_error_event_is_categorized(monkeypatch):
+    monkeypatch.setattr(api.shutil,"which",lambda _: "/usr/bin/opencode")
+    stdout=json.dumps({"type":"error","error":{"name":"FreeUsageLimitError",
+                                                "message":"429 Too Many Requests"}})+"\n"
+    monkeypatch.setattr(api.subprocess,"run",lambda *args,**kwargs:
+                        SimpleNamespace(returncode=0,stdout=stdout,stderr=""))
+    result=api.predict_model('{"freq":3}',"opencode/minimax-m3.1-flash-free")
+    assert result["status"]=="skipped"
+    assert "429" in result["reason"]
