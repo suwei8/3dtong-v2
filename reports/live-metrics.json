@@ -1,116 +1,116 @@
 {
   "schema": 1,
-  "scored_issues": 8,
-  "pending_issues": 1,
+  "scored_issues": 9,
+  "pending_issues": 0,
   "frozen_issues": 9,
   "models": {
     "xgboost": {
       "hits": 5,
-      "published": 8,
-      "attempted": 8,
+      "published": 9,
+      "attempted": 9,
       "unavailable": 0
     },
     "lightgbm": {
       "hits": 7,
-      "published": 8,
-      "attempted": 8,
+      "published": 9,
+      "attempted": 9,
       "unavailable": 0
     },
     "catboost": {
       "hits": 6,
-      "published": 8,
-      "attempted": 8,
+      "published": 9,
+      "attempted": 9,
       "unavailable": 0
     },
     "ensemble": {
+      "hits": 6,
+      "published": 9,
+      "attempted": 9,
+      "unavailable": 0
+    },
+    "dtong-main10": {
+      "hits": 6,
+      "published": 9,
+      "attempted": 9,
+      "unavailable": 0
+    },
+    "frequency-30": {
+      "hits": 6,
+      "published": 9,
+      "attempted": 9,
+      "unavailable": 0
+    },
+    "random-control-v1": {
       "hits": 6,
       "published": 8,
       "attempted": 8,
       "unavailable": 0
     },
-    "dtong-main10": {
-      "hits": 5,
-      "published": 8,
-      "attempted": 8,
-      "unavailable": 0
-    },
-    "frequency-30": {
-      "hits": 5,
-      "published": 8,
-      "attempted": 8,
-      "unavailable": 0
-    },
-    "random-control-v1": {
-      "hits": 5,
-      "published": 7,
-      "attempted": 7,
-      "unavailable": 0
-    },
     "opencode/big-pickle": {
-      "hits": 3,
-      "published": 7,
-      "attempted": 7,
+      "hits": 4,
+      "published": 8,
+      "attempted": 8,
       "unavailable": 0
     },
     "opencode/longcat-2.5-preview-free": {
       "hits": 4,
       "published": 5,
-      "attempted": 7,
-      "unavailable": 2
+      "attempted": 8,
+      "unavailable": 3
     },
     "opencode/mimo-v2.6-flash-free": {
-      "hits": 4,
-      "published": 7,
-      "attempted": 7,
+      "hits": 5,
+      "published": 8,
+      "attempted": 8,
       "unavailable": 0
     },
     "opencode/muse-spark-1.3-contributor-free": {
       "hits": 2,
       "published": 2,
-      "attempted": 7,
-      "unavailable": 5
+      "attempted": 8,
+      "unavailable": 6
     },
     "opencode/nemotron-3-ultra-free": {
       "hits": 3,
       "published": 4,
-      "attempted": 7,
-      "unavailable": 3
+      "attempted": 8,
+      "unavailable": 4
     },
     "opencode/nemotron-3.5-lightning-free": {
-      "hits": 3,
-      "published": 4,
-      "attempted": 7,
+      "hits": 4,
+      "published": 5,
+      "attempted": 8,
       "unavailable": 3
     },
     "opencode/space-bunny-free": {
       "hits": 3,
       "published": 3,
-      "attempted": 7,
-      "unavailable": 4
+      "attempted": 8,
+      "unavailable": 5
     },
     "opencode-consensus": {
-      "hits": 4,
-      "published": 7,
-      "attempted": 7,
+      "hits": 5,
+      "published": 8,
+      "attempted": 8,
       "unavailable": 0
     },
     "ml-opencode-hybrid": {
-      "hits": 4,
-      "published": 7,
-      "attempted": 7,
+      "hits": 5,
+      "published": 8,
+      "attempted": 8,
       "unavailable": 0
     },
     "opencode/cat-jam-free": {
       "hits": 1,
       "published": 1,
-      "attempted": 7,
-      "unavailable": 6
+      "attempted": 8,
+      "unavailable": 7
     },
     "opencode/step-5-preview-free": {
       "hits": 0,
       "published": 0,
-      "attempted": 7,
-      "unavailable": 7
+      "attempted": 8,
+      "unavailable": 8
     }
   },
   "random_baseline": 0.657
