@@ -58,7 +58,8 @@ def test_known_nine_models():
 
 def test_retired_space_bunny_is_replaced_only_in_new_contestants():
     approved,timeout=api.load_models()
-    assert "opencode/minimax-m3.1-flash-free" in approved
+    assert "opencode/deepseek-v4.1-flash-free" in approved
+    assert "opencode/minimax-m3.1-flash-free" not in approved
     assert "opencode/space-bunny-free" not in approved
     assert len(approved)==9 and timeout==45
 
@@ -90,7 +91,7 @@ def test_nonzero_cli_result_classifies_safe_gateway_error(monkeypatch):
         return SimpleNamespace(returncode=1,stdout="",
                                stderr="OpenCode's free tier can only be used from within OpenCode")
     monkeypatch.setattr(api.subprocess,"run",fake_run)
-    result=api.predict_model('{"freq":3}',"opencode/minimax-m3.1-flash-free")
+    result=api.predict_model('{"freq":3}',"opencode/deepseek-v4.1-flash-free")
     assert result["status"]=="skipped"
     assert "free-tier gateway" in result["reason"]
 
@@ -101,6 +102,6 @@ def test_zero_exit_with_error_event_is_categorized(monkeypatch):
                                                 "message":"429 Too Many Requests"}})+"\n"
     monkeypatch.setattr(api.subprocess,"run",lambda *args,**kwargs:
                         SimpleNamespace(returncode=0,stdout=stdout,stderr=""))
-    result=api.predict_model('{"freq":3}',"opencode/minimax-m3.1-flash-free")
+    result=api.predict_model('{"freq":3}',"opencode/deepseek-v4.1-flash-free")
     assert result["status"]=="skipped"
     assert "429" in result["reason"]

@@ -57,10 +57,10 @@ opencode run --model opencode/mimo-v2.6-flash-free --format json 'Return {"digit
 - opencode/muse-spark-1.3-contributor-free
 - opencode/nemotron-3-ultra-free
 - opencode/nemotron-3.5-lightning-free
-- opencode/minimax-m3.1-flash-free（MiniMax M3.1 Flash Free，原 Space Bunny）
+- opencode/deepseek-v4.1-flash-free（新增探索模型，待真实匿名实测）
 - opencode/step-5-preview-free
 
-**2026-10-24 兼容性修复：** OpenCode 官方于 2026-10-19 确认旧模型ID `opencode/space-bunny-free` 已退役，并指向 `opencode/minimax-m3.1-flash-free`（[上游问题说明](https://github.com/anomalyco/opencode/issues/57083)）。从新一轮预测开始，使用新ID独立投票；**已封存的 `space-bunny-free` 历史成绩和17模型预注册协议均保持不变，不能将新模型伪装成旧模型的连续命中样本**。新ID为额外观察模型，不纳入旧版固定200期家族的显著性检验。它能否在GitHub Actions匿名环境成功调用，以最新的[合成数据实测报告](reports/opencode-availability.md)为准。
+**2026-10-24 兼容性修复：** OpenCode 官方于 2026-10-19 确认旧模型ID `opencode/space-bunny-free` 已退役，并指向 `opencode/minimax-m3.1-flash-free`（[上游问题说明](https://github.com/anomalyco/opencode/issues/57083)）。旧ID于10月19日退役；替代ID在10月23日也退出了免费目录，因此不再自动调用该免费端点。后续由新增的独立候选DeepSeek V4.1 Flash Free替补，**已封存的 `space-bunny-free` 历史成绩和17模型预注册协议均保持不变，不能将新模型伪装成旧模型的连续命中样本**。新ID为额外观察模型，不纳入旧版固定200期家族的显著性检验。它能否在GitHub Actions匿名环境成功调用，以最新的[合成数据实测报告](reports/opencode-availability.md)为准。
 
 这个列表由用户提供，**不代表每个 ID 在任意时刻都能免登录使用**。GitHub CI 会实际检测，无网络、额度耗尽、模型下架、需要登录或格式错误时记录 `skipped`，不会伪造预测。每个模型只收到最近10/30/100期的聚合数字统计及遗漏间隔，不接触私有 CSV 或 GitHub Token。OpenCode 使用单独临时工作空间，其 `opencode.json` 将工具默认权限设为需确认（无人审批），将编辑、网络搜索和子任务等权限明确设为 `deny`，关闭对话分享；依然不能把进程隔离视为完善的系统沙盒。
 
@@ -177,3 +177,10 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 `opencode-ai` 的 npm latest 标签仍是 **v1.19.4**，而 OpenCode 2.x 改用 `@opencode/cli`。为复现 MiniMax M3.1 Flash Free 官方说明适用的客户端版本，三个 GitHub 工作流均固定安装 `@opencode/cli@2.1.4`，在调用前校验 major=2；允许该官方包安装 native binary 的 postinstall，其他安装脚本不放行。旧包会导致“模型退役与新目录不兼容”被错误归类为模型不可用。
 
 [官方 OpenCode 2.x 安装说明](https://opencode.ai/v2/docs) · [单模型匿名调用冒烟测试](.github/workflows/opencode-smoke.yml) · [9模型合成数据可用性实测](reports/opencode-availability.md)。真实历史封存数据不会重写，旧17模型统计协议保留退役ID，新ID只作新增观察参赛。
+
+
+### 2026-10-24 Space Bunny 免费端点最终诊断
+
+GitHub Actions 真实 Linux 匿名CLI实测：`opencode-ai@1.19.4` 老包无法恢复旧模型；升级为官方 `@opencode/cli@2.1.4` 后，`opencode/minimax-m3.1-flash-free` 仍返回404。公开免费模型目录显示其在2026-10-23被下线（[免费目录变更记录](https://freetokens.fyi/channels/opencode-zen)），不应继续把它标为可用。已从**未来新预测**的活跃候选配置中移除旧Space Bunny和已失效的MiniMax免费端点；历史封存和原有17模型预注册协议不变。
+
+`opencode/deepseek-v4.1-flash-free` 作为新一组**观察性参赛候选**加入，必须以[当前CI匿名合成请求](reports/opencode-availability.md)结果确定是否可用；不混入旧版固定200期正式统计。

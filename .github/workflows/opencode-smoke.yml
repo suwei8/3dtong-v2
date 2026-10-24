@@ -12,7 +12,7 @@ on:
       model:
         description: Free OpenCode model ID
         required: false
-        default: opencode/minimax-m3.1-flash-free
+        default: opencode/deepseek-v4.1-flash-free
 permissions:
   contents: read
 jobs:
@@ -35,7 +35,7 @@ jobs:
       - name: Prove anonymous free-model request with synthetic stats
         id: smoke
         env:
-          FREE_MODEL: ${{ github.event.inputs.model || 'opencode/minimax-m3.1-flash-free' }}
+          FREE_MODEL: ${{ github.event.inputs.model || 'opencode/deepseek-v4.1-flash-free' }}
         run: |
           python -m src.pipeline.opencode_smoke --model "$FREE_MODEL" --out reports/opencode-smoke.json --timeout 75
       - name: Upload evidence without committing synthetic smoke files

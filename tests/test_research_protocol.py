@@ -106,3 +106,4 @@ def test_model_id_migration_never_rewrites_sealed_pre_registration():
     protocol=load_protocol()
     assert "opencode/space-bunny-free" in protocol["planned_models"]
     assert "opencode/minimax-m3.1-flash-free" not in protocol["planned_models"]
+    assert "opencode/deepseek-v4.1-flash-free" not in protocol["planned_models"]
