@@ -57,8 +57,10 @@ opencode run --model opencode/mimo-v2.6-flash-free --format json 'Return {"digit
 - opencode/muse-spark-1.3-contributor-free
 - opencode/nemotron-3-ultra-free
 - opencode/nemotron-3.5-lightning-free
-- opencode/space-bunny-free
+- opencode/minimax-m3.1-flash-free（MiniMax M3.1 Flash Free，原 Space Bunny）
 - opencode/step-5-preview-free
+
+**2026-10-24 兼容性修复：** OpenCode 官方于 2026-10-19 确认旧模型ID `opencode/space-bunny-free` 已退役，并指向 `opencode/minimax-m3.1-flash-free`（[上游问题说明](https://github.com/anomalyco/opencode/issues/57083)）。从新一轮预测开始，使用新ID独立投票；**已封存的 `space-bunny-free` 历史成绩和17模型预注册协议均保持不变，不能将新模型伪装成旧模型的连续命中样本**。新ID为额外观察模型，不纳入旧版固定200期家族的显著性检验。它能否在GitHub Actions匿名环境成功调用，以最新的[合成数据实测报告](reports/opencode-availability.md)为准。
 
 这个列表由用户提供，**不代表每个 ID 在任意时刻都能免登录使用**。GitHub CI 会实际检测，无网络、额度耗尽、模型下架、需要登录或格式错误时记录 `skipped`，不会伪造预测。每个模型只收到最近10/30/100期的聚合数字统计及遗漏间隔，不接触私有 CSV 或 GitHub Token。OpenCode 使用单独临时工作空间，其 `opencode.json` 将工具默认权限设为需确认（无人审批），将编辑、网络搜索和子任务等权限明确设为 `deny`，关闭对话分享；依然不能把进程隔离视为完善的系统沙盒。
 

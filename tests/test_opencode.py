@@ -53,3 +53,16 @@ def test_known_nine_models():
     ids,timeout=api.load_models()
     assert len(ids)==9 and len(set(ids))==9 and timeout>=5
     assert all(m.startswith("opencode/") for m in ids)
+
+
+
+def test_retired_space_bunny_is_replaced_only_in_new_contestants():
+    approved,timeout=api.load_models()
+    assert "opencode/minimax-m3.1-flash-free" in approved
+    assert "opencode/space-bunny-free" not in approved
+    assert len(approved)==9 and timeout==45
+
+
+def test_retired_space_bunny_cannot_be_invoked_as_current_model():
+    with pytest.raises(ValueError,match="approved"):
+        api.predict_model('{"freq":3}',"opencode/space-bunny-free")

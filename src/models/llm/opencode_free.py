@@ -117,6 +117,11 @@ def predict_model(summary,model,executable="opencode",timeout=45):
                 why="OpenCode gateway rejected anonymous credential"
             elif "can only be used from within opencode" in diagnostic:
                 why="OpenCode free-tier agent permission gate rejected request"
+            elif ("model has been deprecated" in diagnostic or
+                  "model is deprecated" in diagnostic or
+                  "model retired" in diagnostic or
+                  "no longer supported" in diagnostic):
+                why="retired/deprecated model ID; check current OpenCode models"
             elif "model is unavailable" in diagnostic or "model unavailable" in diagnostic:
                 why="free model currently unavailable"
             elif "model not found" in diagnostic or "unknown model" in diagnostic:

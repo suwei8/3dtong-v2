@@ -99,3 +99,10 @@ def test_real_preregistered_family_size():
     assert protocol["start_issue"]=="2026275"
     assert len(protocol["planned_models"])==17
     assert "random-control-v1" not in protocol["planned_models"]
+
+
+
+def test_model_id_migration_never_rewrites_sealed_pre_registration():
+    protocol=load_protocol()
+    assert "opencode/space-bunny-free" in protocol["planned_models"]
+    assert "opencode/minimax-m3.1-flash-free" not in protocol["planned_models"]
