@@ -25,7 +25,12 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install official OpenCode CLI
-        run: npm install -g opencode-ai
+        run: npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
+          opencode --version
+          if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
+            echo "::error::Expected OpenCode CLI v2; refusing to test v1 model catalogue"
+            exit 1
+          fi
       - name: Attempt all nine free models with SYNTHETIC stats
         run: python -m src.pipeline.probe_free_models --timeout 35
       - name: Upload machine-readable probe results

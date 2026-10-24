@@ -41,10 +41,10 @@
 
 ## OpenCode 免费模型参赛（替换 Cline）
 
-完全移除 Cline 认证、CLI 依赖与参赛配置。使用官方 `opencode-ai` npm 包，在 GitHub Actions 临时 Linux runner 调用：
+完全移除 Cline 认证、CLI 依赖与参赛配置。使用官方 OpenCode 2.x `@opencode/cli` npm 包，在 GitHub Actions 临时 Linux runner 调用：
 
 ```bash
-npm install -g opencode-ai
+npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
 opencode run --model opencode/mimo-v2.6-flash-free --format json 'Return {"digits":[0,5,8]}'
 ```
 
@@ -170,3 +170,10 @@ python -m src.pipeline.opencode_smoke --model opencode/mimo-v2.6-flash-free
 触发链路：`suwei8/pinble-actions` 的每日增量采集在 `data/k3_full_history.csv` 真正变动并推送成功后，经 `repository_dispatch` 调用本仓 [daily predict](.github/workflows/daily-predict.yml)。**2026-10-21北京时间22:37 已验证事件送达**，但已过21:10安全截止，正确跳过当前预测。次日00:30兜底定时再次检查下一期。
 
 [运营状态报告](reports/STATUS.md)现额外展示：最近私有数据提交时间（只展示时间，不展示数据）、下一目标期传统模型与独立OpenCode封存生成时间、从最近数据源提交到传统模型预测生成的分钟数、生成到公开Git首次提交的秒数。**Git提交时间不等于远端实际push时间**；源数据在预测后再次更新时延迟显示“无法确认”，不把负数当成功。每个预测workflow的运行页面还会记录预检查决策 `already_frozen`、`past_beijing_cutoff`、`stale_or_future_source`、`eligible_pre_result`。由于GitHub调度并不保证准点，追求未来连续30期无漏报仍需实际观察。
+
+
+### OpenCode 2.x 安装渠道修复（2026-10-24）
+
+`opencode-ai` 的 npm latest 标签仍是 **v1.19.4**，而 OpenCode 2.x 改用 `@opencode/cli`。为复现 MiniMax M3.1 Flash Free 官方说明适用的客户端版本，三个 GitHub 工作流均固定安装 `@opencode/cli@2.1.4`，在调用前校验 major=2；允许该官方包安装 native binary 的 postinstall，其他安装脚本不放行。旧包会导致“模型退役与新目录不兼容”被错误归类为模型不可用。
+
+[官方 OpenCode 2.x 安装说明](https://opencode.ai/v2/docs) · [单模型匿名调用冒烟测试](.github/workflows/opencode-smoke.yml) · [9模型合成数据可用性实测](reports/opencode-availability.md)。真实历史封存数据不会重写，旧17模型统计协议保留退役ID，新ID只作新增观察参赛。

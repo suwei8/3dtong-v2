@@ -136,3 +136,14 @@ def test_readme_latest_is_generated_after_forecast_and_optional_seals():
     assert "predictions/live/runs/ README.md" in daily
     assert 'git add -- "$file" README.md' in optional
     assert "git add private-source" not in daily + optional
+
+
+
+def test_all_opencode_jobs_install_v2_not_legacy_v1():
+    root=ROOT/".github"/"workflows"
+    for name in ("opencode-live.yml","opencode-availability.yml","opencode-smoke.yml"):
+        workflow=(root/name).read_text(encoding="utf-8")
+        assert "npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4" in workflow
+        assert "npm install -g opencode-ai" not in workflow
+        assert "opencode --version" in workflow
+        assert "Expected OpenCode CLI v2" in workflow
