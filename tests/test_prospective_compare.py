@@ -94,3 +94,46 @@ def test_scoring_completion_validation():
               [{"target_issue":"2026282","scores":{"xgboost":True}}],plan)
     report=audit(["2026281"],["2026281"],[],plan,coverage_start="2026281")
     assert report["sealed_but_unscored_issues"]==["2026281"]
+
+
+def test_llm_lightgbm_protocol_starts_after_scored_2026283():
+    from pathlib import Path
+    path=Path(__file__).resolve().parents[1]/"configs"/"llm_vs_ml_pair_protocol.json"
+    plan=load_protocol(path)
+    assert plan["start_issue"]=="2026284"
+    assert plan["paired_target"]==200
+    assert len(plan["comparisons"])==11
+    assert {p["baseline"] for p in plan["comparisons"]}=={"lightgbm"}
+    assert "opencode/space-bunny-free" not in {p["candidate"] for p in plan["comparisons"]}
+
+
+def test_llm_lightgbm_paired_report_ignores_history_and_skips(tmp_path):
+    from pathlib import Path
+    plan=load_protocol(Path(__file__).resolve().parents[1]/"configs"/"llm_vs_ml_pair_protocol.json")
+    records=[
+        {"target_issue":"2026283","scores":{"opencode/longcat-2.5-preview-free":True,"lightgbm":False}},
+        {"target_issue":"2026284","scores":{"opencode/longcat-2.5-preview-free":True,"opencode/mimo-v2.6-flash-free":False,"lightgbm":True}},
+        {"target_issue":"2026285","scores":{"lightgbm":False}},
+        {"target_issue":"2026286","scores":{"opencode/longcat-2.5-preview-free":False,"opencode/mimo-v2.6-flash-free":True,"lightgbm":True}}
+    ]
+    completed=["2026283","2026284","2026285","2026286"]
+    report=audit(completed,completed,records,protocol=plan,coverage_start="2026283")
+    longcat=report["pairs"]["opencode/longcat-2.5-preview-free__vs__lightgbm"]
+    assert longcat["shared_scored_issues"]==2
+    assert longcat["both_hit"]==1
+    assert longcat["baseline_only_hits"]==1
+    assert longcat["candidate_only_hits"]==0
+    assert longcat["both_miss"]==0
+    assert longcat["hit_rate_difference_pp"]==-50.0
+    mimo=report["pairs"]["opencode/mimo-v2.6-flash-free__vs__lightgbm"]
+    assert mimo["shared_scored_issues"]==2
+    assert mimo["baseline_only_hits"]==1
+    assert mimo["both_hit"]==1
+    assert report["pairs"]["opencode/step-5-preview-free__vs__lightgbm"]["shared_scored_issues"]==0
+    publish(report,tmp_path,file_stem="llm-vs-ml-paired",title="大模型 vs LightGBM")
+    md=(tmp_path/"llm-vs-ml-paired.md").read_text(encoding="utf-8")
+    obj=json.loads((tmp_path/"llm-vs-ml-paired.json").read_text(encoding="utf-8"))
+    assert obj==report
+    assert "大模型 vs LightGBM" in md
+    assert "KaiJiang" not in md+json.dumps(obj)
+    assert not (tmp_path/"live-paired.md").exists()

@@ -200,9 +200,15 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
         json.dumps(health,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     from src.evaluation.research import publish_research
     publish_research(scored_records,output)
-    from src.evaluation.prospective_compare import audit, publish as publish_pairs
+    from src.evaluation.prospective_compare import audit, load_protocol, publish as publish_pairs
     completed_issues=[issue for issue in results]
     publish_pairs(audit(completed_issues,seen,scored_records),output)
+    # New registered study starts at 2026284: do not backfill earlier known results.
+    llm_protocol=Path(__file__).resolve().parents[2]/"configs"/"llm_vs_ml_pair_protocol.json"
+    llm_plan=load_protocol(llm_protocol)
+    llm_report=audit(completed_issues,seen,scored_records,protocol=llm_plan)
+    publish_pairs(llm_report,output,file_stem="llm-vs-ml-paired",
+                  title="大模型 vs LightGBM：同期开奖事前配对验证")
     print(f"scored {scored_issues} issues; {pending_issues} awaiting verified results")
     return health
 
