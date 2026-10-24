@@ -49,9 +49,11 @@ def test_subsequent_new_seal_replaces_old_issue_without_duplication(tmp_path):
     readme = tmp_path/"README.md"
     readme.write_text("# Header\n\nExisting body\n", encoding="utf-8")
     folder = write(tmp_path, sample())
-    update_readme(readme, folder)
+    # Never read real repo optional seals in a synthetic, isolated test.
+    optional=tmp_path/"optional"
+    update_readme(readme, folder, optional)
     write(tmp_path, sample("2026281", "xgboost"))
-    assert update_readme(readme, folder)
+    assert update_readme(readme, folder, optional)
     view = readme.read_text()
     assert view.count(START) == view.count(END) == 1
     assert "第 2026281 期" in view
