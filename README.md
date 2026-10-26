@@ -1,32 +1,24 @@
 # 3dtong-v2 — 逐期事前预测与模型擂台
 
 <!-- 3DTONG_LATEST_START -->
-## 最新一期事前预测｜第 2026285 期
+## 最新一期事前预测｜第 2026286 期
 
-**验证集选定模型：frequency-30 → `168`**
+**验证集选定模型：frequency-30 → `138`**
 
-- **预测时已知至：** 第 2026284 期
-- **原始封存时间（北京时间）：** 2026-10-26 00:24:43
-- **OpenCode 独立封存时间（北京时间）：** 2026-10-26 00:27:39
+- **预测时已知至：** 第 2026285 期
+- **原始封存时间（北京时间）：** 2026-10-27 00:18:18
 
 | 模型 | 三个候选数字 |
 |---|---:|
 | xgboost | **386** |
-| lightgbm | **683** |
-| catboost | **183** |
-| ensemble | **836** |
-| dtong-main10 | **012** |
-| frequency-30（验证集选定） | **168** |
-| random-control-v1 | **768** |
-| opencode/big-pickle | **459** |
-| opencode/mimo-v2.6-flash-free | **168** |
-| opencode/nemotron-3-ultra-free | **948** |
-| opencode/nemotron-3.5-lightning-free | **895** |
-| opencode/deepseek-v4.1-flash-free | **689** |
-| opencode-consensus | **896** |
-| ml-opencode-hybrid | **896** |
+| lightgbm | **368** |
+| catboost | **638** |
+| ensemble | **368** |
+| dtong-main10 | **134** |
+| frequency-30（验证集选定） | **138** |
+| random-control-v1 | **237** |
 
-[本期预测详情](predictions/live/history/2026285.md) · [最新预测页面](predictions/live/LATEST.md) · [往期全部记录](predictions/live/HISTORY.md) · [实战排行榜](reports/live-leaderboard.md)
+[本期预测详情](predictions/live/history/2026286.md) · [最新预测页面](predictions/live/LATEST.md) · [往期全部记录](predictions/live/HISTORY.md) · [实战排行榜](reports/live-leaderboard.md)
 
 说明：仅展示开奖前已封存的三个不同候选数字，不展示实际开奖号码。这不是开奖结果或中奖保证；模型尚无经过确认的预测优势。
 <!-- 3DTONG_LATEST_END -->
