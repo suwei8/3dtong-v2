@@ -7,9 +7,9 @@
 ## 预测覆盖率
 
 监测期号从 **2026274** 开始。
-已开奖期数：**12**；其中有事前封存：**11**；已评分：**11**。
-预测覆盖率：**11/12**（91.67%）
-评分覆盖率：**11/12**（91.67%）
+已开奖期数：**13**；其中有事前封存：**12**；已评分：**12**。
+预测覆盖率：**12/13**（92.31%）
+评分覆盖率：**12/13**（92.31%）
 漏做事前预测：2026277
 已有事前预测但尚未评分：无
 
@@ -23,14 +23,14 @@
 | opencode/big-pickle | lightgbm | 2/200 | 0 | 0 | 2 | 0 | +0.00百分点 |
 | opencode/cat-jam-free | lightgbm | 0/200 | 0 | 0 | 0 | 0 | — |
 | opencode/longcat-2.5-preview-free | lightgbm | 0/200 | 0 | 0 | 0 | 0 | — |
-| opencode/mimo-v2.6-flash-free | lightgbm | 2/200 | 0 | 2 | 0 | 0 | -100.00百分点 |
+| opencode/mimo-v2.6-flash-free | lightgbm | 3/200 | 1 | 2 | 0 | 0 | -33.33百分点 |
 | opencode/muse-spark-1.3-contributor-free | lightgbm | 0/200 | 0 | 0 | 0 | 0 | — |
 | opencode/nemotron-3-ultra-free | lightgbm | 2/200 | 0 | 0 | 2 | 0 | +0.00百分点 |
-| opencode/nemotron-3.5-lightning-free | lightgbm | 1/200 | 0 | 0 | 1 | 0 | +0.00百分点 |
-| opencode/deepseek-v4.1-flash-free | lightgbm | 2/200 | 0 | 0 | 2 | 0 | +0.00百分点 |
+| opencode/nemotron-3.5-lightning-free | lightgbm | 2/200 | 0 | 0 | 1 | 1 | +0.00百分点 |
+| opencode/deepseek-v4.1-flash-free | lightgbm | 3/200 | 0 | 0 | 2 | 1 | +0.00百分点 |
 | opencode/step-5-preview-free | lightgbm | 0/200 | 0 | 0 | 0 | 0 | — |
-| opencode-consensus | lightgbm | 2/200 | 0 | 0 | 2 | 0 | +0.00百分点 |
-| ml-opencode-hybrid | lightgbm | 2/200 | 0 | 0 | 2 | 0 | +0.00百分点 |
+| opencode-consensus | lightgbm | 3/200 | 0 | 0 | 2 | 1 | +0.00百分点 |
+| ml-opencode-hybrid | lightgbm | 3/200 | 0 | 0 | 2 | 1 | +0.00百分点 |
 
 **重要：** 配对是在此前探索研究之后选定的，即使达到200次，也不能仅凭这张表视为确认性证据。
 本报告不会计算中途 p 值，不替代原有17模型的200期预注册研究，也不会自动调整生产模型。

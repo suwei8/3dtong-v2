@@ -1,85 +1,85 @@
 {
   "schema": 1,
-  "scored_issues": 11,
-  "pending_issues": 1,
+  "scored_issues": 12,
+  "pending_issues": 0,
   "frozen_issues": 12,
   "models": {
     "xgboost": {
       "hits": 7,
-      "published": 11,
-      "attempted": 11,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "lightgbm": {
       "hits": 9,
-      "published": 11,
-      "attempted": 11,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "catboost": {
       "hits": 8,
-      "published": 11,
-      "attempted": 11,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "ensemble": {
       "hits": 8,
-      "published": 11,
-      "attempted": 11,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "dtong-main10": {
-      "hits": 8,
-      "published": 11,
-      "attempted": 11,
+      "hits": 9,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "frequency-30": {
-      "hits": 7,
-      "published": 11,
-      "attempted": 11,
+      "hits": 8,
+      "published": 12,
+      "attempted": 12,
       "unavailable": 0
     },
     "random-control-v1": {
-      "hits": 7,
-      "published": 10,
-      "attempted": 10,
+      "hits": 8,
+      "published": 11,
+      "attempted": 11,
       "unavailable": 0
     },
     "opencode/big-pickle": {
       "hits": 6,
       "published": 10,
-      "attempted": 10,
-      "unavailable": 0
+      "attempted": 11,
+      "unavailable": 1
     },
     "opencode/longcat-2.5-preview-free": {
       "hits": 4,
       "published": 5,
-      "attempted": 10,
-      "unavailable": 5
+      "attempted": 11,
+      "unavailable": 6
     },
     "opencode/mimo-v2.6-flash-free": {
-      "hits": 5,
-      "published": 10,
-      "attempted": 10,
+      "hits": 6,
+      "published": 11,
+      "attempted": 11,
       "unavailable": 0
     },
     "opencode/muse-spark-1.3-contributor-free": {
       "hits": 2,
       "published": 2,
-      "attempted": 10,
-      "unavailable": 8
+      "attempted": 11,
+      "unavailable": 9
     },
     "opencode/nemotron-3-ultra-free": {
       "hits": 5,
       "published": 6,
-      "attempted": 10,
-      "unavailable": 4
+      "attempted": 11,
+      "unavailable": 5
     },
     "opencode/nemotron-3.5-lightning-free": {
       "hits": 5,
-      "published": 6,
-      "attempted": 10,
+      "published": 7,
+      "attempted": 11,
       "unavailable": 4
     },
     "opencode/space-bunny-free": {
@@ -90,32 +90,32 @@
     },
     "opencode-consensus": {
       "hits": 7,
-      "published": 10,
-      "attempted": 10,
+      "published": 11,
+      "attempted": 11,
       "unavailable": 0
     },
     "ml-opencode-hybrid": {
       "hits": 7,
-      "published": 10,
-      "attempted": 10,
+      "published": 11,
+      "attempted": 11,
       "unavailable": 0
     },
     "opencode/cat-jam-free": {
       "hits": 1,
       "published": 1,
-      "attempted": 10,
-      "unavailable": 9
+      "attempted": 11,
+      "unavailable": 10
     },
     "opencode/step-5-preview-free": {
       "hits": 0,
       "published": 0,
-      "attempted": 10,
-      "unavailable": 10
+      "attempted": 11,
+      "unavailable": 11
     },
     "opencode/deepseek-v4.1-flash-free": {
       "hits": 2,
-      "published": 2,
-      "attempted": 2,
+      "published": 3,
+      "attempted": 3,
       "unavailable": 0
     }
   },

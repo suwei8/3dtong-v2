@@ -7,27 +7,27 @@ OpenCode 模型调用失败或跳过不算预测未命中。
 | 模型标识 | 命中次数 | 有效预测次数 | 命中率 | 95% Wilson 置信区间 | 调用次数 | 不可用次数 |
 |---|---:|---:|---:|---:|---:|---:|
 | opencode/space-bunny-free | 3 | 3 | 100.00% | 43.8%–100.0% | 8 | 5 |
-| opencode/deepseek-v4.1-flash-free | 2 | 2 | 100.00% | 34.2%–100.0% | 2 | 0 |
-| opencode/muse-spark-1.3-contributor-free | 2 | 2 | 100.00% | 34.2%–100.0% | 10 | 8 |
-| opencode/cat-jam-free | 1 | 1 | 100.00% | 20.7%–100.0% | 10 | 9 |
-| opencode/nemotron-3-ultra-free | 5 | 6 | 83.33% | 43.6%–97.0% | 10 | 4 |
-| opencode/nemotron-3.5-lightning-free | 5 | 6 | 83.33% | 43.6%–97.0% | 10 | 4 |
-| lightgbm | 9 | 11 | 81.82% | 52.3%–94.9% | 11 | 0 |
-| opencode/longcat-2.5-preview-free | 4 | 5 | 80.00% | 37.6%–96.4% | 10 | 5 |
-| catboost | 8 | 11 | 72.73% | 43.4%–90.3% | 11 | 0 |
-| dtong-main10 | 8 | 11 | 72.73% | 43.4%–90.3% | 11 | 0 |
-| ensemble | 8 | 11 | 72.73% | 43.4%–90.3% | 11 | 0 |
-| ml-opencode-hybrid | 7 | 10 | 70.00% | 39.7%–89.2% | 10 | 0 |
-| opencode-consensus | 7 | 10 | 70.00% | 39.7%–89.2% | 10 | 0 |
-| random-control-v1 | 7 | 10 | 70.00% | 39.7%–89.2% | 10 | 0 |
-| frequency-30 | 7 | 11 | 63.64% | 35.4%–84.8% | 11 | 0 |
-| xgboost | 7 | 11 | 63.64% | 35.4%–84.8% | 11 | 0 |
-| opencode/big-pickle | 6 | 10 | 60.00% | 31.3%–83.2% | 10 | 0 |
-| opencode/mimo-v2.6-flash-free | 5 | 10 | 50.00% | 23.7%–76.3% | 10 | 0 |
-| opencode/step-5-preview-free | 0 | 0 | — | — | 10 | 10 |
+| opencode/muse-spark-1.3-contributor-free | 2 | 2 | 100.00% | 34.2%–100.0% | 11 | 9 |
+| opencode/cat-jam-free | 1 | 1 | 100.00% | 20.7%–100.0% | 11 | 10 |
+| opencode/nemotron-3-ultra-free | 5 | 6 | 83.33% | 43.6%–97.0% | 11 | 5 |
+| opencode/longcat-2.5-preview-free | 4 | 5 | 80.00% | 37.6%–96.4% | 11 | 6 |
+| dtong-main10 | 9 | 12 | 75.00% | 46.8%–91.1% | 12 | 0 |
+| lightgbm | 9 | 12 | 75.00% | 46.8%–91.1% | 12 | 0 |
+| random-control-v1 | 8 | 11 | 72.73% | 43.4%–90.3% | 11 | 0 |
+| opencode/nemotron-3.5-lightning-free | 5 | 7 | 71.43% | 35.9%–91.8% | 11 | 4 |
+| catboost | 8 | 12 | 66.67% | 39.1%–86.2% | 12 | 0 |
+| ensemble | 8 | 12 | 66.67% | 39.1%–86.2% | 12 | 0 |
+| frequency-30 | 8 | 12 | 66.67% | 39.1%–86.2% | 12 | 0 |
+| opencode/deepseek-v4.1-flash-free | 2 | 3 | 66.67% | 20.8%–93.9% | 3 | 0 |
+| ml-opencode-hybrid | 7 | 11 | 63.64% | 35.4%–84.8% | 11 | 0 |
+| opencode-consensus | 7 | 11 | 63.64% | 35.4%–84.8% | 11 | 0 |
+| opencode/big-pickle | 6 | 10 | 60.00% | 31.3%–83.2% | 11 | 1 |
+| xgboost | 7 | 12 | 58.33% | 32.0%–80.7% | 12 | 0 |
+| opencode/mimo-v2.6-flash-free | 6 | 11 | 54.55% | 28.0%–78.7% | 11 | 0 |
+| opencode/step-5-preview-free | 0 | 0 | — | — | 11 | 11 |
 
-已评分期数：**11**。
-待开奖或待评分期数：**1**。
+已评分期数：**12**。
+待开奖或待评分期数：**0**。
 
 随机选择 3 个不同数字、至少命中开奖号中 1 个数字的理论基准：**65.7%**（假设开奖数字独立且均匀分布）。
 不同模型的有效预测次数可能不同，尤其在样本很少时，不应直接把命中率排名视为模型优劣结论。
