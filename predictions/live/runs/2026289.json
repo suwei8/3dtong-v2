@@ -1,0 +1,83 @@
+{
+  "schema": 5,
+  "type": "prospective-next-issue",
+  "generated_at_utc": "2026-10-29T21:21:41.415918+00:00",
+  "target_issue": "2026289",
+  "known_through_issue": "2026288",
+  "source_sha256": "090d76a87406078eba346b75f2c6230ffa449d17210309e2cffec557c4f65adb",
+  "pending_source_record": false,
+  "validation": {
+    "xgboost": {
+      "validation_hit_rate": 0.64,
+      "validation_n": 800
+    },
+    "lightgbm": {
+      "validation_hit_rate": 0.6475,
+      "validation_n": 800
+    },
+    "catboost": {
+      "validation_hit_rate": 0.655,
+      "validation_n": 800
+    },
+    "ensemble": {
+      "validation_hit_rate": 0.65,
+      "validation_n": 800
+    },
+    "dtong-main10": {
+      "validation_hit_rate": 0.6225,
+      "validation_n": 800
+    },
+    "frequency-30": {
+      "validation_hit_rate": 0.6975,
+      "validation_n": 800
+    },
+    "random-theory": {
+      "validation_hit_rate": 0.657,
+      "validation_n": 0,
+      "note": "iid uniform mathematical baseline"
+    }
+  },
+  "validation_selected_model": "frequency-30",
+  "opencode_challengers": {},
+  "derived_challengers": {},
+  "control_algorithm": "sha256-rank-v1",
+  "research_protocol": "first-200-valid-prospective-issues-v1",
+  "models": {
+    "xgboost": [
+      3,
+      4,
+      8
+    ],
+    "lightgbm": [
+      3,
+      1,
+      8
+    ],
+    "catboost": [
+      3,
+      0,
+      6
+    ],
+    "ensemble": [
+      3,
+      4,
+      6
+    ],
+    "dtong-main10": [
+      0,
+      1,
+      2
+    ],
+    "frequency-30": [
+      1,
+      2,
+      3
+    ],
+    "random-control-v1": [
+      7,
+      6,
+      8
+    ]
+  },
+  "notes": "Only actual successful anonymous CLI JSON responses enter forecasts; no model has proven an edge."
+}
