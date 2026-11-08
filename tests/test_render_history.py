@@ -84,6 +84,6 @@ def test_independent_optional_vote_is_visible_in_markdown_without_editing_parent
     doc=(tmp_path/"history"/"2026281.md").read_text()
     index=(tmp_path/"HISTORY.md").read_text()
     assert "**012**" in doc and "**345**" in doc
-    assert "OpenCode 独立封存时间" in doc
+    assert "可选 LLM 独立封存时间" in doc
     assert "2026281" in index and "2 | 已评分" in index
     assert original==(base/"2026281.json").read_bytes()

@@ -1,4 +1,4 @@
-"""Fixed, pre-result OpenCode ensemble contestants.
+"""Fixed, pre-result Kilo ensemble contestants.
 
 No actual winning digits or validation outcomes are used in model voting.
 The same recipe is applied at every subsequent new issue.
@@ -6,8 +6,8 @@ The same recipe is applied at every subsequent new issue.
 import math
 from collections import Counter
 
-CONSENSUS = "opencode-consensus"
-HYBRID = "ml-opencode-hybrid"
+CONSENSUS = "kilo-consensus"
+HYBRID = "ml-kilo-hybrid"
 MIN_PARTICIPANTS = 3
 LLM_WEIGHT = 0.5
 
@@ -30,7 +30,7 @@ def _normalise_ml(probs):
 
 
 def combine_open_votes(results, ml_probabilities, min_participants=MIN_PARTICIPANTS):
-    """Return new digits ONLY when >=3 validated real OpenCode contenders succeed.
+    """Return new digits ONLY when >=3 validated real Kilo contenders succeed.
 
     Consensus: each model votes once for each of its three distinct digits;
     ties are broken by pre-cutoff ML ensemble probabilities, then digit ID.
@@ -44,10 +44,10 @@ def combine_open_votes(results, ml_probabilities, min_participants=MIN_PARTICIPA
         raise ValueError("model outputs must be a mapping")
     accepted={}
     for name,answer in sorted(results.items()):
-        if not isinstance(name,str) or not name.startswith("opencode/"):
-            raise ValueError("invalid OpenCode model identity")
+        if not isinstance(name,str) or not name.startswith("kilo/"):
+            raise ValueError("invalid Kilo model identity")
         if not isinstance(answer,dict):
-            raise ValueError("invalid OpenCode output")
+            raise ValueError("invalid Kilo output")
         if answer.get("status")!="ok":
             continue
         if answer.get("model")!=name or not _valid_digits(answer.get("digits")):

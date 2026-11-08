@@ -50,7 +50,11 @@ def latest_seal(directory):
     return data
 
 
-def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
+OPTIONAL_TYPES = {"optional-opencode-contestants-v1", "optional-kilo-contestants-v1"}
+DEFAULT_OPTIONAL_DIRS = ("predictions/live/opencode-runs", "predictions/live/kilo-runs")
+
+
+def render_banner(seal, optional_dirs=None):
     issue = seal["target_issue"]
     if not ISSUE.fullmatch(str(issue)):
         raise ValueError("invalid target issue")
@@ -63,16 +67,23 @@ def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
             raise ValueError("invalid model name")
         _digits(digits)
 
-    extra_file = Path(optional_dir) / (issue + ".json")
-    extra_timestamp = None
-    if extra_file.exists():
+    if optional_dirs is None:
+        optional_dirs = DEFAULT_OPTIONAL_DIRS
+    elif isinstance(optional_dirs, (str, Path)):
+        optional_dirs = [optional_dirs]
+    latest_extra_at = None
+    for directory in optional_dirs:
+        extra_file = Path(directory) / (issue + ".json")
+        if not extra_file.exists():
+            continue
         extra = json.loads(extra_file.read_text(encoding="utf-8"))
-        if (extra.get("type") != "optional-opencode-contestants-v1"
+        if (extra.get("type") not in OPTIONAL_TYPES
                 or extra.get("target_issue") != issue
                 or extra.get("known_through_issue") != seal["known_through_issue"]
                 or extra.get("classical_frozen_at_utc") != seal["generated_at_utc"]):
             raise ValueError("optional record does not match the classical seal")
-        extra_timestamp = _timestamp(extra["generated_at_utc"])
+        if latest_extra_at is None or extra["generated_at_utc"] > latest_extra_at:
+            latest_extra_at = extra["generated_at_utc"]
         if not isinstance(extra.get("models"), dict):
             raise ValueError("invalid optional models")
         for name, digits in extra["models"].items():
@@ -80,6 +91,7 @@ def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
                 raise ValueError("duplicate or invalid optional model")
             _digits(digits)
             models[name] = digits
+    extra_timestamp = _timestamp(latest_extra_at) if latest_extra_at else None
 
     lines = [
         START,
@@ -91,7 +103,7 @@ def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
         f'- **原始封存时间（北京时间）：** {_timestamp(seal["generated_at_utc"])}',
     ]
     if extra_timestamp:
-        lines.append(f"- **OpenCode 独立封存时间（北京时间）：** {extra_timestamp}")
+        lines.append(f"- **可选 LLM 独立封存时间（北京时间）：** {extra_timestamp}")
     lines += [
         "",
         "| 模型 | 三个候选数字 |",
@@ -115,10 +127,10 @@ def render_banner(seal, optional_dir="predictions/live/opencode-runs"):
 
 
 def update_readme(readme_path="README.md", forecasts="predictions/live/runs",
-                  optional_dir="predictions/live/opencode-runs"):
+                  optional_dirs=None):
     file = Path(readme_path)
     original = file.read_text(encoding="utf-8")
-    banner = render_banner(latest_seal(forecasts), optional_dir)
+    banner = render_banner(latest_seal(forecasts), optional_dirs)
     starts, ends = original.count(START), original.count(END)
     if (starts, ends) == (1, 1):
         before, tail = original.split(START, 1)
@@ -141,7 +153,8 @@ def main():
     cli = argparse.ArgumentParser()
     cli.add_argument("--readme", default="README.md")
     cli.add_argument("--forecasts", default="predictions/live/runs")
-    cli.add_argument("--optional-forecasts", default="predictions/live/opencode-runs")
+    cli.add_argument("--optional-forecasts", nargs="+",
+                     default=list(DEFAULT_OPTIONAL_DIRS))
     args = cli.parse_args()
     changed = update_readme(args.readme, args.forecasts, args.optional_forecasts)
     print("README latest forecast: " + ("updated" if changed else "already up to date"))

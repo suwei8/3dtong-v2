@@ -113,12 +113,12 @@ def test_fast_classical_first_path_does_not_wait_for_opencode_models():
 
 
 def test_optional_contestants_are_sealed_and_scored_in_separate_workflow():
-    future=(ROOT/".github"/"workflows"/"opencode-live.yml").read_text(encoding="utf-8")
+    future=(ROOT/".github"/"workflows"/"kilo-live.yml").read_text(encoding="utf-8")
     evaluator=(ROOT/".github"/"workflows"/"daily-evaluate.yml").read_text(encoding="utf-8")
     assert 'workflows: ["daily predict"]' in future
-    assert '"optional OpenCode forecasts"' in evaluator
+    assert '"optional Kilo forecasts"' in evaluator
     assert "--type optional-opencode-contestants-v1" in evaluator
-    assert "--optional-forecasts predictions/live/opencode-runs" in evaluator
+    assert "--optional-forecasts predictions/live/opencode-runs predictions/live/kilo-runs" in evaluator
     assert "git add -- \"$file\"" in future
     assert "git add predictions/live/runs" not in future
     assert "git add private-source" not in future
@@ -128,7 +128,7 @@ def test_optional_contestants_are_sealed_and_scored_in_separate_workflow():
 
 def test_readme_latest_is_generated_after_forecast_and_optional_seals():
     daily=(ROOT/".github"/"workflows"/"daily-predict.yml").read_text(encoding="utf-8")
-    optional=(ROOT/".github"/"workflows"/"opencode-live.yml").read_text(encoding="utf-8")
+    optional=(ROOT/".github"/"workflows"/"kilo-live.yml").read_text(encoding="utf-8")
     assert "python -m src.pipeline.readme_latest" in daily
     assert "python -m src.pipeline.readme_latest" in optional
     assert daily.index("Freeze classical ML") < daily.index("Refresh README latest forecast")
@@ -139,11 +139,12 @@ def test_readme_latest_is_generated_after_forecast_and_optional_seals():
 
 
 
-def test_all_opencode_jobs_install_v2_not_legacy_v1():
+def test_all_kilo_jobs_install_v7_not_opencode():
     root=ROOT/".github"/"workflows"
-    for name in ("opencode-live.yml","opencode-availability.yml","opencode-smoke.yml"):
+    for name in ("kilo-live.yml","kilo-availability.yml","kilo-smoke.yml"):
         workflow=(root/name).read_text(encoding="utf-8")
-        assert "npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4" in workflow
+        assert "npm install -g --allow-scripts=@kilocode/cli @kilocode/cli@7.8.27" in workflow
         assert "npm install -g opencode-ai" not in workflow
-        assert "opencode --version" in workflow
-        assert "Expected OpenCode CLI v2" in workflow
+        assert "@opencode/cli" not in workflow
+        assert "kilo --version" in workflow
+        assert "Expected Kilo CLI v7" in workflow

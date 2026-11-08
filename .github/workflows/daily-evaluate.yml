@@ -9,11 +9,12 @@ on:
       - "configs/live_pair_protocol.json"
       - "configs/llm_vs_ml_pair_protocol.json"
       - "src/pipeline/render_history.py"
-      - "src/pipeline/opencode_live.py"
+      - "src/pipeline/kilo_live.py"
+      - "configs/kilo_vs_ml_pair_protocol.json"
       - "src/pipeline/seal.py"
       - ".github/workflows/daily-evaluate.yml"
   workflow_run:
-    workflows: ["daily predict", "optional OpenCode forecasts"]
+    workflows: ["daily predict", "optional Kilo forecasts"]
     types: [completed]
   schedule:
     - cron: "45 13 * * *" # Beijing 21:45
@@ -55,20 +56,25 @@ jobs:
               --forecasts predictions/live/opencode-runs \
               --type optional-opencode-contestants-v1
           fi
+          if [ -d predictions/live/kilo-runs ]; then
+            python -m src.pipeline.seal \
+              --forecasts predictions/live/kilo-runs \
+              --type optional-kilo-contestants-v1
+          fi
       - name: Score ONLY sealed prospective issues
         run: |
           python -m src.pipeline.evaluate_live \
             --full-history private-source/data/k3_full_history.csv \
             --forecasts predictions/live/runs \
-            --optional-forecasts predictions/live/opencode-runs \
+            --optional-forecasts predictions/live/opencode-runs predictions/live/kilo-runs \
             --out reports
       - name: Render readable historical prediction archive
-        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history --optional-dir predictions/live/opencode-runs
+        run: python -m src.pipeline.render_history --forecasts predictions/live/runs --scores reports/live --out predictions/live/HISTORY.md --details-dir predictions/live/history --optional-dir predictions/live/opencode-runs predictions/live/kilo-runs
       - name: Commit aggregate scores only
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/live-leaderboard.md reports/live-metrics.json reports/research.json reports/research.md reports/live-paired.md reports/live-paired.json reports/llm-vs-ml-paired.md reports/llm-vs-ml-paired.json reports/live/ predictions/live/HISTORY.md predictions/live/history/
+          git add reports/live-leaderboard.md reports/live-metrics.json reports/research.json reports/research.md reports/live-paired.md reports/live-paired.json reports/llm-vs-ml-paired.md reports/llm-vs-ml-paired.json reports/kilo-vs-ml-paired.md reports/kilo-vs-ml-paired.json reports/live/ predictions/live/HISTORY.md predictions/live/history/
           if git diff --cached --quiet; then
             echo "No new completed live draws."
           else

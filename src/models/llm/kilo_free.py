@@ -1,4 +1,4 @@
-"""OpenCode free-model runner. No login, keys, shell tools, or raw draw records.
+"""Kilo free-model runner. No login, keys, shell tools, or raw draw records.
 
 The model list is user-supplied and volatile; only actual successful CLI
 outputs are accepted. In a clean GitHub runner, unavailable models are SKIPPED.
@@ -11,16 +11,16 @@ import tempfile
 import time
 from pathlib import Path
 
-DEFAULT_MODELS_PATH=Path(__file__).resolve().parents[3] / "configs" / "opencode_models.json"
+DEFAULT_MODELS_PATH=Path(__file__).resolve().parents[3] / "configs" / "kilo_models.json"
 
 
 def load_models(path=DEFAULT_MODELS_PATH):
     config=json.loads(Path(path).read_text(encoding="utf-8"))
     models=config["models"]
     if (not isinstance(models,list) or not models or len(models)>20 or
-        any(not isinstance(m,str) or not m.startswith("opencode/") or
+        any(not isinstance(m,str) or not m.startswith("kilo/") or
             len(m)>100 for m in models) or len(set(models))!=len(models)):
-        raise ValueError("invalid OpenCode model list")
+        raise ValueError("invalid Kilo model list")
     timeout=config.get("per_model_timeout_seconds",45)
     if type(timeout) is not int or not 5<=timeout<=120:
         raise ValueError("invalid model timeout")
@@ -28,7 +28,7 @@ def load_models(path=DEFAULT_MODELS_PATH):
 
 
 def parse_json_events(stdout):
-    """Official opencode run --format json emits line-delimited events with text parts."""
+    """Official kilo run --format json emits line-delimited events with text parts."""
     texts=[]
     for line in stdout.splitlines():
         try:
@@ -38,7 +38,7 @@ def parse_json_events(stdout):
         if not isinstance(item,dict):
             continue
         if item.get("type")=="error":
-            raise ValueError("OpenCode reported error")
+            raise ValueError("Kilo reported error")
         part=item.get("part")
         if item.get("type")=="text" and isinstance(part,dict) and isinstance(part.get("text"),str):
             texts.append(part["text"])
@@ -90,38 +90,40 @@ def classify_cli_failure(stdout, stderr):
             # Gateway errors may be nested JSON, with a zero process exit code.
             parts.append(json.dumps(event.get("error",{}),ensure_ascii=True))
     msg="\n".join(parts).lower()
-    if ("can only be used from within opencode" in msg or
+    if ("can only be used from within" in msg or
             "free tier can only" in msg):
-        return "OpenCode free-tier gateway tool/permission rejection"
+        return "Kilo free-tier gateway tool/permission rejection"
     if ("freeusagelimiterror" in msg or "usage limit" in msg or
             "rate limit" in msg or "too many requests" in msg or
-            "429" in msg or "quota" in msg):
-        return "OpenCode free-model rate limit (429) or quota"
+            "429" in msg or "quota" in msg or "insufficient credit" in msg or
+            "insufficient balance" in msg):
+        return "Kilo free-model rate limit (429), quota or credits"
     if "abusive traffic" in msg or "ip address" in msg and "blocked" in msg:
-        return "OpenCode gateway IP anti-abuse block"
+        return "Kilo gateway IP anti-abuse block"
     if ("deprecated" in msg or "retired" in msg or "discontinued" in msg):
-        return "OpenCode model ID retired or deprecated"
+        return "Kilo model ID retired or deprecated"
     if ("model not found" in msg or "unknown model" in msg or
             "model is unavailable" in msg or "model unavailable" in msg or
-            "providermodelnotfounderror" in msg or "404" in msg):
-        return "OpenCode model ID missing or unavailable (404)"
+            "providermodelnotfounderror" in msg or "no-route" in msg or
+            "404" in msg):
+        return "Kilo model ID missing or unavailable (404)"
     if "401" in msg or "unauthorized" in msg or "invalid credential" in msg:
-        return "OpenCode gateway authorization rejection (401)"
+        return "Kilo gateway authorization rejection (401)"
     if "403" in msg or "forbidden" in msg:
-        return "OpenCode gateway forbidden (403); verify free-tier policy"
+        return "Kilo gateway forbidden (403); verify free-tier policy"
     if ("network" in msg or "not connected" in msg or
             "econnreset" in msg or "etimedout" in msg or "fetch failed" in msg):
-        return "OpenCode network/connection failure"
+        return "Kilo network/connection failure"
     if "provider" in msg and "error" in msg:
-        return "OpenCode provider error (unspecified)"
-    return "OpenCode CLI nonzero / provider response (unclassified)"
+        return "Kilo provider error (unspecified)"
+    return "Kilo CLI nonzero / provider response (unclassified)"
 
 
-def predict_model(summary,model,executable="opencode",timeout=45):
-    """Run one authenticated-or-anonymous OpenCode free contender in isolation.
+def predict_model(summary,model,executable="kilo",timeout=45):
+    """Run one anonymous Kilo free contender in isolation.
 
     Requiring a clean workspace avoids exposing private source files.
-    The OpenCode permission policy requires confirmation for tools (with write, network and task tools denied); no approvals are supplied.
+    The Kilo permission policy requires confirmation for tools (with write, network and task tools denied); no approvals are supplied.
     """
     if not isinstance(summary,str) or len(summary)>15000:
         raise ValueError("summary must be a small aggregate string")
@@ -129,11 +131,11 @@ def predict_model(summary,model,executable="opencode",timeout=45):
     if model not in approved:
         raise ValueError("model is not in approved free-model list")
     if not shutil.which(executable):
-        return {"model":model,"status":"skipped","reason":"OpenCode CLI unavailable"}
-    with tempfile.TemporaryDirectory(prefix="3dtong-opencode-") as temp:
+        return {"model":model,"status":"skipped","reason":"Kilo CLI unavailable"}
+    with tempfile.TemporaryDirectory(prefix="3dtong-kilo-") as temp:
         work=Path(temp)
-        (work/"opencode.json").write_text(
-            json.dumps({"$schema":"https://opencode.ai/config.json",
+        (work/"kilo.json").write_text(
+            json.dumps({"$schema":"https://kilo.ai/config.json",
                         "share":"disabled",
                         "permission":{"*":"ask","edit":"deny",
                                       "webfetch":"deny","websearch":"deny",
@@ -155,7 +157,7 @@ def predict_model(summary,model,executable="opencode",timeout=45):
         try:
             digits=parse_json_events(done.stdout)
         except ValueError as exc:
-            if str(exc)=="OpenCode reported error":
+            if str(exc)=="Kilo reported error":
                 why=classify_cli_failure(done.stdout,done.stderr)
             else:
                 why=str(exc)
@@ -166,8 +168,8 @@ def predict_model(summary,model,executable="opencode",timeout=45):
 def compete(history,models=None,timeout=None,budget_seconds=None,clock=None):
     """Run candidates under an overall wall-clock budget.
 
-    Each success is an actual OpenCode reply; all unattempted candidates are
-    marked 'skipped' so a late OpenCode model cannot hold the ML forecast hostage.
+    Each success is an actual Kilo reply; all unattempted candidates are
+    marked 'skipped' so a late Kilo model cannot hold the ML forecast hostage.
     The monotonic clock makes the budget robust to wall-clock adjustments.
     """
     from src.models.llm.contestant import summary_for_llm
@@ -176,7 +178,7 @@ def compete(history,models=None,timeout=None,budget_seconds=None,clock=None):
     if not isinstance(selected,list) or any(m not in default for m in selected):
         raise ValueError("requested model IDs must be in approved free list")
     if len(selected)!=len(set(selected)):
-        raise ValueError("duplicate OpenCode candidate")
+        raise ValueError("duplicate Kilo candidate")
     ttl=default_timeout if timeout is None else timeout
     if type(ttl) is not int or ttl<5 or ttl>120:
         raise ValueError("per-model timeout must be 5..120 seconds")
@@ -194,7 +196,7 @@ def compete(history,models=None,timeout=None,budget_seconds=None,clock=None):
             remaining=budget_seconds-(watch()-began)
             if remaining<5:
                 results[model]={"model":model,"status":"skipped",
-                                "reason":"overall OpenCode budget exhausted"}
+                                "reason":"overall Kilo budget exhausted"}
                 continue
             # Decimal seconds are accepted by subprocess timeout; leave
             # a short buffer for scheduling/serialization overhead.
@@ -203,6 +205,6 @@ def compete(history,models=None,timeout=None,budget_seconds=None,clock=None):
             result=predict_model(summary,model,timeout=effective)
         except (OSError,subprocess.SubprocessError) as exc:
             result={"model":model,"status":"skipped",
-                    "reason":"OpenCode invocation error: "+type(exc).__name__}
+                    "reason":"Kilo invocation error: "+type(exc).__name__}
         results[model]=result
     return results

@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "name": "kilo-vs-lightgbm-matched-prospective-v1",
+  "registered_utc": "2026-11-08",
+  "start_issue": "2026300",
+  "paired_target": 200,
+  "interpretation": "Prospective, same-issue, descriptive-only matched comparisons registered after the OpenCode anonymous free tier became unusable (provider.free-limit 429 verified 2026-11-08). First 200 joint valid frozen forecasts per pair; no interim significance claims; not part of the existing 17-arm superiority protocol, the 2026281 pair plan, or the closed OpenCode llm-vs-ml study. Kilo candidates are a NEW family and never inherit OpenCode hit/miss history.",
+  "comparisons": [
+    {
+      "candidate": "kilo/cohere/north-mini-code:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/dots-studio/dots-3-note-preview:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/kilo-auto/free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/liquid/lfm-3-1.7b:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/nvidia/nemotron-3.5-lightning:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/nvidia/nemotron-3.5-super-vl:free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/openrouter/free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo/reflection/beam-free",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "kilo-consensus",
+      "baseline": "lightgbm"
+    },
+    {
+      "candidate": "ml-kilo-hybrid",
+      "baseline": "lightgbm"
+    }
+  ]
+}

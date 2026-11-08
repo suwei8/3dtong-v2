@@ -1,12 +1,12 @@
-"""Raw OpenCode CLI diagnostics for anonymous free-model reachability.
+"""Raw Kilo CLI diagnostics for anonymous free-model reachability.
 
 predict_model() deliberately collapses provider failures into safe buckets;
 this diagnostic keeps the raw error event fields (type/status/message/
-retryAfterMs) and diffs the live `opencode models` catalogue against the
+retryAfterMs) and diffs the live `kilo models` catalogue against the
 configured candidate list so a human can see WHY anonymous calls fail.
 
 Synthetic prompt only; never touches private draw history. The raw gateway
-text goes to reports/opencode-diagnose.json, which the diagnose workflow
+text goes to reports/kilo-diagnose.json, which the diagnose workflow
 uploads as an artifact and never commits to the repository.
 """
 import argparse
@@ -18,9 +18,10 @@ import tempfile
 import time
 from datetime import datetime,timezone
 from pathlib import Path
-from src.models.llm.opencode_free import _clean_env,classify_cli_failure,load_models
+from src.models.llm.kilo_free import _clean_env,classify_cli_failure,load_models
 
-MODEL_LINE=re.compile(r"^[A-Za-z0-9_-]+/[A-Za-z0-9._-]+$")
+MODEL_LINE=re.compile(r"^[A-Za-z0-9_-]+/[A-Za-z0-9._~/:-]+$")
+FREE_HINT=re.compile(r"free",re.IGNORECASE)
 DIAG_PROMPT='Reply with exactly {"digits":[1,2,3]} and nothing else.'
 MAX_TEXT=400
 
@@ -34,10 +35,10 @@ def cli_version(executable):
     return {"version":line.strip(),"exit_code":done.returncode}
 
 
-def catalogue(executable,work,env,timeout=60):
+def catalogue(executable,work,env,timeout=90):
     """Return every provider/model line the CLI lists for this anonymous HOME."""
     try:
-        done=subprocess.run([executable,"models","--standalone"],cwd=work,env=env,
+        done=subprocess.run([executable,"models"],cwd=work,env=env,
                             capture_output=True,text=True,timeout=timeout)
     except (subprocess.TimeoutExpired,OSError) as exc:
         return {"listed":False,"error":type(exc).__name__,"models":[]}
@@ -96,10 +97,9 @@ def extract_reply_text(stdout,limit=MAX_TEXT):
 
 
 def probe(executable,model,work,env,timeout):
-    """One anonymous `opencode run` with raw provider evidence retained."""
+    """One anonymous `kilo run` with raw provider evidence retained."""
     started=time.monotonic()
-    # --standalone: private server, no shared background-service port to collide on.
-    cmd=[executable,"run","--standalone","--format","json","--model",model,DIAG_PROMPT]
+    cmd=[executable,"run","--format","json","--model",model,DIAG_PROMPT]
     try:
         done=subprocess.run(cmd,cwd=work,env=env,capture_output=True,text=True,timeout=timeout)
     except subprocess.TimeoutExpired:
@@ -138,21 +138,21 @@ def probe(executable,model,work,env,timeout):
 
 
 def build_report(executable,models,timeout,probe_discovered=True):
-    info={"schema":1,"kind":"opencode-free-diagnostics",
+    info={"schema":1,"kind":"kilo-free-diagnostics",
           "tested_at_utc":datetime.now(timezone.utc).isoformat(),
           "synthetic_data_only":True,"anonymous_no_credentials":True,
           "cli":cli_version(executable),"timeout_seconds":timeout}
     if not shutil.which(executable):
-        info["fatal"]="OpenCode CLI not on PATH"
+        info["fatal"]="Kilo CLI not on PATH"
         info["results"]=[{"model":m,"status":"skipped","reason":"CLI unavailable"} for m in models]
         return info
-    with tempfile.TemporaryDirectory(prefix="3dtong-diag-") as temp:
+    with tempfile.TemporaryDirectory(prefix="3dtong-kdiag-") as temp:
         work=Path(temp)
         def fresh_env(name):
             home=work/name
             home.mkdir()
-            (home/"opencode.json").write_text(
-                json.dumps({"$schema":"https://opencode.ai/config.json","share":"disabled",
+            (home/"kilo.json").write_text(
+                json.dumps({"$schema":"https://kilo.ai/config.json","share":"disabled",
                             "permission":{"*":"ask","edit":"deny","webfetch":"deny",
                                           "websearch":"deny","task":"deny"}},sort_keys=True),
                 encoding="utf-8")
@@ -162,12 +162,14 @@ def build_report(executable,models,timeout,probe_discovered=True):
         cat=catalogue(executable,cat_home,cat_env)
         visible=set(cat["models"])
         configured=set(models)
+        new_free=sorted(m for m in visible-configured
+                        if m.startswith("kilo/") and FREE_HINT.search(m.rsplit("/",1)[-1]))
         info["catalogue"]={**cat,
             "configured_missing_from_listing":sorted(configured-visible),
-            "visible_not_configured":sorted(visible-configured)}
+            "visible_not_configured":new_free}
         targets=[(m,False) for m in models]
         if probe_discovered:
-            targets+=[(m,True) for m in sorted(visible-configured)]
+            targets+=[(m,True) for m in new_free]
         results=[]
         for index,(model,discovered) in enumerate(targets,1):
             home,env=fresh_env(f"probe-{index}")
@@ -189,7 +191,7 @@ def build_report(executable,models,timeout,probe_discovered=True):
 
 
 def markdown(info):
-    lines=["# OpenCode 匿名免费模型诊断","",
+    lines=["# Kilo 匿名免费模型诊断","",
            f'- 时间（UTC）：{info["tested_at_utc"]}',
            f'- CLI：`{info["cli"].get("version",info["cli"].get("error","?"))}`；未配置任何凭证（匿名）',
            f'- 探测 {info.get("summary",{}).get("probed",0)} 个模型：'
@@ -219,9 +221,9 @@ def markdown(info):
 
 def main():
     p=argparse.ArgumentParser()
-    p.add_argument("--out",default="reports/opencode-diagnose.json")
+    p.add_argument("--out",default="reports/kilo-diagnose.json")
     p.add_argument("--timeout",type=int,default=60)
-    p.add_argument("--executable",default="opencode")
+    p.add_argument("--executable",default="kilo")
     p.add_argument("--no-discovered",action="store_true",
                    help="only probe configured models, skip catalogue discoveries")
     args=p.parse_args()

@@ -1,22 +1,22 @@
-name: OpenCode anonymous free-model availability
+name: Kilo anonymous free-model availability
 on:
   push:
     branches: [main]
     paths:
       - "src/pipeline/probe_free_models.py"
-      - "src/models/llm/opencode_free.py"
-      - "configs/opencode_models.json"
-      - ".github/workflows/opencode-availability.yml"
+      - "src/models/llm/kilo_free.py"
+      - "configs/kilo_models.json"
+      - ".github/workflows/kilo-availability.yml"
   workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: free-opencode-availability
+  group: free-kilo-availability
   cancel-in-progress: false
 jobs:
   test-free-models:
     runs-on: ubuntu-latest
-    timeout-minutes: 13
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,34 +24,34 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install official OpenCode CLI
+      - name: Install official Kilo CLI
         run: |
-          npm install -g --allow-scripts=@opencode/cli @opencode/cli@2.1.4
-          opencode --version
-          if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
-            echo "::error::Expected OpenCode CLI v2; refusing to test v1 model catalogue"
+          npm install -g --allow-scripts=@kilocode/cli @kilocode/cli@7.8.27
+          kilo --version
+          if ! kilo --version | grep -Eq '(^|[[:space:]]|v)7\.'; then
+            echo "::error::Expected Kilo CLI v7; refusing unexpected catalogue"
             exit 1
           fi
-      - name: Attempt all nine free models with SYNTHETIC stats
+      - name: Attempt all free models with SYNTHETIC stats
         run: python -m src.pipeline.probe_free_models --timeout 35
       - name: Upload machine-readable probe results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: opencode-free-model-availability
+          name: kilo-free-model-availability
           path: |
-            reports/opencode-availability.md
-            reports/opencode-availability.json
+            reports/kilo-availability.md
+            reports/kilo-availability.json
           if-no-files-found: warn
       - name: Commit public, aggregate availability only
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add reports/opencode-availability.md reports/opencode-availability.json
+          git add reports/kilo-availability.md reports/kilo-availability.json
           if git diff --cached --quiet; then
             echo "No availability changes"
           else
-            git commit -m "research: test anonymous OpenCode free model availability [skip ci]"
+            git commit -m "research: test anonymous Kilo free model availability [skip ci]"
             git pull --rebase origin main
             git push origin HEAD:main
           fi

@@ -7,7 +7,7 @@ models:
   - frequency-30
 
 llm:
-  provider: opencode
-  free_models_config: configs/opencode_models.json
+  provider: kilo
+  free_models_config: configs/kilo_models.json
   no_login: true
   allow_skipped_models: true

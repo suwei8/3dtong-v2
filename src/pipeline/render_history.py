@@ -37,8 +37,9 @@ def _read_records(folder, kind):
 
 
 def _status(forecast, score, model):
-    if forecast.get("opencode_challengers", {}).get(model, {}).get("status") == "skipped":
-        return "未调用（模型不可用）"
+    for category in ("opencode_challengers", "kilo_challengers"):
+        if forecast.get(category, {}).get(model, {}).get("status") == "skipped":
+            return "未调用（模型不可用）"
     if forecast.get("derived_challengers", {}).get(model, {}).get("status") == "skipped":
         return "未生成（有效模型不足）"
     if score is None:
@@ -61,7 +62,7 @@ def _detail(forecast, score):
         f"- **验证集选出的传统模型：** {_safe(forecast.get('validation_selected_model', '未记录'))}",
         f"- **本期状态：** {'已评分' if score is not None else '待开奖/待评分'}",
         f"- **有效预测模型数：** {len(models)}",
-        *([f"- **OpenCode 独立封存时间（北京时间）：** {_frozen_time(forecast['_optional_generated_at'])}"] if forecast.get("_optional_generated_at") else []),
+        *([f"- **可选 LLM 独立封存时间（北京时间）：** {_frozen_time(forecast['_optional_generated_at'])}"] if forecast.get("_optional_generated_at") else []),
         "",
         "每个模型给出三个不同数字；“命中”表示所选三个数字中至少一个出现在开奖号中。此页面不展示实际开奖号码。", "",
         "| 模型 | 预测的三个数字 | 结果 |", "|---|---:|---|",
@@ -74,7 +75,9 @@ def _detail(forecast, score):
         rows.append(f"| {_safe(name)} | **{''.join(map(str, digits))}** | {_status(forecast, score, name)} |")
     # Show failed/omitted contestants in the main table too, even though they
     # have no fabricated digit vote and are never scored as a miss.
-    statuses = forecast.get("opencode_challengers", {})
+    statuses = {}
+    for category in ("opencode_challengers", "kilo_challengers"):
+        statuses.update(forecast.get(category, {}))
     for name, item in statuses.items():
         if name not in models and item.get("status") == "skipped":
             rows.append(f"| {_safe(name)} | — | 未调用（模型不可用） |")
@@ -83,7 +86,7 @@ def _detail(forecast, score):
         if name not in models and item.get("status") == "skipped":
             rows.append(f"| {_safe(name)} | — | 未生成（有效模型不足） |")
     if statuses:
-        rows.extend(["", "## OpenCode 模型调用情况", "",
+        rows.extend(["", "## 可选 LLM 模型调用情况", "",
                      "| 模型 | 状态 | 说明 |", "|---|---|---|"])
         for name, item in statuses.items():
             status = "成功" if item.get("status") == "ok" else "跳过"
@@ -102,12 +105,23 @@ def _detail(forecast, score):
     return "\n".join(rows)
 
 
-def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dir=None):
+OPTIONAL_TYPES = {"optional-opencode-contestants-v1", "optional-kilo-contestants-v1"}
+STATUS_KEYS = ("opencode_challengers", "kilo_challengers", "derived_challengers")
+
+
+def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dirs=None):
     forecasts = _read_records(forecasts_dir, "forecast")
     scores = _read_records(scores_dir, "score")
-    optional = _read_records(
-        optional_dir if optional_dir is not None else Path(forecasts_dir).parent/"opencode-runs",
-        "optional")
+    if optional_dirs is None:
+        optional_dirs = [Path(forecasts_dir).parent/"opencode-runs",
+                         Path(forecasts_dir).parent/"kilo-runs"]
+    elif isinstance(optional_dirs, (str, Path)):
+        optional_dirs = [optional_dirs]
+    # Legacy OpenCode and current Kilo seals may coexist per issue.
+    optional = {}
+    for directory in optional_dirs:
+        for issue, record in _read_records(directory, "optional").items():
+            optional.setdefault(issue, []).append(record)
     if set(optional) - set(forecasts):
         raise ValueError("orphan optional archive without classical parent")
     detail_path = Path(details_dir)
@@ -119,18 +133,20 @@ def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dir=Non
     for issue in issues:
         file = detail_path / f"{issue}.md"
         view=dict(forecasts[issue])
-        supplement=optional.get(issue)
-        if supplement:
-            if (supplement.get("type")!="optional-opencode-contestants-v1"
+        supplements=optional.get(issue, [])
+        for supplement in supplements:
+            if (supplement.get("type") not in OPTIONAL_TYPES
                     or supplement.get("known_through_issue")!=view["known_through_issue"]
                     or supplement.get("classical_frozen_at_utc")!=view["generated_at_utc"]):
                 raise ValueError("optional archive parent mismatch")
             if set(view.get("models",{})) & set(supplement.get("models",{})):
                 raise ValueError("optional archive duplicates parent model")
             view["models"]={**view.get("models",{}),**supplement.get("models",{})}
-            for key in ("opencode_challengers","derived_challengers"):
+            for key in STATUS_KEYS:
                 view[key]={**view.get(key,{}),**supplement.get(key,{})}
-            view["_optional_generated_at"]=supplement["generated_at_utc"]
+            latest=view.get("_optional_generated_at")
+            if latest is None or supplement["generated_at_utc"]>latest:
+                view["_optional_generated_at"]=supplement["generated_at_utc"]
         file.write_text(_detail(view, scores.get(issue)), encoding="utf-8")
         detail_files.add(file.name)
     for file in detail_path.glob("*.md"):
@@ -155,7 +171,8 @@ def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dir=Non
         champion = forecast.get("validation_selected_model")
         digits = forecast.get("models", {}).get(champion, [])
         champ_digits = "".join(map(str, digits)) if digits else "—"
-        total=len(forecast.get("models", {}))+len(optional.get(issue,{}).get("models",{}))
+        total=len(forecast.get("models", {}))+sum(
+            len(extra.get("models",{})) for extra in optional.get(issue,[]))
         state = "已评分" if issue in scores else "待开奖/待评分"
         rows.append(
             f'| {issue} | {forecast.get("known_through_issue", "—")} | '
@@ -169,7 +186,7 @@ def render_history(forecasts_dir, scores_dir, out, details_dir, optional_dir=Non
         "- “传统模型推荐”是该期在验证集上选出的模型号码，不等于已经证明最优。",
         "- “命中”表示三个候选数字中至少一个与开奖号码有重合，不代表顺序或完整号码命中。",
         "- “未找到封存记录”表示当前仓库没有该期的事前预测文件；不要用事后回测补成事前预测。",
-        "- OpenCode 超时/不可用单独显示，不按未命中计算。", ""])
+        "- 可选 LLM（Kilo 及早期 OpenCode）超时/不可用单独显示，不按未命中计算。", ""])
     out_path.write_text("\n".join(rows), encoding="utf-8")
     return {"issues": issues, "scored": sum(i in scores for i in issues),
             "missing_gaps": max(0, len(issues) and int(issues[-1])-int(issues[0])+1-len(issues)),
@@ -182,7 +199,8 @@ def main():
     parser.add_argument("--scores", default="reports/live")
     parser.add_argument("--out", default="predictions/live/HISTORY.md")
     parser.add_argument("--details-dir", default="predictions/live/history")
-    parser.add_argument("--optional-dir",default="predictions/live/opencode-runs")
+    parser.add_argument("--optional-dir",nargs="+",
+                        default=["predictions/live/opencode-runs","predictions/live/kilo-runs"])
     args = parser.parse_args()
     result = render_history(args.forecasts, args.scores, args.out, args.details_dir,args.optional_dir)
     print(f"rendered {len(result['issues'])} forecasts, {result['scored']} scored; index={result['out']}")

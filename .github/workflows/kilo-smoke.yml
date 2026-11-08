@@ -1,0 +1,47 @@
+name: Kilo anonymous free-model smoke
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/models/llm/kilo_free.py"
+      - "src/pipeline/kilo_smoke.py"
+      - "configs/kilo_models.json"
+      - ".github/workflows/kilo-smoke.yml"
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Free Kilo model ID
+        required: false
+        default: kilo/nvidia/nemotron-3.5-lightning:free
+permissions:
+  contents: read
+jobs:
+  anonymous-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Kilo official CLI
+        run: |
+          npm install -g --allow-scripts=@kilocode/cli @kilocode/cli@7.8.27
+          kilo --version
+          if ! kilo --version | grep -Eq '(^|[[:space:]]|v)7\.'; then
+            echo "::error::Expected Kilo CLI v7; refusing unexpected catalogue"
+            exit 1
+          fi
+      - name: Prove anonymous free-model request with synthetic stats
+        id: smoke
+        env:
+          FREE_MODEL: ${{ github.event.inputs.model || 'kilo/nvidia/nemotron-3.5-lightning:free' }}
+        run: |
+          python -m src.pipeline.kilo_smoke --model "$FREE_MODEL" --out reports/kilo-smoke.json --timeout 75
+      - name: Upload evidence without committing synthetic smoke files
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kilo-anonymous-smoke
+          path: reports/kilo-smoke.json
+          if-no-files-found: warn

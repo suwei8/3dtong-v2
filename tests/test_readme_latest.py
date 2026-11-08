@@ -80,7 +80,7 @@ def test_optional_models_are_included_but_original_seal_unchanged(tmp_path):
     (optional/"2026280.json").write_text(json.dumps(addon))
     update_readme(readme, folder, optional)
     assert "| opencode/example | **123** |" in readme.read_text()
-    assert "OpenCode 独立封存时间" in readme.read_text()
+    assert "可选 LLM 独立封存时间" in readme.read_text()
     assert original == (folder/"2026280.json").read_bytes()
     addon["models"]={"xgboost":[1,2,3]}
     (optional/"2026280.json").write_text(json.dumps(addon))
@@ -112,6 +112,6 @@ def test_current_repository_readme_reflects_latest_real_immutable_seal():
     text = (ROOT/"README.md").read_text(encoding="utf-8")
     expected = render_banner(
         latest_seal(ROOT/"predictions/live/runs"),
-        ROOT/"predictions/live/opencode-runs")
+        [ROOT/"predictions/live/opencode-runs",ROOT/"predictions/live/kilo-runs"])
     assert expected in text
     assert text.count(START) == text.count(END) == 1

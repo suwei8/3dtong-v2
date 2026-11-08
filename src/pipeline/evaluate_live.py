@@ -64,6 +64,11 @@ def evaluate_live(locked, results):
             "source_cutoff": origin, "scores": scores}
 
 
+OPTIONAL_TYPES={"optional-opencode-contestants-v1","optional-kilo-contestants-v1"}
+STATUS_CATEGORIES=("opencode_challengers","kilo_challengers","derived_challengers")
+DEFAULT_OPTIONAL_DIRS=("predictions/live/opencode-runs","predictions/live/kilo-runs")
+
+
 def run(full_history, forecasts, output_dir, optional_forecasts=None):
     results = {item["Issue"]: item["KaiJiang"] for item in load_live_history(full_history)["history"]}
     output = Path(output_dir)
@@ -76,17 +81,26 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
     scored_issues = 0
     pending_issues = 0
     frozen_files = sorted(Path(forecasts).glob("*.json"))
-    optional_dir = (Path(optional_forecasts) if optional_forecasts is not None
-                    else Path(forecasts).parent/"opencode-runs")
+    if optional_forecasts is None:
+        optional_dirs=[Path(forecasts).parent/name for name in ("opencode-runs","kilo-runs")]
+    elif isinstance(optional_forecasts,(list,tuple)):
+        optional_dirs=[Path(d) for d in optional_forecasts]
+    else:
+        optional_dirs=[Path(optional_forecasts)]
+    # An issue may carry both a legacy OpenCode seal and a Kilo seal; all are
+    # validated independently before any vote is merged into the score.
     optional = {}
-    for file in optional_dir.glob("*.json"):
-        if not re.fullmatch(r"\d{7}",file.stem) or file.stem in optional:
-            raise ValueError("invalid optional contestant filename")
-        record=json.loads(file.read_text(encoding="utf-8"))
-        if (record.get("target_issue")!=file.stem or
-            record.get("type")!="optional-opencode-contestants-v1"):
-            raise ValueError("invalid optional contestant record")
-        optional[file.stem]=record
+    for optional_dir in optional_dirs:
+        if not optional_dir.is_dir():
+            continue
+        for file in sorted(optional_dir.glob("*.json")):
+            if not re.fullmatch(r"\d{7}",file.stem):
+                raise ValueError("invalid optional contestant filename")
+            record=json.loads(file.read_text(encoding="utf-8"))
+            if (record.get("target_issue")!=file.stem or
+                record.get("type") not in OPTIONAL_TYPES):
+                raise ValueError("invalid optional contestant record")
+            optional.setdefault(file.stem,[]).append(record)
     for file in frozen_files:
         data = json.loads(file.read_text(encoding="utf-8"))
         target = data.get("target_issue")
@@ -100,8 +114,8 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
             continue
         # Merge independent, separately Git-sealed optional votes only into the
         # derived SCORE, never the immutable original classical forecast.
-        extra = optional.get(target)
-        if extra is not None:
+        extras = optional.get(target, [])
+        for extra in extras:
             if (extra.get("known_through_issue") != data.get("known_through_issue")
                     or extra.get("classical_frozen_at_utc") != data.get("generated_at_utc")):
                 raise ValueError("optional record does not match sealed classical cutoff")
@@ -130,13 +144,13 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
             entry["hits"] += int(hit)
             entry["published"] += 1
             entry["attempted"] += 1
-        # Unavailable OpenCode contestants are tracked as coverage failures,
+        # Unavailable optional LLM contestants are tracked as coverage failures,
         # NOT as scored misses.
         recorded_statuses = set()
-        # OpenCode raw votes and pre-registered derived votes have separate
+        # Raw optional votes and pre-registered derived votes have separate
         # availability denominators but share identical hit/miss scoring.
-        for status_source in (data, extra) if extra is not None else (data,):
-            for category in ("opencode_challengers", "derived_challengers"):
+        for status_source in (data, *extras):
+            for category in STATUS_CATEGORIES:
                 challengers = status_source.get(category, {})
                 if not isinstance(challengers, dict):
                     raise ValueError("invalid contestant statuses")
@@ -167,7 +181,7 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
         "",
         "每个目标期号只统计一份开奖前封存、不可覆盖的预测。",
         "历史遮蔽回测不计入以下任何实战统计。",
-        "OpenCode 模型调用失败或跳过不算预测未命中。",
+        "可选 LLM 模型调用失败或跳过不算预测未命中。",
         "",
         "| 模型标识 | 命中次数 | 有效预测次数 | 命中率 | 95% Wilson 置信区间 | 调用次数 | 不可用次数 |",
         "|---|---:|---:|---:|---:|---:|---:|"
@@ -208,7 +222,14 @@ def run(full_history, forecasts, output_dir, optional_forecasts=None):
     llm_plan=load_protocol(llm_protocol)
     llm_report=audit(completed_issues,seen,scored_records,protocol=llm_plan)
     publish_pairs(llm_report,output,file_stem="llm-vs-ml-paired",
-                  title="大模型 vs LightGBM：同期开奖事前配对验证")
+                  title="OpenCode 大模型 vs LightGBM：同期开奖事前配对验证（已结束）")
+    # Kilo family registered separately on 2026-11-08 after OpenCode free tier
+    # became unusable; its pairs start collecting only from its start_issue.
+    kilo_protocol=Path(__file__).resolve().parents[2]/"configs"/"kilo_vs_ml_pair_protocol.json"
+    kilo_plan=load_protocol(kilo_protocol)
+    kilo_report=audit(completed_issues,seen,scored_records,protocol=kilo_plan)
+    publish_pairs(kilo_report,output,file_stem="kilo-vs-ml-paired",
+                  title="Kilo 大模型 vs LightGBM：同期开奖事前配对验证")
     print(f"scored {scored_issues} issues; {pending_issues} awaiting verified results")
     return health
 
@@ -217,7 +238,8 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("--full-history",required=True)
     parser.add_argument("--forecasts",default="predictions/live/runs")
-    parser.add_argument("--optional-forecasts",default="predictions/live/opencode-runs")
+    parser.add_argument("--optional-forecasts",nargs="+",
+                        default=list(DEFAULT_OPTIONAL_DIRS))
     parser.add_argument("--out",default="reports")
     args=parser.parse_args()
     run(args.full_history,args.forecasts,args.out,args.optional_forecasts)

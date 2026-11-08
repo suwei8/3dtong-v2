@@ -1,4 +1,4 @@
-"""Optional OpenCode votes, immutable and independent of classical forecasts.
+"""Optional Kilo votes, immutable and independent of classical forecasts.
 
 Never adds late model votes to the classical forecast. A separate git-sealed
 JSON file is scored only when its original commit precedes the result.
@@ -12,12 +12,15 @@ from zoneinfo import ZoneInfo
 from src.data.live import load_live_history
 
 
-def compute_opencode_budget(*args, **kwargs):
+def compute_llm_budget(*args, **kwargs):
     """Import heavy forecasting stack ONLY after the optional preflight."""
-    from src.pipeline.live import compute_opencode_budget as calculate
+    from src.pipeline.live import compute_llm_budget as calculate
     return calculate(*args, **kwargs)
 
 BJ=ZoneInfo("Asia/Shanghai")
+
+OPTIONAL_TYPE="optional-kilo-contestants-v1"
+LEGACY_OPTIONAL_TYPE="optional-opencode-contestants-v1"
 
 
 def optional_preflight(history,root="predictions/live",*,now=None,source_commit_utc=None):
@@ -25,10 +28,10 @@ def optional_preflight(history,root="predictions/live",*,now=None,source_commit_
     dest=Path(root)
     target=source["target"]
     orig=dest/"runs"/(target+".json")
-    extra=dest/"opencode-runs"/(target+".json")
+    extra=dest/"kilo-runs"/(target+".json")
     if extra.exists():
         record=json.loads(extra.read_text(encoding="utf-8"))
-        if record.get("target_issue")!=target or record.get("type")!="optional-opencode-contestants-v1":
+        if record.get("target_issue")!=target or record.get("type")!=OPTIONAL_TYPE:
             raise ValueError("invalid existing optional immutable forecast")
         return {"issue":target,"new":False,"reason":"already_optional_frozen"}
     if not orig.exists():
@@ -38,8 +41,8 @@ def optional_preflight(history,root="predictions/live",*,now=None,source_commit_
             parent.get("known_through_issue")!=source["cutoff"] or
             parent.get("type")!="prospective-next-issue"):
         raise ValueError("classical source/target mismatch")
-    if any(k.startswith("opencode/") for k in parent.get("models",{})):
-        return {"issue":target,"new":False,"reason":"legacy_embedded_opencode"}
+    if any(k.startswith(("opencode/","kilo/")) for k in parent.get("models",{})):
+        return {"issue":target,"new":False,"reason":"legacy_embedded_llm_contestant"}
     current=now or datetime.now(timezone.utc)
     if current.tzinfo is None:
         raise ValueError("timezone required")
@@ -63,11 +66,11 @@ def freeze_optional(history,root="predictions/live",source_commit_utc=None,
         return False
     source=load_live_history(history)
     parent=json.loads((Path(root)/"runs"/(check["issue"]+".json")).read_text(encoding="utf-8"))
-    from src.models.llm.opencode_free import compete
+    from src.models.llm.kilo_free import compete
     from src.models.llm.vote_ensemble import combine_open_votes
     models={}
     statuses={}
-    budget=compute_opencode_budget(budget_seconds,"21:10",120)
+    budget=compute_llm_budget(budget_seconds,"21:10",120)
     contestants=compete(source["history"],budget_seconds=budget)
     for name,answer in contestants.items():
         statuses[name]={"status":answer["status"]}
@@ -93,15 +96,15 @@ def freeze_optional(history,root="predictions/live",source_commit_utc=None,
     if parent_time.tzinfo is None or created<parent_time:
         raise ValueError("optional vote cannot precede classical parent")
     result={
-        "schema":1,"type":"optional-opencode-contestants-v1",
+        "schema":1,"type":OPTIONAL_TYPE,
         "target_issue":source["target"],"known_through_issue":source["cutoff"],
         "generated_at_utc":created.isoformat(),
         "classical_frozen_at_utc":parent["generated_at_utc"],
-        "models":models,"opencode_challengers":statuses,
+        "models":models,"kilo_challengers":statuses,
         "derived_challengers":combined["statuses"],
         "notes":"Independently sealed optional votes; never edit parent ML prediction."
     }
-    output=Path(root)/"opencode-runs"/(source["target"]+".json")
+    output=Path(root)/"kilo-runs"/(source["target"]+".json")
     output.parent.mkdir(parents=True,exist_ok=True)
     if output.exists():
         raise ValueError("optional vote was already sealed; refusal to overwrite")

@@ -102,7 +102,11 @@ def audit_source(history_path, source_commit_utc, predictions_dir="predictions/l
         default=None
     )
     next_created, next_invalid = _sealed_timestamp(frozen_next, data["target"])
-    next_optional = frozen_dir.parent / "opencode-runs" / f'{data["target"]}.json'
+    # Current optional seals live in kilo-runs; legacy opencode-runs still counts.
+    optional_candidates = [frozen_dir.parent / name / f'{data["target"]}.json'
+                           for name in ("kilo-runs", "opencode-runs")]
+    next_optional = next((p for p in optional_candidates if p.exists()),
+                         optional_candidates[0])
     optional_created, optional_invalid = _sealed_timestamp(next_optional, data["target"])
     latest_created = (
         _sealed_timestamp(frozen_dir/f"{latest_frozen_issue}.json", latest_frozen_issue)[0]
@@ -178,8 +182,8 @@ def publish(audit, output_dir="reports"):
         f'下一期传统预测首次Git提交时间（UTC）：{audit["next_forecast_first_git_commit_at_utc"] or "未知"}',
         f'当前数据源提交→下一期预测生成（分钟）：{audit["next_forecast_generation_delay_from_current_source_minutes"] if audit["next_forecast_generation_delay_from_current_source_minutes"] is not None else "无法确认"}',
         f'预测生成→Git提交（秒）：{audit["next_forecast_creation_to_git_commit_seconds"] if audit["next_forecast_creation_to_git_commit_seconds"] is not None else "无法确认"}',
-        f'下一期可选OpenCode预测已封存：{"是" if audit["next_optional_forecast_frozen"] else "否"}',
-        f'下一期OpenCode生成时间（UTC）：{audit["next_optional_created_at_utc"] or "尚未封存/未知"}',
+        f'下一期可选LLM预测已封存：{"是" if audit["next_optional_forecast_frozen"] else "否"}',
+        f'下一期可选LLM生成时间（UTC）：{audit["next_optional_created_at_utc"] or "尚未封存/未知"}',
         f'监测起点：{audit["monitoring_started_at_issue"]}',
         f'纳入监测的已开奖期数：{audit["completed_issues_monitored"]}',
         "",

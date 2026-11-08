@@ -81,12 +81,12 @@ def test_public_seal_timing_is_reported_without_digits(tmp_path, monkeypatch):
         "generated_at_utc":created.isoformat(),
         "models":{"xgboost":[2,3,8]}
     }))
-    optional=frozen.parent/"opencode-runs"
+    optional=frozen.parent/"kilo-runs"
     optional.mkdir()
     (optional/"2026274.json").write_text(json.dumps({
         "target_issue":"2026274",
         "generated_at_utc":(created+timedelta(minutes=5)).isoformat(),
-        "models":{"opencode/test":[0,2,9]}
+        "models":{"kilo/test":[0,2,9]}
     }))
     audit=health.audit_source(
         "private.csv",(NOW-timedelta(hours=2)).isoformat(),

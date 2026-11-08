@@ -1,4 +1,4 @@
-"""Check all 9 anonymous OpenCode candidates against entirely synthetic statistics.
+"""Check all anonymous Kilo candidates against entirely synthetic statistics.
 
 This is an availability probe, NOT a predictive performance benchmark.
 Results are frozen per workflow run but may change at any moment.
@@ -7,7 +7,7 @@ import argparse
 import json
 from datetime import datetime,timezone
 from pathlib import Path
-from src.models.llm.opencode_free import load_models,predict_model
+from src.models.llm.kilo_free import load_models,predict_model
 from src.models.llm.vote_ensemble import combine_open_votes
 
 
@@ -64,18 +64,18 @@ def run(out="reports",timeout=None):
           "derived_ml_reference":"uniform synthetic 10-digit probability vector"}
     folder=Path(out)
     folder.mkdir(parents=True,exist_ok=True)
-    (folder/"opencode-availability.json").write_text(
+    (folder/"kilo-availability.json").write_text(
         json.dumps(info,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    md=["# OpenCode 匿名免费模型可用性实测","",
+    md=["# Kilo 匿名免费模型可用性实测","",
         f'时间（UTC）：{info["tested_at_utc"]}',
-        "测试环境：GitHub Actions 全新 Ubuntu runner；**未设置任何 OpenCode 登录凭证**。",
+        "测试环境：GitHub Actions 全新 Ubuntu runner；**未设置任何 Kilo 登录凭证**。",
         "以下仅表示当次合成数据请求能否成功，并非预测能力、长期免费承诺或实际开奖号码。","",
         "| 免费模型 | 可用状态 | 备注 |","|---|---|---|"]
     for item in entries:
         md.append(f'| '+item["model"]+" | "+("可调用" if item["status"]=="ok" else "跳过/失败")+
                   " | "+item.get("reason","JSON校验通过")+" |")
-    md.extend(["","## 合成数据上的 OpenCode 多模型集成（不计入成绩）","",
-               "以下只测试 OpenCode → 投票算法的实际调用链。ML 参考概率为人为设置的均匀 10 维向量，不使用历史开奖和真实模型训练。",
+    md.extend(["","## 合成数据上的 Kilo 多模型集成（不计入成绩）","",
+               "以下只测试 Kilo → 投票算法的实际调用链。ML 参考概率为人为设置的均匀 10 维向量，不使用历史开奖和真实模型训练。",
                "",
                "| 组合算法 | 状态 | 合成测试数字 | 参与模型数 |",
                "|---|---|---|---:|"])
@@ -84,7 +84,7 @@ def run(out="reports",timeout=None):
         md.append(f'| {name} | {result["status"]} | {code} | {len(result["contributors"])} |')
     md.extend(["","实际预测仅允许成功的合法模型输出加入当期封存结果。",
                "若免费模型配额、匿名访问权限或名字变动，下次运行可能不同。"])
-    (folder/"opencode-availability.md").write_text("\n".join(md)+"\n",encoding="utf-8")
+    (folder/"kilo-availability.md").write_text("\n".join(md)+"\n",encoding="utf-8")
     return info
 
 

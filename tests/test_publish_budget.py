@@ -1,9 +1,9 @@
-"""Publish-reserved OpenCode time budget, including delayed scheduled runners."""
+"""Publish-reserved optional LLM time budget, including delayed scheduled runners."""
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
-from src.pipeline.live import compute_opencode_budget
+from src.pipeline.live import compute_llm_budget
 
 
 BJ=ZoneInfo("Asia/Shanghai")
@@ -20,18 +20,18 @@ BJ=ZoneInfo("Asia/Shanghai")
 ])
 def test_budget_never_pushes_model_into_publication_reserve(hour,minute,expected):
     current=datetime(2026,10,15,hour,minute,tzinfo=BJ)
-    assert compute_opencode_budget(240,"21:10",120,current)==expected
+    assert compute_llm_budget(240,"21:10",120,current)==expected
 
 
 def test_explicit_budget_without_deadline():
-    assert compute_opencode_budget(120)==120
-    assert compute_opencode_budget(None) is None
+    assert compute_llm_budget(120)==120
+    assert compute_llm_budget(None) is None
 
 
 def test_utc_clock_is_converted_to_beijing():
     utc=ZoneInfo("UTC")
     moment=datetime(2026,10,15,13,7,tzinfo=utc)
-    assert compute_opencode_budget(240,"21:10",120,moment)==60
+    assert compute_llm_budget(240,"21:10",120,moment)==60
 
 
 @pytest.mark.parametrize("budget,reserve",[
@@ -39,10 +39,10 @@ def test_utc_clock_is_converted_to_beijing():
 ])
 def test_invalid_budget_or_reserve_fails_closed(budget,reserve):
     with pytest.raises(ValueError):
-        compute_opencode_budget(budget,"21:10",reserve,
+        compute_llm_budget(budget,"21:10",reserve,
                                 datetime(2026,10,15,20,40,tzinfo=BJ))
 
 
 def test_naive_clock_is_not_silently_treated_as_beijing():
     with pytest.raises(ValueError,match="timezone-aware"):
-        compute_opencode_budget(240,"21:10",120,datetime(2026,10,15,20,40))
+        compute_llm_budget(240,"21:10",120,datetime(2026,10,15,20,40))
