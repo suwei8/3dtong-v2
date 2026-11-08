@@ -1,0 +1,134 @@
+{
+  "schema": 2,
+  "kind": "anonymous-cli-availability-only",
+  "tested_at_utc": "2026-11-08T18:19:27.970783+00:00",
+  "synthetic_data_only": true,
+  "login_required_by_this_test": false,
+  "timeout_seconds": 35,
+  "models": [
+    {
+      "model": "kilo/cohere/north-mini-code:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        0,
+        1,
+        5
+      ]
+    },
+    {
+      "model": "kilo/dots-studio/dots-3-note-preview:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        4,
+        7,
+        9
+      ]
+    },
+    {
+      "model": "kilo/kilo-auto/free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        4,
+        9,
+        3
+      ]
+    },
+    {
+      "model": "kilo/liquid/lfm-3-1.7b:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "model": "kilo/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        6,
+        1,
+        3
+      ]
+    },
+    {
+      "model": "kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        3,
+        4,
+        9
+      ]
+    },
+    {
+      "model": "kilo/nvidia/nemotron-3.5-lightning:free",
+      "status": "skipped",
+      "reason": "TimeoutExpired"
+    },
+    {
+      "model": "kilo/nvidia/nemotron-3.5-super-vl:free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        3,
+        4,
+        9
+      ]
+    },
+    {
+      "model": "kilo/openrouter/free",
+      "status": "ok",
+      "synthetic_response_digits": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "model": "kilo/reflection/beam-free",
+      "status": "skipped",
+      "reason": "TimeoutExpired"
+    }
+  ],
+  "derived_synthetic": {
+    "kilo-consensus": {
+      "status": "ok",
+      "contributors": [
+        "kilo/cohere/north-mini-code:free",
+        "kilo/dots-studio/dots-3-note-preview:free",
+        "kilo/kilo-auto/free",
+        "kilo/liquid/lfm-3-1.7b:free",
+        "kilo/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+        "kilo/nvidia/nemotron-3.5-super-vl:free",
+        "kilo/openrouter/free"
+      ],
+      "method": "equal votes; pre-cutoff ML breaks ties",
+      "synthetic_response_digits": [
+        1,
+        3,
+        4
+      ]
+    },
+    "ml-kilo-hybrid": {
+      "status": "ok",
+      "contributors": [
+        "kilo/cohere/north-mini-code:free",
+        "kilo/dots-studio/dots-3-note-preview:free",
+        "kilo/kilo-auto/free",
+        "kilo/liquid/lfm-3-1.7b:free",
+        "kilo/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "kilo/nvidia/nemotron-3-ultra-550b-a55b:free",
+        "kilo/nvidia/nemotron-3.5-super-vl:free",
+        "kilo/openrouter/free"
+      ],
+      "method": "fixed 50/50 LLM votes and ML probabilities",
+      "llm_weight": 0.5,
+      "synthetic_response_digits": [
+        1,
+        3,
+        4
+      ]
+    }
+  },
+  "derived_ml_reference": "uniform synthetic 10-digit probability vector"
+}
