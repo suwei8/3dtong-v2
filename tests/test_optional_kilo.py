@@ -65,6 +65,11 @@ def test_derived_votes_need_three_verified_kilo_models(monkeypatch,tmp_path):
     monkeypatch.setattr(kilo_free,"compete",lambda *args,**kwargs:{
         f"kilo/{c}":{"model":f"kilo/{c}","status":"ok","digits":d}
         for c,d in (("a",[0,1,2]),("b",[3,4,5]),("c",[6,7,8]))})
+    from src.pipeline import train
+    monkeypatch.setattr(train,"train_all",lambda _:{
+        "scores":{},"champion_validation_only":"ensemble",
+        "predictions":{"ensemble":[0,1,2]},
+        "probabilities":{"ensemble":[.1]*10}})
     assert kilo_live.freeze_optional("private",folder) is True
     extra=json.loads((folder/"kilo-runs"/"2026281.json").read_text())
     assert extra["models"]["kilo-consensus"]
