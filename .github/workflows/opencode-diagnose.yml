@@ -1,0 +1,103 @@
+name: OpenCode free-model diagnostics
+
+# Verifies, with RAW provider evidence, whether anonymous OpenCode free
+# models still work from a clean GitHub Actions runner. Unlike
+# opencode-availability.yml this keeps the real error events
+# (provider.free-limit / provider.no-route / retryAfterMs) and diffs the
+# live `opencode models` catalogue against configs/opencode_models.json.
+# Results are uploaded as artifacts and shown in the step summary only —
+# raw gateway text is never committed to the repository.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/pipeline/opencode_diagnose.py"
+      - "configs/opencode_models.json"
+      - ".github/workflows/opencode-diagnose.yml"
+  workflow_dispatch:
+    inputs:
+      cli_version:
+        description: OpenCode CLI version to install (e.g. 2.1.4 or latest)
+        required: false
+        default: "2.1.4"
+      timeout:
+        description: Per-model probe timeout in seconds (5-300)
+        required: false
+        default: "60"
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: opencode-diagnose-${{ inputs.cli_version || github.event_name }}-${{ matrix.cli_version }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        cli_version:
+          - ${{ github.event.inputs.cli_version || '2.1.4' }}
+          - latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Network baseline (egress IP, ASN, gateway reachability)
+        run: |
+          {
+            echo "### Egress identity"
+            echo '```'
+            curl -fsS --max-time 10 "https://api.ipify.org?format=json" || echo "ipify unreachable"
+            echo
+            curl -fsS --max-time 10 "https://ipinfo.io/json" || echo "ipinfo unreachable"
+            echo
+            echo '```'
+            echo "### Reachability"
+            echo '```'
+            curl -fsS -o /dev/null --max-time 15 \
+              -w "opencode.ai -> HTTP %{http_code} in %{time_total}s\n" \
+              "https://opencode.ai/" || echo "opencode.ai unreachable"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Install OpenCode CLI (${{ matrix.cli_version }})
+        run: |
+          npm view @opencode/cli version | sed 's/^/npm latest: /' || true
+          npm install -g --allow-scripts=@opencode/cli "@opencode/cli@${{ matrix.cli_version }}"
+          opencode --version
+          if ! opencode --version | grep -Eq '(^|[[:space:]]|v)2\.'; then
+            echo "::error::Expected OpenCode CLI v2; free catalogue requires v2"
+            exit 1
+          fi
+          echo "### auth list (expect empty: anonymous)" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          opencode auth list >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Probe configured and discovered free models with raw evidence
+        env:
+          PROBE_TIMEOUT: ${{ github.event.inputs.timeout || '60' }}
+        run: |
+          set -o pipefail
+          python -m src.pipeline.opencode_diagnose \
+            --out reports/opencode-diagnose.json \
+            --timeout "$PROBE_TIMEOUT" \
+            | tee "$RUNNER_TEMP/diagnose-summary.md"
+          {
+            echo "## CLI ${{ matrix.cli_version }}"
+            cat "$RUNNER_TEMP/diagnose-summary.md"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload raw diagnostic evidence (artifact only, never committed)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencode-diagnose-${{ matrix.cli_version }}-${{ strategy.job-index }}
+          path: reports/opencode-diagnose.json
+          if-no-files-found: warn

@@ -1,0 +1,31 @@
+name: opencode run "hi" — raw truth
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  raw:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install latest OpenCode CLI
+        run: |
+          npm install -g --allow-scripts=@opencode/cli @opencode/cli@latest
+          opencode --version
+
+      - name: opencode run "hi"
+        run: |
+          set -x
+          opencode run "hi" || rc=$?
+          echo "EXIT_CODE=${rc:-0}"
+          exit 0
+
+      - name: same call, JSON event stream (shows error.type if any)
+        if: always()
+        run: |
+          set -x
+          opencode run --format json "hi" || rc=$?
+          echo "JSON_EXIT_CODE=${rc:-0}"
+          exit 0
