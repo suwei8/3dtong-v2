@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-11-09T23:25:01.218191+00:00",
+  "generated_at_utc": "2026-11-10T06:48:39.638244+00:00",
   "health": "attention_required",
   "problem_codes": [
     "COMPLETED_ISSUES_WITHOUT_FROZEN_FORECAST"
@@ -8,7 +8,7 @@
   "private_source": "suwei8/pinble-data/data/k3_full_history.csv",
   "private_csv_included": false,
   "source_commit_at_utc": "2026-11-09T13:21:27+00:00",
-  "source_age_hours": 10.06,
+  "source_age_hours": 17.45,
   "freshness_threshold_hours": 36,
   "latest_completed_issue": "2026299",
   "next_issue_from_latest_result": "2026300",
