@@ -1,19 +1,19 @@
 # 3dtong-v2 live forecast
 
-**Next target issue: 2026304**
-Latest known completed issue: 2026303
-Frozen: 2026-11-13T17:15:26.871366+00:00
+**Next target issue: 2026305**
+Latest known completed issue: 2026304
+Frozen: 2026-11-14T17:20:09.777060+00:00
 Validation-selected statistical model: frequency-30
 
 | Contestant | Three distinct digits |
 |---|---|
-| xgboost | 638 |
-| lightgbm | 682 |
-| catboost | 861 |
+| xgboost | 683 |
+| lightgbm | 683 |
+| catboost | 683 |
 | ensemble | 683 |
 | dtong-main10 | 015 |
 | frequency-30 | 128 |
-| random-control-v1 | 914 |
+| random-control-v1 | 048 |
 
 [查看全部往期预测与命中结果](HISTORY.md)
 
