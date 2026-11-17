@@ -1,24 +1,24 @@
 # 3dtong-v2 — 逐期事前预测与模型擂台
 
 <!-- 3DTONG_LATEST_START -->
-## 最新一期事前预测｜第 2026307 期
+## 最新一期事前预测｜第 2026308 期
 
-**验证集选定模型：frequency-30 → `213`**
+**验证集选定模型：frequency-30 → `123`**
 
-- **预测时已知至：** 第 2026306 期
-- **原始封存时间（北京时间）：** 2026-11-17 03:31:51
+- **预测时已知至：** 第 2026307 期
+- **原始封存时间（北京时间）：** 2026-11-18 02:30:32
 
 | 模型 | 三个候选数字 |
 |---|---:|
-| xgboost | **687** |
-| lightgbm | **683** |
-| catboost | **876** |
+| xgboost | **678** |
+| lightgbm | **678** |
+| catboost | **867** |
 | ensemble | **687** |
-| dtong-main10 | **025** |
-| frequency-30（验证集选定） | **213** |
-| random-control-v1 | **102** |
+| dtong-main10 | **015** |
+| frequency-30（验证集选定） | **123** |
+| random-control-v1 | **154** |
 
-[本期预测详情](predictions/live/history/2026307.md) · [最新预测页面](predictions/live/LATEST.md) · [往期全部记录](predictions/live/HISTORY.md) · [实战排行榜](reports/live-leaderboard.md)
+[本期预测详情](predictions/live/history/2026308.md) · [最新预测页面](predictions/live/LATEST.md) · [往期全部记录](predictions/live/HISTORY.md) · [实战排行榜](reports/live-leaderboard.md)
 
 说明：仅展示开奖前已封存的三个不同候选数字，不展示实际开奖号码。这不是开奖结果或中奖保证；模型尚无经过确认的预测优势。
 <!-- 3DTONG_LATEST_END -->
