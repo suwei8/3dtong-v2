@@ -1,49 +1,49 @@
 {
   "schema": 1,
-  "scored_issues": 33,
-  "pending_issues": 1,
+  "scored_issues": 34,
+  "pending_issues": 0,
   "frozen_issues": 34,
   "models": {
     "xgboost": {
       "hits": 19,
-      "published": 33,
-      "attempted": 33,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "lightgbm": {
       "hits": 22,
-      "published": 33,
-      "attempted": 33,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "catboost": {
       "hits": 22,
-      "published": 33,
-      "attempted": 33,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "ensemble": {
       "hits": 20,
-      "published": 33,
-      "attempted": 33,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "dtong-main10": {
-      "hits": 24,
-      "published": 33,
-      "attempted": 33,
+      "hits": 25,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "frequency-30": {
-      "hits": 25,
-      "published": 33,
-      "attempted": 33,
+      "hits": 26,
+      "published": 34,
+      "attempted": 34,
       "unavailable": 0
     },
     "random-control-v1": {
-      "hits": 22,
-      "published": 32,
-      "attempted": 32,
+      "hits": 23,
+      "published": 33,
+      "attempted": 33,
       "unavailable": 0
     },
     "opencode/big-pickle": {
