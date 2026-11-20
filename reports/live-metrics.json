@@ -1,49 +1,49 @@
 {
   "schema": 1,
-  "scored_issues": 35,
-  "pending_issues": 1,
+  "scored_issues": 36,
+  "pending_issues": 0,
   "frozen_issues": 36,
   "models": {
     "xgboost": {
-      "hits": 20,
-      "published": 35,
-      "attempted": 35,
+      "hits": 21,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "lightgbm": {
-      "hits": 23,
-      "published": 35,
-      "attempted": 35,
+      "hits": 24,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "catboost": {
-      "hits": 23,
-      "published": 35,
-      "attempted": 35,
+      "hits": 24,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "ensemble": {
-      "hits": 21,
-      "published": 35,
-      "attempted": 35,
+      "hits": 22,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "dtong-main10": {
-      "hits": 26,
-      "published": 35,
-      "attempted": 35,
+      "hits": 27,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "frequency-30": {
-      "hits": 27,
-      "published": 35,
-      "attempted": 35,
+      "hits": 28,
+      "published": 36,
+      "attempted": 36,
       "unavailable": 0
     },
     "random-control-v1": {
-      "hits": 24,
-      "published": 34,
-      "attempted": 34,
+      "hits": 25,
+      "published": 35,
+      "attempted": 35,
       "unavailable": 0
     },
     "opencode/big-pickle": {
