@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "scored_issues": 40,
-  "pending_issues": 0,
-  "frozen_issues": 40,
+  "pending_issues": 1,
+  "frozen_issues": 41,
   "models": {
     "xgboost": {
       "hits": 24,
