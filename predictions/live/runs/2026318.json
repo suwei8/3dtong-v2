@@ -1,0 +1,81 @@
+{
+  "schema": 5,
+  "type": "prospective-next-issue",
+  "generated_at_utc": "2026-11-27T19:02:12.444686+00:00",
+  "target_issue": "2026318",
+  "known_through_issue": "2026317",
+  "source_sha256": "938f7612bb8575844ebe1aebc4ee6653d129a3436650388db8bf02838bfd560c",
+  "pending_source_record": false,
+  "validation": {
+    "xgboost": {
+      "validation_hit_rate": 0.66125,
+      "validation_n": 800
+    },
+    "lightgbm": {
+      "validation_hit_rate": 0.655,
+      "validation_n": 800
+    },
+    "catboost": {
+      "validation_hit_rate": 0.645,
+      "validation_n": 800
+    },
+    "ensemble": {
+      "validation_hit_rate": 0.6475,
+      "validation_n": 800
+    },
+    "dtong-main10": {
+      "validation_hit_rate": 0.62125,
+      "validation_n": 800
+    },
+    "frequency-30": {
+      "validation_hit_rate": 0.7025,
+      "validation_n": 800
+    },
+    "random-theory": {
+      "validation_hit_rate": 0.657,
+      "validation_n": 0,
+      "note": "iid uniform mathematical baseline"
+    }
+  },
+  "validation_selected_model": "frequency-30",
+  "control_algorithm": "sha256-rank-v1",
+  "research_protocol": "first-200-valid-prospective-issues-v1",
+  "models": {
+    "xgboost": [
+      3,
+      6,
+      7
+    ],
+    "lightgbm": [
+      8,
+      3,
+      7
+    ],
+    "catboost": [
+      3,
+      8,
+      4
+    ],
+    "ensemble": [
+      3,
+      8,
+      7
+    ],
+    "dtong-main10": [
+      0,
+      2,
+      5
+    ],
+    "frequency-30": [
+      1,
+      8,
+      0
+    ],
+    "random-control-v1": [
+      8,
+      9,
+      3
+    ]
+  },
+  "notes": "Only actual successful anonymous CLI JSON responses enter optional forecasts; no model has proven an edge."
+}
